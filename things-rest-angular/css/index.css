@@ -1,0 +1,13 @@
+body {
+	padding-top: 120px;
+}
+
+.input-group-addon.form-addon {
+	min-width: 100px;
+}
+
+#responses {
+	max-height: 206px;
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
