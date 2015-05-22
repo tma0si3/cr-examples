@@ -39,7 +39,7 @@ function RestController($scope, $log, Thing) {
 	$scope.responses = [];	
 	$scope.thing = new Thing();
 	$scope.thing.attributes = {};
-	$scope.thing.features = [];
+	$scope.thing.features = {};
 
 	$scope.getThing = function(thingId) {
 		if (!thingId || thingId === '') {
