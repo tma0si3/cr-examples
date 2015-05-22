@@ -21,7 +21,7 @@ body {
 }
 
 #responses {
-	max-height: 206px;
+	max-height: 138px;
 	overflow-x: hidden;
 	overflow-y: scroll;
 }
