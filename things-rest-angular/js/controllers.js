@@ -74,29 +74,13 @@ function RestController($scope, $log, Thing) {
 	};
 	$scope.removeThing = function(thingId) {
 		try {
-			Thing.get({ thingId: thingId })
-				.$promise.then(function success(thing) {
-
-                    Thing.remove({ thingId: thingId })
-                        .$promise.then(function success(response) {
-                            $scope.responses.push({ message: 200 + ': ' + thingId });
-                        }, function error(error) {
-                            $log.error(error);
-                            $scope.responses.push({ message: error.status + ': ' + error.statusText });
-                        });
-
-                    //thing.$remove()
-                    //.then(function success(response) {
-                    //	$scope.responses.push({ message: response.status + ': ' + status.statusText });
-                    //}, function error(error) {
-                    //	$log.error(error);
-                    //	$scope.responses.push({ message: error.status + ': ' + error.statusText });
-                    //});
-				},
-				function error(error) {
-					$log.error(error);
-					$scope.responses.push({ message: error.status + ': ' + error.statusText });
-				});
+            Thing.remove({ thingId: thingId })
+                .$promise.then(function success(response) {
+                    $scope.responses.push({ message: 200 + ': ' + thingId });
+                }, function error(error) {
+                    $log.error(error);
+                    $scope.responses.push({ message: error.status + ': ' + error.statusText });
+                });
 		} catch (e) {
 			$log.error(e);
 		}
