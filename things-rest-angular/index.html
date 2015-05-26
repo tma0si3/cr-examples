@@ -184,13 +184,20 @@
 		</div>
 		
 		<div class="panel panel-default">
-			<div class="panel-heading">REST responses</div>
+			<div class="panel-heading clearfix">
+                <h4 class="panel-title pull-left">REST responses</h4>
+                <button class="btn btn-default pull-right" ng-click="clearResponses()">Clear</button>
+            </div>
 			<div class="panel-body">
 				<div class="row">
 					<div class="col-lg-12">
 						<ul class="list-group" id="responses">
 							<li class="list-group-item" ng-repeat="response in responses">
-								<span class="label label-default" ng-bind="response.message"></span>
+								<span class="label label-default" ng-bind="response.timestamp"></span>
+                                <span class="label label-info" ng-bind="response.method"></span>
+                                <span class="label"
+                                      ng-class="{'label-success': response.type === 'success', 'label-danger': response.type === 'error', 'label-warning': response.type === 'warning'}"
+                                      ng-bind="response.message"></span>
 							</li>
 						</ul>
 					</div>
