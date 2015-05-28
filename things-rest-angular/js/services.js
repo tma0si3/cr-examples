@@ -25,7 +25,8 @@ services.factory('Thing', function ($resource) {
     var actions = {
         query: {
             method: 'GET',
-            params: { thingId: '', ids: '@ids'}
+            params: { thingId: '', ids: '@ids'},
+            isArray: true
         }
     };
     return $resource(url, null, actions);
