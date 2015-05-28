@@ -19,6 +19,20 @@
       },
       {
          "collectionId": "9724f6f6-8b48-cce1-b4ff-b7ef947d2e50",
+         "id": "90568ec6-a4c9-eba5-8c3b-a42e465876fb",
+         "name": "Query: A List of Things",
+         "description": "",
+         "url": "{{craas.things.baseurl}}/cr/1/things?ids=demoCar-2,demoCar-1,demoCar-4",
+         "method": "GET",
+         "headers": "Authorization: {{craas.things.basicauth}}\n",
+         "data": "{\n  \"thingId\": \"demoCar-4\",\n  \"owner\": \"eda31bb0-b1c96661e4-9070-3863bbc77d82\",\n  \"state\": \"AVAILABLE\",\n  \"acl\": {\n    \"ed420ff0-b1c96661e4-9070-3863bbc77d82\": {\n      \"READ\": true,\n      \"WRITE\": true\n    },\n    \"edca04a0-b1c96661e4-9070-3863bbc77d82\": {\n      \"READ\": true\n    }\n  },\n  \"attributes\": {\n    \"manufacturer\": \"ACME\",\n    \"make\": \"Fancy Fab Car\",\n    \"model\": \"Environmental FourWheeler 4711\",\n    \"VIN\": \"0815666337\"\n  },\n  \"_ts\": {\n    \"attributes\": {\n      \"manufacturer\": 14728278474,\n      \"make\": 17392872732,\n      \"model\": 19392872666,\n      \"VIN\": 24116314644\n    }\n  },\n  \"features\": {\n    \"Vehicle\": {\n      \"featureId\": \"Vehicle\",\n      \"functionblock\": {\n        \"name\": \"http: //www.bosch.com/functionblock/Vehicle/7\",\n        \"version\": \"7.7.7\"\n      },\n      \"properties\": {\n        \"configuration\": {\n          \"transmission\": {\n            \"type\": \"manual\",\n            \"gears\": 7\n          }\n        },\n        \"status\": {\n          \"running\": true,\n          \"speed\": 90,\n          \"gear\": 5\n        },\n        \"fault\": {\n          \"flatTyre\": false\n        }\n      }\n    },\n    \"EnvironmentScanner\": {\n      \"featureId\": \"EnvironmentScanner\",\n      \"functionblock\": {\n        \"name\": \"http: //www.bosch.com/functionblock/EnvironmentScanner/5\",\n        \"version\": \"5.5.5\"\n      },\n      \"properties\": {\n        \"status\": {\n          \"temperature\": 20.8,\n          \"humidity\": 73,\n          \"barometricPressure\": 970.7,\n          \"location\": {\n            \"longitude\": 47.682170,\n            \"latitude\": 9.386372\n          },\n          \"altitude\": 399\n        }\n      },\n      \"_ts\": {\n        \"properties\": {\n          \"status\": {\n            \"temperature\": 666,\n            \"humidity\": 666,\n            \"barometricPressure\": 666,\n            \"location\": 666,\n            \"altitude\": 666\n          }\n        }\n      }\n    }\n  }\n}\n",
+         "dataMode": "raw",
+         "timestamp": 0,
+         "responses": [],
+         "version": 2
+      },
+      {
+         "collectionId": "9724f6f6-8b48-cce1-b4ff-b7ef947d2e50",
          "id": "b13ca060-5a02-64fb-1e9d-313e25105a6c",
          "name": "Delete: One Thing",
          "description": "",
