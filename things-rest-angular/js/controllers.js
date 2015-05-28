@@ -65,14 +65,12 @@ function RestController($scope, $log, Thing) {
         }
 
         try {
-            Thing.getCollection({ids: thingIds})
-                .$promise.then(function success(thing) {
-                    logResponse(RESPONSE_TYPE.SUCCESS, "getThings", 200, JSON.stringify(thing));
-                },
-                function error(error) {
-                    $log.error(error);
-                    logResponse(RESPONSE_TYPE.ERROR, "getThings", error.status, error.statusText);
-                });
+            Thing.query({ids: thingIds}, function success(things) {
+                logResponse(RESPONSE_TYPE.SUCCESS, "getThings", 200, JSON.stringify(things));
+            }, function error(error) {
+                $log.error(error);
+                logResponse(RESPONSE_TYPE.ERROR, "getThings", error.status, error.statusText);
+            });
         } catch (e) {
             $log.error(e);
         }
