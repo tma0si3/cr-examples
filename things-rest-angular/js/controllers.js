@@ -76,7 +76,7 @@ function RestController($scope, $log, Thing) {
         try {
             Thing.remove({ thingId: thingId })
                 .$promise.then(function success(response) {
-                    logResponse(RESPONSE_TYPE.SUCCESS, "removeThing", 200, thingId);
+                    logResponse(RESPONSE_TYPE.SUCCESS, "removeThing", 204, thingId);
                 }, function error(error) {
                     $log.error(error);
                     logResponse(RESPONSE_TYPE.ERROR, "removeThing", error.status, error.statusText);
