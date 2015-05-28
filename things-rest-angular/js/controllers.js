@@ -15,85 +15,103 @@
 'use strict';
 
 function AccountController($scope, $log, Account) {
-	$scope.isAuthenticated = false;
+    $scope.isAuthenticated = false;
 
-	$scope.login = function(credentials) {
-		if (credentials) {
-			Account.login(credentials.user, credentials.password)
-				.then(function success(user) {
-					$scope.credentials.user = user;
-					$scope.isAuthenticated = true;					
-				}, function error(error) {
-					$log.error(error);
-				});
-		}
-	};	
-	$scope.logout = function() {
-		Account.logout();
-		$scope.credentials.password = undefined;
-		$scope.isAuthenticated = false;
-	};
+    $scope.login = function (credentials) {
+        if (credentials) {
+            Account.login(credentials.user, credentials.password)
+                .then(function success(user) {
+                    $scope.credentials.user = user;
+                    $scope.isAuthenticated = true;
+                }, function error(error) {
+                    $log.error(error);
+                });
+        }
+    };
+    $scope.logout = function () {
+        Account.logout();
+        $scope.credentials.password = undefined;
+        $scope.isAuthenticated = false;
+    };
 }
 
 function RestController($scope, $log, Thing) {
-	$scope.responses = [];	
-	$scope.thing = new Thing();
-	$scope.thing.attributes = {};
-	$scope.thing.features = {};
+    $scope.responses = [];
+    $scope.thing = new Thing();
+    $scope.thing.attributes = {};
+    $scope.thing.features = {};
 
-	$scope.getThing = function(thingId) {
+    $scope.getThing = function (thingId) {
         if (!thingId || thingId === '') {
-			throw new Error('The thingId must not be undefined or empty!');
-		}
+            throw new Error('The thingId must not be undefined or empty!');
+        }
 
-		try {
-			Thing.get({ thingId: thingId })
-				.$promise.then(function success(thing) {
+        try {
+            Thing.get({thingId: thingId})
+                .$promise.then(function success(thing) {
                     logResponse(RESPONSE_TYPE.SUCCESS, "getThing", 200, JSON.stringify(thing));
-				},
-				function error(error) {
-					$log.error(error);
+                },
+                function error(error) {
+                    $log.error(error);
                     logResponse(RESPONSE_TYPE.ERROR, "getThing", error.status, error.statusText);
-				});
-		} catch(e) {
-			$log.error(e);
-		}
-	};
-	$scope.saveThing = function() {
+                });
+        } catch (e) {
+            $log.error(e);
+        }
+    };
+    $scope.getThings = function (thingIds) {
+        if (!thingIds || thingIds === '') {
+            throw new Error('The thingIds must not be undefined or empty!');
+        }
+
         try {
-			$scope.thing.$save()
-				.then(function success(thing) {
+            Thing.getCollection({ids: thingIds})
+                .$promise.then(function success(thing) {
+                    logResponse(RESPONSE_TYPE.SUCCESS, "getThings", 200, JSON.stringify(thing));
+                },
+                function error(error) {
+                    $log.error(error);
+                    logResponse(RESPONSE_TYPE.ERROR, "getThings", error.status, error.statusText);
+                });
+        } catch (e) {
+            $log.error(e);
+        }
+    };
+    $scope.saveThing = function () {
+        try {
+            $scope.thing.$save()
+                .then(function success(thing) {
                     logResponse(RESPONSE_TYPE.SUCCESS, "saveThing", 201, JSON.stringify(thing));
-				}, function error(error) {
-					$log.error(error);
+                }, function error(error) {
+                    $log.error(error);
                     logResponse(RESPONSE_TYPE.ERROR, "saveThing", error.status, error.statusText);
-				});
-		} catch (e) {
-			$log.error(e);
-		}
-	};
-	$scope.removeThing = function(thingId) {
+                });
+        } catch (e) {
+            $log.error(e);
+        }
+    };
+    $scope.removeThing = function (thingId) {
         try {
-            Thing.remove({ thingId: thingId })
+            Thing.remove({thingId: thingId})
                 .$promise.then(function success(response) {
                     logResponse(RESPONSE_TYPE.SUCCESS, "removeThing", 204, thingId);
                 }, function error(error) {
                     $log.error(error);
                     logResponse(RESPONSE_TYPE.ERROR, "removeThing", error.status, error.statusText);
                 });
-		} catch (e) {
-			$log.error(e);
-		}
-	};
-    $scope.clearResponses = function() {
+        } catch (e) {
+            $log.error(e);
+        }
+    };
+    $scope.clearResponses = function () {
         $scope.responses.length = 0;
     };
 
-    var RESPONSE_TYPE = { SUCCESS: 'success', ERROR: 'error', WARNING: 'warning' };
+    var RESPONSE_TYPE = {SUCCESS: 'success', ERROR: 'error', WARNING: 'warning'};
 
     function logResponse(responseType, method, status, message) {
         var ts = new Date().toISOString();
-        var response = { type: responseType, method: method, timestamp: ts, message: status + ': ' + message };
+        var response = {type: responseType, method: method, timestamp: ts, message: status + ': ' + message};
 
         $scope.responses.push(response);
     }

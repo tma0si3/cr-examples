@@ -126,6 +126,30 @@
 		</div>
 		<!-- /.panel -->
 
+        <div class="panel panel-default">
+            <div class="panel-heading">Get a list of things</div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form ng-submit="getThings(getThingIds)">
+                            <div class="input-group">
+                                <span class="input-group-addon form-addon" id="get-things-thingIds">thingIds</span>
+                                <input type="text" class="form-control"
+                                       placeholder="the id"
+                                       aria-describedby="get-thing-thingIds"
+                                       ng-model="getThingIds" required> <span
+                                    class="input-group-btn">
+									<button class="btn btn-default" type="submit">Go!</button>
+								</span>
+                            </div>
+                            <!-- /input-group -->
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.panel -->
+
 		<div class="panel panel-default">
 			<div class="panel-heading">Create a new thing</div>
 			<div class="panel-body">
