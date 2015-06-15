@@ -10,12 +10,12 @@
          "description": "",
          "url": "https://craas-api.apps.cf.bosch-poc.de/cr/1/things/demoCar-1",
          "method": "GET",
-         "headers": "Authorization: {{craas.things.basicauth}}\n",
+         "headers": "",
          "data": "",
          "dataMode": "raw",
          "timestamp": 0,
          "version": 2,
-         "time": 1434367224064
+         "time": 1434383023916
       },
       {
          "collectionId": "9724f6f6-8b48-cce1-b4ff-b7ef947d2e50",
@@ -24,12 +24,12 @@
          "description": "",
          "url": "https://craas-api.apps.cf.bosch-poc.de/cr/1/things?ids=demoCar-2,demoCar-1,demoCar-4",
          "method": "GET",
-         "headers": "Authorization: {{craas.things.basicauth}}\n",
+         "headers": "",
          "data": "",
          "dataMode": "raw",
          "timestamp": 0,
          "version": 2,
-         "time": 1434367211469
+         "time": 1434383017135
       },
       {
          "collectionId": "9724f6f6-8b48-cce1-b4ff-b7ef947d2e50",
@@ -38,12 +38,12 @@
          "description": "",
          "url": "https://craas-api.apps.cf.bosch-poc.de/cr/1/things/demoCar-1",
          "method": "DELETE",
-         "headers": "Authorization: {{craas.things.basicauth}}\n",
+         "headers": "",
          "data": "",
          "dataMode": "raw",
          "timestamp": 0,
          "version": 2,
-         "time": 1434367205053
+         "time": 1434383013736
       },
       {
          "collectionId": "9724f6f6-8b48-cce1-b4ff-b7ef947d2e50",
@@ -52,12 +52,12 @@
          "description": "",
          "url": "https://craas-api.apps.cf.bosch-poc.de/cr/1/things",
          "method": "POST",
-         "headers": "Authorization: {{craas.things.basicauth}}\n",
+         "headers": "",
          "data": "{\n  \"thingId\": \"demoCar-1\",\n  \"owner\": \"me\",\n  \"acl\": {\n    \"ed420ff0-b1c96661e4-9070-3863bbc77d82\": {\n      \"READ\": true,\n      \"WRITE\": true\n    },\n    \"edca04a0-b1c96661e4-9070-3863bbc77d82\": {\n      \"READ\": true\n    }\n  },\n  \"attributes\": {\n    \"manufacturer\": \"ACME\",\n    \"make\": \"Fancy Fab Car\",\n    \"model\": \"Environmental FourWheeler 4711\",\n    \"VIN\": \"0815666337\"\n  },\n  \"features\": {\n    \"Vehicle\": {\n      \"featureId\": \"Vehicle\",\n      \"properties\": {\n        \"configuration\": {\n          \"transmission\": {\n            \"type\": \"manual\",\n            \"gears\": 7\n          }\n        },\n        \"status\": {\n          \"running\": true,\n          \"speed\": 90,\n          \"gear\": 5\n        },\n        \"fault\": {\n          \"flatTyre\": false\n        }\n      }\n    },\n    \"EnvironmentScanner\": {\n      \"featureId\": \"EnvironmentScanner\",\n      \"properties\": {\n        \"status\": {\n          \"temperature\": 20.8,\n          \"humidity\": 73,\n          \"barometricPressure\": 970.7,\n          \"location\": {\n            \"longitude\": 47.682170,\n            \"latitude\": 9.386372\n          },\n          \"altitude\": 399\n        }\n      }\n    }\n  }\n}\n",
          "dataMode": "raw",
          "timestamp": 0,
          "version": 2,
-         "time": 1434367200976
+         "time": 1434383009343
       },
       {
          "collectionId": "9724f6f6-8b48-cce1-b4ff-b7ef947d2e50",
@@ -66,12 +66,12 @@
          "description": "",
          "url": "https://craas-api.apps.cf.bosch-poc.de/cr/1/things",
          "method": "GET",
-         "headers": "Authorization: {{craas.things.basicauth}}\n",
+         "headers": "",
          "data": "",
          "dataMode": "raw",
          "timestamp": 0,
          "version": 2,
-         "time": 1434367215222
+         "time": 1434383020662
       }
    ]
 }
