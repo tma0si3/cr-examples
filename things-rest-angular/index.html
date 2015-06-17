@@ -118,14 +118,20 @@
 			<div class="panel-body">
 				<div class="row">
 					<div class="col-lg-12">
-						<form ng-submit="getThing(getThingId)">
+						<form ng-submit="getThing(getThingId, getThingFields)">
 							<div class="input-group">
 								<span class="input-group-addon form-addon" id="get-thing-thingId">thingId</span>
 								<input type="text" class="form-control"
 									placeholder="the id"
 									aria-describedby="get-thing-thingId"
-									ng-model="getThingId" required> <span
-									class="input-group-btn">
+									ng-model="getThingId" required />
+                                <span class="input-group-addon form-addon" id="get-thing-fields">fields</span>
+                                <input type="text"
+                                       class="form-control"
+                                       placeholder="the fields seperated by ','"
+                                       aria-describedby="get-thing-fields"
+                                       ng-model="getThingFields" />
+                                <span class="input-group-btn">
 									<button class="btn btn-default" type="submit">Go!</button>
 								</span>
 							</div>
@@ -142,14 +148,20 @@
             <div class="panel-body">
                 <div class="row">
                     <div class="col-lg-12">
-                        <form ng-submit="getThings(getThingIds)">
+                        <form ng-submit="getThings(getThingIds, getThingsFields)">
                             <div class="input-group">
                                 <span class="input-group-addon form-addon" id="get-things-thingIds">thingIds</span>
                                 <input type="text" class="form-control"
                                        placeholder="the ids seperated by ','"
                                        aria-describedby="get-thing-thingIds"
-                                       ng-model="getThingIds" required> <span
-                                    class="input-group-btn">
+                                       ng-model="getThingIds" required />
+                                <span class="input-group-addon form-addon" id="get-things-fields">fields</span>
+                                <input type="text"
+                                       class="form-control"
+                                       placeholder="the fields seperated by ','"
+                                       aria-describedby="get-things-fields"
+                                       ng-model="getThingsFields" />
+                                <span class="input-group-btn">
 									<button class="btn btn-default" type="submit">Go!</button>
 								</span>
                             </div>

@@ -41,13 +41,18 @@ function RestController($scope, $log, Thing) {
     $scope.thing.attributes = {};
     $scope.thing.features = {};
 
-    $scope.getThing = function (thingId) {
+    $scope.getThing = function (thingId, fields) {
         if (!thingId || thingId === '') {
             throw new Error('The thingId must not be undefined or empty!');
         }
 
+        if (fields === '') {
+            // sending an empty string selects no fields at all
+            fields = undefined;
+        }
+
         try {
-            Thing.get({thingId: thingId})
+            Thing.get({thingId: thingId, fields: fields})
                 .$promise.then(function success(thing) {
                     logResponse(RESPONSE_TYPE.SUCCESS, "getThing", 200, JSON.stringify(thing));
                 },
@@ -59,13 +64,17 @@ function RestController($scope, $log, Thing) {
             $log.error(e);
         }
     };
-    $scope.getThings = function (thingIds) {
+    $scope.getThings = function (thingIds, fields) {
         if (!thingIds || thingIds === '') {
             throw new Error('The thingIds must not be undefined or empty!');
         }
 
+        if (fields === '') {
+            fields = undefined;
+        }
+
         try {
-            Thing.query({ids: thingIds}, function success(things) {
+            Thing.queryThingIds({ids: thingIds, fields: fields}, function success(things) {
                 logResponse(RESPONSE_TYPE.SUCCESS, "getThings", 200, JSON.stringify(things));
             }, function error(error) {
                 $log.error(error);

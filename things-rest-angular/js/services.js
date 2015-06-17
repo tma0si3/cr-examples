@@ -23,9 +23,14 @@ var services = angular.module('crClientServices', ['ngResource']);
 services.factory('Thing', function ($resource) {
     var url = '/cr/1/things/:thingId';
     var actions = {
-        query: {
+        get: {
             method: 'GET',
-            params: { thingId: '', ids: '@ids'},
+            params: { thingId: '@thingId', fields: '@fields' },
+            isArray: false
+        },
+        queryThingIds: {
+            method: 'GET',
+            params: { thingId: '', ids: '@ids', fields: '@fields' },
             isArray: true
         }
     };
