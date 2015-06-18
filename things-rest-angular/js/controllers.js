@@ -14,27 +14,6 @@
  */
 'use strict';
 
-function AccountController($scope, $log, Account) {
-    $scope.isAuthenticated = false;
-
-    $scope.login = function (credentials) {
-        if (credentials) {
-            Account.login(credentials.user, credentials.password)
-                .then(function success(user) {
-                    $scope.credentials.user = user;
-                    $scope.isAuthenticated = true;
-                }, function error(error) {
-                    $log.error(error);
-                });
-        }
-    };
-    $scope.logout = function () {
-        Account.logout();
-        $scope.credentials.password = undefined;
-        $scope.isAuthenticated = false;
-    };
-}
-
 function RestController($scope, $log, Thing, Things) {
     $scope.responses = [];
     $scope.thing = new Thing();

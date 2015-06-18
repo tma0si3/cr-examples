@@ -21,5 +21,4 @@ app.config(function($httpProvider) {
 	$httpProvider.defaults.headers.put['Content-Type'] = 'application/json';
 });
 
-app.controller('AccountController', AccountController);
 app.controller('RestController', RestController);
