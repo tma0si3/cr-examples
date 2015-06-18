@@ -27,10 +27,22 @@ services.factory('Thing', function ($resource) {
             method: 'GET',
             params: { thingId: '@thingId', fields: '@fields' },
             isArray: false
+        }
+    };
+    return $resource(url, null, actions);
+});
+
+services.factory('Things', function ($resource) {
+    var url = '/cr/1/things';
+    var actions = {
+        get: {
+            method: 'GET',
+            params: { fields: '@fields' },
+            isArray: true
         },
         queryThingIds: {
             method: 'GET',
-            params: { thingId: '', ids: '@ids', fields: '@fields' },
+            params: { ids: '@ids', fields: '@fields' },
             isArray: true
         }
     };

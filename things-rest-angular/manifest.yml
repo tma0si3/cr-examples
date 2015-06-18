@@ -14,5 +14,6 @@
 ---
 applications:
 - name: craas-things-example
-  memory: 64M
+  memory: 16M
+  disk_quota: 16M
   buildpack: https://github.com/cloudfoundry/staticfile-buildpack.git

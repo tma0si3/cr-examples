@@ -13,7 +13,8 @@
  * IF WE ARE EXPRESSLY ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
  */
 body {
-	padding-top: 120px;
+	padding-top: 80px;
+    background-color: inherit;
 }
 
 .input-group-addon.form-addon {
@@ -21,7 +22,12 @@ body {
 }
 
 #responses {
-	max-height: 138px;
+	min-height: 138px;
+	max-height: 450px;
 	overflow-x: hidden;
 	overflow-y: scroll;
+}
+
+.container {
+    width: auto !important;
 }

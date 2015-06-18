@@ -35,7 +35,7 @@ function AccountController($scope, $log, Account) {
     };
 }
 
-function RestController($scope, $log, Thing) {
+function RestController($scope, $log, Thing, Things) {
     $scope.responses = [];
     $scope.thing = new Thing();
     $scope.thing.attributes = {};
@@ -54,7 +54,7 @@ function RestController($scope, $log, Thing) {
         try {
             Thing.get({thingId: thingId, fields: fields})
                 .$promise.then(function success(thing) {
-                    logResponse(RESPONSE_TYPE.SUCCESS, "getThing", 200, JSON.stringify(thing));
+                    logResponse(RESPONSE_TYPE.SUCCESS, "getThing", 200, thing);
                 },
                 function error(error) {
                     $log.error(error);
@@ -65,8 +65,8 @@ function RestController($scope, $log, Thing) {
         }
     };
     $scope.getThings = function (thingIds, fields) {
-        if (!thingIds || thingIds === '') {
-            throw new Error('The thingIds must not be undefined or empty!');
+        if (thingIds === '') {
+            thingIds = undefined;
         }
 
         if (fields === '') {
@@ -74,8 +74,8 @@ function RestController($scope, $log, Thing) {
         }
 
         try {
-            Thing.queryThingIds({ids: thingIds, fields: fields}, function success(things) {
-                logResponse(RESPONSE_TYPE.SUCCESS, "getThings", 200, JSON.stringify(things));
+            Things.queryThingIds({ids: thingIds, fields: fields}, function success(things) {
+                logResponse(RESPONSE_TYPE.SUCCESS, "getThings", 200, things);
             }, function error(error) {
                 $log.error(error);
                 logResponse(RESPONSE_TYPE.ERROR, "getThings", error.status, error.statusText);
@@ -88,7 +88,7 @@ function RestController($scope, $log, Thing) {
         try {
             $scope.thing.$save()
                 .then(function success(thing) {
-                    logResponse(RESPONSE_TYPE.SUCCESS, "saveThing", 201, JSON.stringify(thing));
+                    logResponse(RESPONSE_TYPE.SUCCESS, "saveThing", 201, thing);
                 }, function error(error) {
                     $log.error(error);
                     logResponse(RESPONSE_TYPE.ERROR, "saveThing", error.status, error.statusText);
@@ -118,8 +118,9 @@ function RestController($scope, $log, Thing) {
 
     function logResponse(responseType, method, status, message) {
         var ts = new Date().toISOString();
-        var response = {type: responseType, method: method, timestamp: ts, message: status + ': ' + message};
+        var response = {type: responseType, method: method, timestamp: ts, status: status, message: message};
 
-        $scope.responses.push(response);
+        $scope.responses.unshift(response); // add at first index in array
     }
+
 }

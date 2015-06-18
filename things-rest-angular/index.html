@@ -114,6 +114,25 @@
 	<div class="container" ng-controller="RestController">
 		
 		<div class="panel panel-default">
+			<div class="panel-heading">Get all registered thing ids</div>
+			<div class="panel-body">
+				<div class="row">
+					<div class="col-lg-12">
+						<form ng-submit="getThings('', 'thingId')">
+							<div class="input-group">
+                                <span class="input-group-btn">
+									<button class="btn btn-default" type="submit">Go!</button>
+								</span>
+							</div>
+							<!-- /input-group -->
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /.panel -->
+
+		<div class="panel panel-default">
 			<div class="panel-heading">Get a thing</div>
 			<div class="panel-body">
 				<div class="row">
@@ -179,7 +198,6 @@
 				<div class="row">
 					<div class="col-lg-12">
 						<form ng-submit="saveThing()">
-							<div class="form-group">
 								<div class="input-group">
 									<span class="input-group-addon form-addon" id="create-thing-thingId">thingId</span>
 									<input type="text"
@@ -188,8 +206,6 @@
 										aria-describedby="create-thing-thingId"
 										ng-model="thing.thingId"
 										required>
-								</div>
-								<div class="input-group">
 									<span class="input-group-addon form-addon" id="create-thing-owner">owner</span>
 									<input type="text"
 										class="form-control"
@@ -197,9 +213,10 @@
 										aria-describedby="create-thing-owner"
 										ng-model="thing.owner"
 										required>
-								</div>
-							</div>
-							<button class="btn btn-default" type="submit">Go!</button>
+                                 <span class="input-group-btn">
+                                    <button class="btn btn-default" type="submit">Go!</button>
+                                 </span>
+                            </div>
 						</form>
 					</div>
 				</div>
@@ -244,7 +261,8 @@
                                 <span class="label label-info" ng-bind="response.method"></span>
                                 <span class="label"
                                       ng-class="{'label-success': response.type === 'success', 'label-danger': response.type === 'error', 'label-warning': response.type === 'warning'}"
-                                      ng-bind="response.message"></span>
+                                      ng-bind="response.status"></span>
+                                <pre>{{response.message | json}}</pre>
 							</li>
 						</ul>
 					</div>
@@ -265,5 +283,6 @@
 	<script src="js/services.js"></script>
 	<script src="js/controllers.js"></script>
 	<script src="js/app.js"></script>
+	<script src="js/iframeResizer.contentWindow.min.js"></script>
 </body>
 </html>
