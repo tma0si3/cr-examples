@@ -116,7 +116,7 @@
                                 <span class="input-group-addon form-addon" id="get-thing-fields">fields</span>
                                 <input type="text"
                                        class="form-control"
-                                       placeholder="the fields seperated by ','"
+                                       placeholder="the fields separated by ','"
                                        aria-describedby="get-thing-fields"
                                        ng-model="getThingFields" />
                                 <span class="input-group-btn">
@@ -140,13 +140,13 @@
                             <div class="input-group">
                                 <span class="input-group-addon form-addon" id="get-things-thingIds">thingIds</span>
                                 <input type="text" class="form-control"
-                                       placeholder="the ids seperated by ','"
+                                       placeholder="the ids separated by ','"
                                        aria-describedby="get-thing-thingIds"
                                        ng-model="getThingIds" required />
                                 <span class="input-group-addon form-addon" id="get-things-fields">fields</span>
                                 <input type="text"
                                        class="form-control"
-                                       placeholder="the fields seperated by ','"
+                                       placeholder="the fields separated by ','"
                                        aria-describedby="get-things-fields"
                                        ng-model="getThingsFields" />
                                 <span class="input-group-btn">
@@ -180,8 +180,7 @@
 										class="form-control"
 										placeholder="the user sid"
 										aria-describedby="create-thing-owner"
-										ng-model="thing.owner"
-										required>
+										ng-model="thing.owner" />
                                  <span class="input-group-btn">
                                     <button class="btn btn-default" type="submit">Go!</button>
                                  </span>
@@ -194,7 +193,7 @@
 		<!-- /.panel -->
 		
 		<div class="panel panel-default">
-			<div class="panel-heading">Remove a thing</div>
+			<div class="panel-heading">Delete a thing</div>
 			<div class="panel-body">
 				<div class="row">
 					<div class="col-lg-12">
@@ -215,6 +214,63 @@
 				</div>
 			</div>
 		</div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">Modify an attribute on a thing</div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form ng-submit="modifyThingAttribute(thingAttributeToCreate)">
+                            <div class="input-group">
+                                <span class="input-group-addon form-addon" id="modify-attribute-thingId">thingId</span>
+                                <input type="text" class="form-control"
+                                       placeholder="the id of the thing"
+                                       aria-describedby="modify-attribute-thingId"
+                                       ng-model="thingAttributeToCreate.thingId" required />
+                                <span class="input-group-addon form-addon" id="modify-attribute-path">attribute path</span>
+                                <input type="text" class="form-control"
+                                       placeholder="the path separated by '/'"
+                                       aria-describedby="modify-attribute-path"
+                                       ng-model="thingAttributeToCreate.path" required />
+                                <span class="input-group-addon form-addon" id="modify-attribute-value">attribute value</span>
+                                <input type="text" class="form-control"
+                                       placeholder="the name of the attribute"
+                                       aria-describedby="modify-attribute-key"
+                                       ng-model="thingAttributeToCreate.value" required />
+                                <span class="input-group-btn"><button class="btn btn-default" type="submit">Go!</button></span>
+                            </div>
+                            <!-- /input-group -->
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">Delete an attribute on a thing</div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form ng-submit="deleteThingAttribute(thingAttributeToDelete)">
+                            <div class="input-group">
+                                <span class="input-group-addon form-addon" id="delete-attribute-thingId">thingId</span>
+                                <input type="text" class="form-control"
+                                       placeholder="the id of the thing"
+                                       aria-describedby="delete-attribute-thingId"
+                                       ng-model="thingAttributeToDelete.thingId" required />
+                                <span class="input-group-addon form-addon" id="delete-attribute-path">attribute path</span>
+                                <input type="text" class="form-control"
+                                       placeholder="the path separated by '/'"
+                                       aria-describedby="delete-attribute-path"
+                                       ng-model="thingAttributeToDelete.path" required />
+                                <span class="input-group-btn"><button class="btn btn-default" type="submit">Go!</button></span>
+                            </div>
+                            <!-- /input-group -->
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
 		
 		<div class="panel panel-default">
 			<div class="panel-heading clearfix">
@@ -247,8 +303,7 @@
 		src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 	<script
 		src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
-	<script
-		src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-resource.js"></script>
+	<script src="js/angular-resource.js"></script>
 	<script src="js/services.js"></script>
 	<script src="js/controllers.js"></script>
 	<script src="js/app.js"></script>

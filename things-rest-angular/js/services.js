@@ -58,3 +58,25 @@ services.factory('Things', function ($resource) {
     };
     return $resource(url, null, actions);
 });
+
+services.factory('ThingAttribute', function ($resource) {
+    var url = '/cr/1/things/:thingId/attributes/:path';
+    var actions = {
+        get: {
+            method: 'GET',
+            params: { thingId: '@thingId', path: '@path' },
+            isArray: false
+        },
+        put: {
+            method: 'PUT',
+            params: { thingId: '@thingId', path: '@path' },
+            isArray: false
+        },
+        delete: {
+            method: 'DELETE',
+            params: { thingId: '@thingId', path: '@path' },
+            isArray: false
+        }
+    };
+    return $resource(url, null, actions);
+});

@@ -24,7 +24,7 @@
  */
 'use strict';
 
-function RestController($scope, $log, Thing, Things) {
+function RestController($scope, $log, Thing, Things, ThingAttribute) {
     $scope.responses = [];
     $scope.thing = new Thing();
     $scope.thing.attributes = {};
@@ -89,8 +89,8 @@ function RestController($scope, $log, Thing, Things) {
     $scope.removeThing = function (thingId) {
         try {
             Thing.remove({thingId: thingId})
-                .$promise.then(function success(response) {
-                    logResponse(RESPONSE_TYPE.SUCCESS, "removeThing", 204, thingId);
+                .$promise.then(function success() {
+                    logResponse(RESPONSE_TYPE.SUCCESS, "removeThing", 204, "Thing deleted successfully.");
                 }, function error(error) {
                     $log.error(error);
                     logResponse(RESPONSE_TYPE.ERROR, "removeThing", error.status, error.statusText);
@@ -98,6 +98,24 @@ function RestController($scope, $log, Thing, Things) {
         } catch (e) {
             $log.error(e);
         }
+    };
+    $scope.modifyThingAttribute = function (thingAttribute) {
+        ThingAttribute.put({ thingId: thingAttribute.thingId, path: thingAttribute.path }, thingAttribute.value)
+            .$promise.then(function success(response) {
+                logResponse(RESPONSE_TYPE.SUCCESS, "modifyThingAttribute", 204, "Attribute modified successfully.");
+            }, function error(error) {
+                $log.error(error);
+                logResponse(RESPONSE_TYPE.ERROR, "modifyThingAttribute", error.status, error.statusText);
+            });
+    };
+    $scope.deleteThingAttribute = function (thingAttribute) {
+        ThingAttribute.delete({ thingId: thingAttribute.thingId, path: thingAttribute.path })
+            .$promise.then(function success() {
+                logResponse(RESPONSE_TYPE.SUCCESS, "deleteThingAttribute", 204, "Attribute deleted successfully.");
+            }, function error(error) {
+                $log.error(error);
+                logResponse(RESPONSE_TYPE.ERROR, "deleteThingAttribute", error.status, error.statusText);
+            });
     };
     $scope.clearResponses = function () {
         $scope.responses.length = 0;
