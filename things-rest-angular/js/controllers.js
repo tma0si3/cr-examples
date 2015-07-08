@@ -24,7 +24,7 @@
  */
 'use strict';
 
-function RestController($scope, $log, Thing, Things, ThingAttribute) {
+function RestController($scope, $log, Thing, Things, ThingAttribute, ThingOwner) {
     $scope.responses = [];
     $scope.thing = new Thing();
     $scope.thing.attributes = {};
@@ -121,6 +121,27 @@ function RestController($scope, $log, Thing, Things, ThingAttribute) {
                 logResponse(RESPONSE_TYPE.ERROR, "deleteThingAttribute", error.status, error.statusText);
             });
     };
+
+    $scope.updateThingOwner = function (thingOwner) {
+        ThingOwner.updateThingOwner({thingId: thingOwner.thingId, path: thingOwner.ownerId})
+            .$promise.then(function success() {
+                logResponse(RESPONSE_TYPE.SUCCESS, "updateThingOwner", 204, "Owner updated successfully.");
+            }, function error(error) {
+                $log.error(error);
+                logResponse(RESPONSE_TYPE.ERROR, "updateThingOwner", error.status, error.statusText);
+            });
+    };
+
+    $scope.deleteThingOwner = function (thingOwner) {
+        ThingOwner.deleteThingOwner({thingId: thingOwner.thingId})
+            .$promise.then(function success() {
+                logResponse(RESPONSE_TYPE.SUCCESS, "deleteThingOwner", 204, "Owner deleted successfully.");
+            }, function error(error) {
+                $log.error(error);
+                logResponse(RESPONSE_TYPE.ERROR, "deleteThingOwner", error.status, error.statusText);
+            });
+    };
+
     $scope.clearResponses = function () {
         $scope.responses.length = 0;
     };

@@ -175,7 +175,7 @@
 										aria-describedby="create-thing-thingId"
 										ng-model="thing.thingId"
 										required>
-									<span class="input-group-addon form-addon" id="create-thing-owner">owner</span>
+                                    <span class="input-group-addon form-addon" id="create-thing-owner">ownerId</span>
 									<input type="text"
 										class="form-control"
 										placeholder="the user sid"
@@ -234,7 +234,7 @@
                                        ng-model="thingAttributeToCreate.path" required />
                                 <span class="input-group-addon form-addon" id="modify-attribute-value">attribute value</span>
                                 <input type="text" class="form-control"
-                                       placeholder="the name of the attribute"
+                                       placeholder="the value of the attribute"
                                        aria-describedby="modify-attribute-key"
                                        ng-model="thingAttributeToCreate.value" required />
                                 <span class="input-group-btn"><button class="btn btn-default" type="submit">Go!</button></span>
@@ -271,8 +271,56 @@
                 </div>
             </div>
         </div>
-		
-		<div class="panel panel-default">
+
+        <div class="panel panel-default">
+            <div class="panel-heading">Update owner</div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form ng-submit="updateThingOwner(updateThingOwner)">
+                            <div class="input-group">
+                                <span class="input-group-addon form-addon" id="update-owner-thingId">thingId</span>
+                                <input type="text" class="form-control"
+                                       placeholder="the id of the thing"
+                                       aria-describedby="update-owner-thingId"
+                                       ng-model="updateThingOwner.thingId" required/>
+                                <span class="input-group-addon form-addon" id="update-owner-ownerId">owner</span>
+                                <input type="text" class="form-control"
+                                       placeholder="the user sid"
+                                       aria-describedby="update-owner-ownerId"
+                                       ng-model="updateThingOwner.ownerId" required/>
+                                <span class="input-group-btn"><button class="btn btn-default" type="submit">Go!</button></span>
+                            </div>
+                            <!-- /input-group -->
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">Delete owner. The Thing will no longer be accessible.</div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form ng-submit="deleteThingOwner(deleteThingOwner)">
+                            <div class="input-group">
+                                <span class="input-group-addon form-addon" id="delete-owner-thingId">thingId</span>
+                                <input type="text" class="form-control"
+                                       placeholder="the id of the thing"
+                                       aria-describedby="delete-owner-thingId"
+                                       ng-model="deleteThingOwner.thingId" required/>
+                                <span class="input-group-btn"><button class="btn btn-default" type="submit">Go!</button></span>
+                            </div>
+                            <!-- /input-group -->
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="panel panel-default">
 			<div class="panel-heading clearfix">
                 <h4 class="panel-title pull-left">REST responses</h4>
                 <button class="btn btn-default pull-right" ng-click="clearResponses()">Clear</button>

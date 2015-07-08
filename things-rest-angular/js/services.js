@@ -80,3 +80,25 @@ services.factory('ThingAttribute', function ($resource) {
     };
     return $resource(url, null, actions);
 });
+
+services.factory('ThingOwner', function ($resource) {
+    var url = '/cr/1/things/:thingId/owner';
+    var actions = {
+        get: {
+            method: 'GET',
+            params: {thingId: '@thingId'},
+            isArray: false
+        },
+        put: {
+            method: 'PUT',
+            params: {thingId: '@thingId'},
+            isArray: false
+        },
+        delete: {
+            method: 'DELETE',
+            params: {thingId: '@thingId'},
+            isArray: false
+        }
+    };
+    return $resource(url, null, actions);
+});
