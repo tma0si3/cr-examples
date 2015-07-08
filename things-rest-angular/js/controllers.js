@@ -122,8 +122,18 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingOwner)
             });
     };
 
+    $scope.getThingOwner = function (thingOwner) {
+        ThingOwner.get({thingId: thingOwner.thingId})
+            .$promise.then(function success(ownerId) {
+                logResponse(RESPONSE_TYPE.SUCCESS, "getThingOwner", 200, ownerId);
+            }, function error(error) {
+                $log.error(error);
+                logResponse(RESPONSE_TYPE.ERROR, "getThingOwner", error.status, error.statusText);
+            });
+    };
+
     $scope.updateThingOwner = function (thingOwner) {
-        ThingOwner.updateThingOwner({thingId: thingOwner.thingId, path: thingOwner.ownerId})
+        ThingOwner.put({thingId: thingOwner.thingId}, thingOwner.ownerId)
             .$promise.then(function success() {
                 logResponse(RESPONSE_TYPE.SUCCESS, "updateThingOwner", 204, "Owner updated successfully.");
             }, function error(error) {
@@ -133,7 +143,7 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingOwner)
     };
 
     $scope.deleteThingOwner = function (thingOwner) {
-        ThingOwner.deleteThingOwner({thingId: thingOwner.thingId})
+        ThingOwner.delete({thingId: thingOwner.thingId})
             .$promise.then(function success() {
                 logResponse(RESPONSE_TYPE.SUCCESS, "deleteThingOwner", 204, "Owner deleted successfully.");
             }, function error(error) {

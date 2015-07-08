@@ -73,7 +73,7 @@
 
 			<div id="navbar" class="navbar-collapse collapse">
 				<ul class="nav navbar-nav">
-					<li class="active"><a href="#">Things</a></li>
+                    <li class="active"><a href="#">Things Service</a></li>
 				</ul>
 			</div>
 			<!-- /.nav-collapse -->
@@ -81,244 +81,292 @@
 	</nav>
 
 	<div class="container" ng-controller="RestController">
-		
-		<div class="panel panel-default">
-			<div class="panel-heading">Get all registered thing ids</div>
-			<div class="panel-body">
-				<div class="row">
-					<div class="col-lg-12">
-						<form ng-submit="getThings('', 'thingId')">
-							<div class="input-group">
-                                <span class="input-group-btn">
-									<button class="btn btn-default" type="submit">Go!</button>
-								</span>
-							</div>
-							<!-- /input-group -->
-						</form>
-					</div>
-				</div>
-			</div>
-		</div>
-		<!-- /.panel -->
 
-		<div class="panel panel-default">
-			<div class="panel-heading">Get a thing</div>
-			<div class="panel-body">
-				<div class="row">
-					<div class="col-lg-12">
-						<form ng-submit="getThing(getThingId, getThingFields)">
-							<div class="input-group">
-								<span class="input-group-addon form-addon" id="get-thing-thingId">thingId</span>
-								<input type="text" class="form-control"
-									placeholder="the id"
-									aria-describedby="get-thing-thingId"
-									ng-model="getThingId" required />
-                                <span class="input-group-addon form-addon" id="get-thing-fields">fields</span>
-                                <input type="text"
-                                       class="form-control"
-                                       placeholder="the fields separated by ','"
-                                       aria-describedby="get-thing-fields"
-                                       ng-model="getThingFields" />
+        <tabset>
+            <tab heading="Thing(s)">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Get all registered thing ids</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="getThings('', 'thingId')">
+                                    <div class="input-group">
                                 <span class="input-group-btn">
 									<button class="btn btn-default" type="submit">Go!</button>
 								</span>
-							</div>
-							<!-- /input-group -->
-						</form>
-					</div>
-				</div>
-			</div>
-		</div>
-		<!-- /.panel -->
-
-        <div class="panel panel-default">
-            <div class="panel-heading">Get a list of things</div>
-            <div class="panel-body">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <form ng-submit="getThings(getThingIds, getThingsFields)">
-                            <div class="input-group">
-                                <span class="input-group-addon form-addon" id="get-things-thingIds">thingIds</span>
-                                <input type="text" class="form-control"
-                                       placeholder="the ids separated by ','"
-                                       aria-describedby="get-thing-thingIds"
-                                       ng-model="getThingIds" required />
-                                <span class="input-group-addon form-addon" id="get-things-fields">fields</span>
-                                <input type="text"
-                                       class="form-control"
-                                       placeholder="the fields separated by ','"
-                                       aria-describedby="get-things-fields"
-                                       ng-model="getThingsFields" />
-                                <span class="input-group-btn">
-									<button class="btn btn-default" type="submit">Go!</button>
-								</span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
                             </div>
-                            <!-- /input-group -->
-                        </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        <!-- /.panel -->
+                <!-- /.panel -->
 
-		<div class="panel panel-default">
-			<div class="panel-heading">Create a new thing</div>
-			<div class="panel-body">
-				<div class="row">
-					<div class="col-lg-12">
-						<form ng-submit="saveThing()">
-								<div class="input-group">
-									<span class="input-group-addon form-addon" id="create-thing-thingId">thingId</span>
-									<input type="text"
-										class="form-control"
-										placeholder="the id"
-										aria-describedby="create-thing-thingId"
-										ng-model="thing.thingId"
-										required>
-                                    <span class="input-group-addon form-addon" id="create-thing-owner">ownerId</span>
-									<input type="text"
-										class="form-control"
-										placeholder="the user sid"
-										aria-describedby="create-thing-owner"
-										ng-model="thing.owner" />
+                <div class="panel panel-default">
+                    <div class="panel-heading">Get a thing</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="getThing(getThingId, getThingFields)">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon" id="get-thing-thingId">thingId</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="the id"
+                                               aria-describedby="get-thing-thingId"
+                                               ng-model="getThingId" required/>
+                                        <span class="input-group-addon form-addon" id="get-thing-fields">fields</span>
+                                        <input type="text"
+                                               class="form-control"
+                                               placeholder="the fields separated by ','"
+                                               aria-describedby="get-thing-fields"
+                                               ng-model="getThingFields"/>
+                                <span class="input-group-btn">
+									<button class="btn btn-default" type="submit">Go!</button>
+								</span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.panel -->
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">Get a list of things</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="getThings(getThingIds, getThingsFields)">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon"
+                                              id="get-things-thingIds">thingIds</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="the ids separated by ','"
+                                               aria-describedby="get-thing-thingIds"
+                                               ng-model="getThingIds" required/>
+                                        <span class="input-group-addon form-addon" id="get-things-fields">fields</span>
+                                        <input type="text"
+                                               class="form-control"
+                                               placeholder="the fields separated by ','"
+                                               aria-describedby="get-things-fields"
+                                               ng-model="getThingsFields"/>
+                                <span class="input-group-btn">
+									<button class="btn btn-default" type="submit">Go!</button>
+								</span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.panel -->
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">Create a new thing</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="saveThing()">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon"
+                                              id="create-thing-thingId">thingId</span>
+                                        <input type="text"
+                                               class="form-control"
+                                               placeholder="the id"
+                                               aria-describedby="create-thing-thingId"
+                                               ng-model="thing.thingId"
+                                               required>
+                                        <span class="input-group-addon form-addon"
+                                              id="create-thing-owner">ownerId</span>
+                                        <input type="text"
+                                               class="form-control"
+                                               placeholder="the user sid"
+                                               aria-describedby="create-thing-owner"
+                                               ng-model="thing.owner"/>
                                  <span class="input-group-btn">
                                     <button class="btn btn-default" type="submit">Go!</button>
                                  </span>
+                                    </div>
+                                </form>
                             </div>
-						</form>
-					</div>
-				</div>
-			</div>
-		</div>
-		<!-- /.panel -->
-		
-		<div class="panel panel-default">
-			<div class="panel-heading">Delete a thing</div>
-			<div class="panel-body">
-				<div class="row">
-					<div class="col-lg-12">
-						<form ng-submit="removeThing(removeThingId)">
-							<div class="input-group">
-								<span class="input-group-addon form-addon" id="remove-thing-thingId">thingId</span>
-								<input type="text" class="form-control"
-									placeholder="the id"
-									aria-describedby="remove-thing-thingId"
-									ng-model="removeThingId" required> <span
-									class="input-group-btn">
+                        </div>
+                    </div>
+                </div>
+                <!-- /.panel -->
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">Delete a thing</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="removeThing(removeThingId)">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon"
+                                              id="remove-thing-thingId">thingId</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="the id"
+                                               aria-describedby="remove-thing-thingId"
+                                               ng-model="removeThingId" required> <span
+                                            class="input-group-btn">
 									<button class="btn btn-default" type="submit">Go!</button>
 								</span>
-							</div>
-							<!-- /input-group -->
-						</form>
-					</div>
-				</div>
-			</div>
-		</div>
-
-        <div class="panel panel-default">
-            <div class="panel-heading">Modify an attribute on a thing</div>
-            <div class="panel-body">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <form ng-submit="modifyThingAttribute(thingAttributeToCreate)">
-                            <div class="input-group">
-                                <span class="input-group-addon form-addon" id="modify-attribute-thingId">thingId</span>
-                                <input type="text" class="form-control"
-                                       placeholder="the id of the thing"
-                                       aria-describedby="modify-attribute-thingId"
-                                       ng-model="thingAttributeToCreate.thingId" required />
-                                <span class="input-group-addon form-addon" id="modify-attribute-path">attribute path</span>
-                                <input type="text" class="form-control"
-                                       placeholder="the path separated by '/'"
-                                       aria-describedby="modify-attribute-path"
-                                       ng-model="thingAttributeToCreate.path" required />
-                                <span class="input-group-addon form-addon" id="modify-attribute-value">attribute value</span>
-                                <input type="text" class="form-control"
-                                       placeholder="the value of the attribute"
-                                       aria-describedby="modify-attribute-key"
-                                       ng-model="thingAttributeToCreate.value" required />
-                                <span class="input-group-btn"><button class="btn btn-default" type="submit">Go!</button></span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
                             </div>
-                            <!-- /input-group -->
-                        </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </tab>
 
-        <div class="panel panel-default">
-            <div class="panel-heading">Delete an attribute on a thing</div>
-            <div class="panel-body">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <form ng-submit="deleteThingAttribute(thingAttributeToDelete)">
-                            <div class="input-group">
-                                <span class="input-group-addon form-addon" id="delete-attribute-thingId">thingId</span>
-                                <input type="text" class="form-control"
-                                       placeholder="the id of the thing"
-                                       aria-describedby="delete-attribute-thingId"
-                                       ng-model="thingAttributeToDelete.thingId" required />
-                                <span class="input-group-addon form-addon" id="delete-attribute-path">attribute path</span>
-                                <input type="text" class="form-control"
-                                       placeholder="the path separated by '/'"
-                                       aria-describedby="delete-attribute-path"
-                                       ng-model="thingAttributeToDelete.path" required />
-                                <span class="input-group-btn"><button class="btn btn-default" type="submit">Go!</button></span>
+            <tab heading="Attributes">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Modify an attribute on a thing</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="modifyThingAttribute(thingAttributeToCreate)">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon"
+                                              id="modify-attribute-thingId">thingId</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="the id of the thing"
+                                               aria-describedby="modify-attribute-thingId"
+                                               ng-model="thingAttributeToCreate.thingId" required/>
+                                        <span class="input-group-addon form-addon" id="modify-attribute-path">attribute path</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="the path separated by '/'"
+                                               aria-describedby="modify-attribute-path"
+                                               ng-model="thingAttributeToCreate.path" required/>
+                                        <span class="input-group-addon form-addon" id="modify-attribute-value">attribute value</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="the value of the attribute"
+                                               aria-describedby="modify-attribute-key"
+                                               ng-model="thingAttributeToCreate.value" required/>
+                                        <span class="input-group-btn"><button class="btn btn-default" type="submit">
+                                            Go!
+                                        </button></span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
                             </div>
-                            <!-- /input-group -->
-                        </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="panel panel-default">
-            <div class="panel-heading">Update owner</div>
-            <div class="panel-body">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <form ng-submit="updateThingOwner(updateThingOwner)">
-                            <div class="input-group">
-                                <span class="input-group-addon form-addon" id="update-owner-thingId">thingId</span>
-                                <input type="text" class="form-control"
-                                       placeholder="the id of the thing"
-                                       aria-describedby="update-owner-thingId"
-                                       ng-model="updateThingOwner.thingId" required/>
-                                <span class="input-group-addon form-addon" id="update-owner-ownerId">owner</span>
-                                <input type="text" class="form-control"
-                                       placeholder="the user sid"
-                                       aria-describedby="update-owner-ownerId"
-                                       ng-model="updateThingOwner.ownerId" required/>
-                                <span class="input-group-btn"><button class="btn btn-default" type="submit">Go!</button></span>
+                <div class="panel panel-default">
+                    <div class="panel-heading">Delete an attribute on a thing</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="deleteThingAttribute(thingAttributeToDelete)">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon"
+                                              id="delete-attribute-thingId">thingId</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="the id of the thing"
+                                               aria-describedby="delete-attribute-thingId"
+                                               ng-model="thingAttributeToDelete.thingId" required/>
+                                        <span class="input-group-addon form-addon" id="delete-attribute-path">attribute path</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="the path separated by '/'"
+                                               aria-describedby="delete-attribute-path"
+                                               ng-model="thingAttributeToDelete.path" required/>
+                                        <span class="input-group-btn"><button class="btn btn-default" type="submit">
+                                            Go!
+                                        </button></span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
                             </div>
-                            <!-- /input-group -->
-                        </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </tab>
 
-        <div class="panel panel-default">
-            <div class="panel-heading">Delete owner. The Thing will no longer be accessible.</div>
-            <div class="panel-body">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <form ng-submit="deleteThingOwner(deleteThingOwner)">
-                            <div class="input-group">
-                                <span class="input-group-addon form-addon" id="delete-owner-thingId">thingId</span>
-                                <input type="text" class="form-control"
-                                       placeholder="the id of the thing"
-                                       aria-describedby="delete-owner-thingId"
-                                       ng-model="deleteThingOwner.thingId" required/>
-                                <span class="input-group-btn"><button class="btn btn-default" type="submit">Go!</button></span>
+            <tab heading="Owner">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Get owner id</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="getThingOwner(getThingOwner)">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon"
+                                              id="get-owner-thingId">thingId</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="the id of the thing"
+                                               aria-describedby="get-owner-thingId"
+                                               ng-model="getThingOwner.thingId" required/>
+                                        <span class="input-group-btn"><button class="btn btn-default" type="submit">
+                                            Go!
+                                        </button></span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
                             </div>
-                            <!-- /input-group -->
-                        </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
+                <div class="panel panel-default">
+                    <div class="panel-heading">Update owner</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="updateThingOwner(updateThingOwner)">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon"
+                                              id="update-owner-thingId">thingId</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="the id of the thing"
+                                               aria-describedby="update-owner-thingId"
+                                               ng-model="updateThingOwner.thingId" required/>
+                                        <span class="input-group-addon form-addon"
+                                              id="update-owner-ownerId">ownerId</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="the user sid"
+                                               aria-describedby="update-owner-ownerId"
+                                               ng-model="updateThingOwner.ownerId" required/>
+                                        <span class="input-group-btn"><button class="btn btn-default" type="submit">
+                                            Go!
+                                        </button></span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">Delete owner. The Thing will no longer be accessible.</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="deleteThingOwner(deleteThingOwner)">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon"
+                                              id="delete-owner-thingId">thingId</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="the id of the thing"
+                                               aria-describedby="delete-owner-thingId"
+                                               ng-model="deleteThingOwner.thingId" required/>
+                                        <span class="input-group-btn"><button class="btn btn-default" type="submit">
+                                            Go!
+                                        </button></span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </tab>
+        </tabset>
 
         <div class="panel panel-default">
 			<div class="panel-heading clearfix">
@@ -352,9 +400,10 @@
 	<script
 		src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
 	<script src="js/angular-resource.js"></script>
+    <script src="js/ui-bootstrap-tpls-0.13.0.min.js"></script>
 	<script src="js/services.js"></script>
 	<script src="js/controllers.js"></script>
 	<script src="js/app.js"></script>
-	<script src="js/iframeResizer.contentWindow.min.js"></script>
+    <script src="js/iframeResizer.contentWindow.min.js"></script>
 </body>
 </html>

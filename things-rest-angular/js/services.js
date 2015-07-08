@@ -87,7 +87,9 @@ services.factory('ThingOwner', function ($resource) {
         get: {
             method: 'GET',
             params: {thingId: '@thingId'},
-            isArray: false
+            transformResponse: function (data) {
+                return {result: angular.fromJson(data)}
+            }
         },
         put: {
             method: 'PUT',
