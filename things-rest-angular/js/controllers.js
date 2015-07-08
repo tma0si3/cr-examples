@@ -75,6 +75,10 @@ function RestController($scope, $log, Thing, Things, ThingAttribute) {
     };
     $scope.saveThing = function () {
         try {
+            if ($scope.thing.owner === '')
+            {
+                delete $scope.thing.owner;
+            }
             $scope.thing.$save()
                 .then(function success(thing) {
                     logResponse(RESPONSE_TYPE.SUCCESS, "saveThing", 201, thing);
