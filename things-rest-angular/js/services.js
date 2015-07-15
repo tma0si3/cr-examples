@@ -26,6 +26,12 @@
 
 var services = angular.module('crClientServices', ['ngResource']);
 
+services.statusInterceptor = function (response) {
+    var resource = response.resource;
+    resource.$status = response.status;
+    return resource;
+};
+
 /**
  * The Things service implements basic CRUD functionality for the things REST endpoint.
  *
@@ -36,7 +42,16 @@ services.factory('Thing', function ($resource) {
         get: {
             method: 'GET',
             params: { thingId: '@thingId', fields: '@fields' },
-            isArray: false
+            interceptor: {
+                response: services.statusInterceptor
+            }
+        },
+        put: {
+            method: 'PUT',
+            params: { thingId: '@thingId' },
+            interceptor: {
+                response: services.statusInterceptor
+            }
         }
     };
     return $resource(url, null, actions);
@@ -48,12 +63,30 @@ services.factory('Things', function ($resource) {
         get: {
             method: 'GET',
             params: { fields: '@fields' },
-            isArray: true
+            interceptor: {
+                response: services.statusInterceptor
+            }
         },
-        queryThingIds: {
+        getArray: {
             method: 'GET',
             params: { ids: '@ids', fields: '@fields' },
-            isArray: true
+            isArray: true,
+            interceptor: {
+                response: services.statusInterceptor
+            }
+        },
+        post: {
+            method: 'POST',
+            interceptor: {
+                response: services.statusInterceptor
+            }
+        },
+        delete: {
+            method: 'DELETE',
+            params: { thingId: '@thingId' },
+            interceptor: {
+                response: services.statusInterceptor
+            }
         }
     };
     return $resource(url, null, actions);
@@ -65,17 +98,23 @@ services.factory('ThingAttribute', function ($resource) {
         get: {
             method: 'GET',
             params: { thingId: '@thingId', path: '@path' },
-            isArray: false
+            interceptor: {
+                response: services.statusInterceptor
+            }
         },
         put: {
             method: 'PUT',
             params: { thingId: '@thingId', path: '@path' },
-            isArray: false
+            interceptor: {
+                response: services.statusInterceptor
+            }
         },
         delete: {
             method: 'DELETE',
             params: { thingId: '@thingId', path: '@path' },
-            isArray: false
+            interceptor: {
+                response: services.statusInterceptor
+            }
         }
     };
     return $resource(url, null, actions);
@@ -89,17 +128,24 @@ services.factory('ThingOwner', function ($resource) {
             params: {thingId: '@thingId'},
             transformResponse: function (data) {
                 return {result: angular.fromJson(data)}
+            },
+            interceptor: {
+                response: services.statusInterceptor
             }
         },
         put: {
             method: 'PUT',
             params: {thingId: '@thingId'},
-            isArray: false
+            interceptor: {
+                response: services.statusInterceptor
+            }
         },
         delete: {
             method: 'DELETE',
             params: {thingId: '@thingId'},
-            isArray: false
+            interceptor: {
+                response: services.statusInterceptor
+            }
         }
     };
     return $resource(url, null, actions);

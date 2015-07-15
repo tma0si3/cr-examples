@@ -25,10 +25,11 @@
 'use strict';
 
 function RestController($scope, $log, Thing, Things, ThingAttribute, ThingOwner) {
+    var RESPONSE_TYPE = {SUCCESS: 'success', ERROR: 'error', WARNING: 'warning'};
+
     $scope.responses = [];
-    $scope.thing = new Thing();
-    $scope.thing.attributes = {};
-    $scope.thing.features = {};
+    $scope.thingToCreate = new Thing();
+    $scope.thingToModify = new Thing();
 
     $scope.getThing = function (thingId, fields) {
         if (!thingId || thingId === '') {
@@ -41,18 +42,18 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingOwner)
         }
 
         try {
-            Thing.get({thingId: thingId, fields: fields})
-                .$promise.then(function success(thing) {
-                    logResponse(RESPONSE_TYPE.SUCCESS, "getThing", 200, thing);
+            Thing.get({thingId: thingId, fields: fields},
+                function success(value, responseHeaders) {
+                    logResponse(RESPONSE_TYPE.SUCCESS, "getThing", value.$status, value);
                 },
-                function error(error) {
-                    $log.error(error);
-                    logResponse(RESPONSE_TYPE.ERROR, "getThing", error.status, error.statusText);
+                function error(httpResponse) {
+                    logError("getThing", httpResponse);
                 });
         } catch (e) {
             $log.error(e);
         }
     };
+
     $scope.getThings = function (thingIds, fields) {
         if (thingIds === '') {
             thingIds = undefined;
@@ -63,92 +64,149 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingOwner)
         }
 
         try {
-            Things.queryThingIds({ids: thingIds, fields: fields}, function success(things) {
-                logResponse(RESPONSE_TYPE.SUCCESS, "getThings", 200, things);
-            }, function error(error) {
-                $log.error(error);
-                logResponse(RESPONSE_TYPE.ERROR, "getThings", error.status, error.statusText);
-            });
+            Things.getArray({ids: thingIds, fields: fields},
+                function success(value, responseHeaders) {
+                    logResponse(RESPONSE_TYPE.SUCCESS, "getThings", value.$status, value);
+                },
+                function error(httpResponse) {
+                    logError("getThings", httpResponse);
+                });
         } catch (e) {
             $log.error(e);
         }
     };
-    $scope.saveThing = function () {
+
+    $scope.postThing = function (thing) {
         try {
-            if ($scope.thing.owner === '')
+            var t = new Thing();
+
+            if (thing.owner === '')
             {
-                delete $scope.thing.owner;
+                delete t.owner;
             }
-            $scope.thing.$save()
-                .then(function success(thing) {
-                    logResponse(RESPONSE_TYPE.SUCCESS, "saveThing", 201, thing);
-                }, function error(error) {
-                    $log.error(error);
-                    logResponse(RESPONSE_TYPE.ERROR, "saveThing", error.status, error.statusText);
+            else if (thing.owner !== undefined)
+            {
+                t.owner = thing.owner;
+            }
+
+            if (thing.attributes === '')
+            {
+                delete t.attributes;
+            }
+            else if (thing.attributes)
+            {
+                t.attributes = JSON.parse(thing.attributes);
+            }
+
+            Things.post({}, t,
+                function success(value, responseHeaders) {
+                    logResponse(RESPONSE_TYPE.SUCCESS,
+                        "postThing", value.$status, "Thing created successfully at " + responseHeaders("location"));
+                },
+                function error(httpResponse) {
+                    logError("postThing", httpResponse);
                 });
         } catch (e) {
             $log.error(e);
         }
     };
-    $scope.removeThing = function (thingId) {
+
+    $scope.putThing = function (thing) {
         try {
-            Thing.remove({thingId: thingId})
-                .$promise.then(function success() {
-                    logResponse(RESPONSE_TYPE.SUCCESS, "removeThing", 204, "Thing deleted successfully.");
-                }, function error(error) {
-                    $log.error(error);
-                    logResponse(RESPONSE_TYPE.ERROR, "removeThing", error.status, error.statusText);
+            var t = new Thing();
+            t.thingId = thing.thingId;
+
+            if (thing.owner === '')
+            {
+                delete t.owner;
+            }
+            else if (thing.owner !== undefined)
+            {
+                t.owner = thing.owner;
+            }
+
+            if (thing.attributes === '')
+            {
+                delete t.attributes;
+            }
+            else if (thing.attributes)
+            {
+                t.attributes = JSON.parse(thing.attributes);
+            }
+
+            Thing.put({ thingId: t.thingId }, t,
+                function success(value, responseHeaders) {
+                    logResponse(RESPONSE_TYPE.SUCCESS,
+                        "putThing", value.$status, "Thing modified successfully");
+                },
+                function error(httpResponse) {
+                    logError("putThing", httpResponse);
                 });
         } catch (e) {
             $log.error(e);
         }
     };
-    $scope.modifyThingAttribute = function (thingAttribute) {
-        ThingAttribute.put({ thingId: thingAttribute.thingId, path: thingAttribute.path }, thingAttribute.value)
-            .$promise.then(function success(response) {
-                logResponse(RESPONSE_TYPE.SUCCESS, "modifyThingAttribute", 204, "Attribute modified successfully.");
-            }, function error(error) {
-                $log.error(error);
-                logResponse(RESPONSE_TYPE.ERROR, "modifyThingAttribute", error.status, error.statusText);
+
+    $scope.deleteThing = function (thingId) {
+        try {
+            Thing.remove({thingId: thingId},
+                function success(value, responseHeaders) {
+                    logResponse(RESPONSE_TYPE.SUCCESS, "deleteThing", value.$status, "Thing deleted successfully.");
+                }, function error(httpResponse) {
+                    logError("deleteThing", httpResponse);
+                });
+        } catch (e) {
+            $log.error(e);
+        }
+    };
+
+    $scope.putThingAttribute = function (thingAttribute) {
+        ThingAttribute.put({ thingId: thingAttribute.thingId, path: thingAttribute.path }, thingAttribute.value,
+            function success(value, responseHeaders) {
+                logResponse(RESPONSE_TYPE.SUCCESS, "putThingAttribute", value.$status, "Attribute modified successfully.");
+            },
+            function error(httpResponse) {
+                logError("putThingAttribute", httpResponse);
             });
     };
+
     $scope.deleteThingAttribute = function (thingAttribute) {
-        ThingAttribute.delete({ thingId: thingAttribute.thingId, path: thingAttribute.path })
-            .$promise.then(function success() {
-                logResponse(RESPONSE_TYPE.SUCCESS, "deleteThingAttribute", 204, "Attribute deleted successfully.");
-            }, function error(error) {
-                $log.error(error);
-                logResponse(RESPONSE_TYPE.ERROR, "deleteThingAttribute", error.status, error.statusText);
+        ThingAttribute.delete({ thingId: thingAttribute.thingId, path: thingAttribute.path },
+            function success(value, responseHeaders) {
+                logResponse(RESPONSE_TYPE.SUCCESS, "deleteThingAttribute", value.$status, "Attribute deleted successfully.");
+            },
+            function error(httpResponse) {
+                logError("deleteThingAttribute", httpResponse);
             });
     };
 
     $scope.getThingOwner = function (thingOwner) {
-        ThingOwner.get({thingId: thingOwner.thingId})
-            .$promise.then(function success(ownerId) {
-                logResponse(RESPONSE_TYPE.SUCCESS, "getThingOwner", 200, ownerId);
-            }, function error(error) {
-                $log.error(error);
-                logResponse(RESPONSE_TYPE.ERROR, "getThingOwner", error.status, error.statusText);
+        ThingOwner.get({thingId: thingOwner.thingId},
+            function success(value, responseHeaders) {
+                logResponse(RESPONSE_TYPE.SUCCESS, "getThingOwner", value.$status, value);
+            },
+            function error(httpResponse) {
+                logError("getThingOwner", httpResponse);
             });
     };
 
     $scope.updateThingOwner = function (thingOwner) {
-        ThingOwner.put({thingId: thingOwner.thingId}, thingOwner.ownerId)
-            .$promise.then(function success() {
-                logResponse(RESPONSE_TYPE.SUCCESS, "updateThingOwner", 204, "Owner updated successfully.");
-            }, function error(error) {
-                $log.error(error);
-                logResponse(RESPONSE_TYPE.ERROR, "updateThingOwner", error.status, error.statusText);
+        ThingOwner.put({thingId: thingOwner.thingId}, thingOwner.ownerId,
+            function success(value, responseHeaders) {
+                logResponse(RESPONSE_TYPE.SUCCESS, "updateThingOwner", value.$status, "Owner updated successfully.");
+            },
+            function error(httpResponse) {
+                logError("updateThingOwner", httpResponse);
             });
     };
 
     $scope.deleteThingOwner = function (thingOwner) {
-        ThingOwner.delete({thingId: thingOwner.thingId})
-            .$promise.then(function success() {
-                logResponse(RESPONSE_TYPE.SUCCESS, "deleteThingOwner", 204, "Owner deleted successfully.");
-            }, function error(error) {
-                $log.error(error);
-                logResponse(RESPONSE_TYPE.ERROR, "deleteThingOwner", error.status, error.statusText);
+        ThingOwner.delete({thingId: thingOwner.thingId},
+            function success(value, responseHeaders) {
+                logResponse(RESPONSE_TYPE.SUCCESS, "deleteThingOwner", value.$status, "Owner deleted successfully.");
+            },
+            function error(httpResponse) {
+                logError("deleteThingOwner", httpResponse);
             });
     };
 
@@ -156,7 +214,10 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingOwner)
         $scope.responses.length = 0;
     };
 
-    var RESPONSE_TYPE = {SUCCESS: 'success', ERROR: 'error', WARNING: 'warning'};
+    function logError(functionName, httpResponse)
+    {
+        logResponse(RESPONSE_TYPE.ERROR, functionName, httpResponse.status, httpResponse.statusText);
+    }
 
     function logResponse(responseType, method, status, message) {
         var ts = new Date().toISOString();
@@ -164,5 +225,4 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingOwner)
 
         $scope.responses.unshift(response); // add at first index in array
     }
-
 }
