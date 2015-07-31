@@ -53,11 +53,11 @@
       "url": "https://craas-api.apps.cf.bosch-poc.de/cr/1/things/CRaaSCar",
       "method": "PUT",
       "headers": "",
-      "data": "{\n  \"acl\": {\n    \"ed420ff0-b1c96661e4-9070-3863bbc77d82\": {\n      \"READ\": true,\n      \"WRITE\": true\n    },\n    \"edca04a0-b1c96661e4-9070-3863bbc77d82\": {\n      \"READ\": true\n    }\n  },\n  \"attributes\": {\n    \"manufacturer\": \"ACME\",\n    \"make\": \"Fancy Fab Car\",\n    \"model\": \"Environmental FourWheeler 4711\",\n    \"VIN\": \"0815666337\"\n  },\n  \"features\": {\n    \"Vehicle\": {\n      \"featureId\": \"Vehicle\",\n      \"properties\": {\n        \"configuration\": {\n          \"transmission\": {\n            \"type\": \"manual\",\n            \"gears\": 7\n          }\n        },\n        \"status\": {\n          \"running\": true,\n          \"speed\": 90,\n          \"gear\": 5\n        },\n        \"fault\": {\n          \"flatTyre\": false\n        }\n      }\n    },\n    \"EnvironmentScanner\": {\n      \"featureId\": \"EnvironmentScanner\",\n      \"properties\": {\n          \"temperature\": 20.8,\n          \"humidity\": 73,\n          \"barometricPressure\": 970.7,\n          \"location\": {\n            \"longitude\": 47.682170,\n            \"latitude\": 9.386372\n          },\n          \"altitude\": 399\n      }\n    }\n  }\n}\n",
+      "data": "{\n  \"acl\": {\n    \"ed420ff0-b1c96661e4-9070-3863bbc77d82\": {\n      \"READ\": true,\n      \"WRITE\": true,\n      \"ADMINISTRATE\": true\n    },\n    \"edca04a0-b1c96661e4-9070-3863bbc77d82\": {\n      \"READ\": true\n    }\n  },\n  \"attributes\": {\n    \"manufacturer\": \"ACME\",\n    \"make\": \"Fancy Fab Car\",\n    \"model\": \"Environmental FourWheeler 4711\",\n    \"VIN\": \"0815666337\"\n  },\n  \"features\": {\n    \"Vehicle\": {\n      \"featureId\": \"Vehicle\",\n      \"properties\": {\n        \"configuration\": {\n          \"transmission\": {\n            \"type\": \"manual\",\n            \"gears\": 7\n          }\n        },\n        \"status\": {\n          \"running\": true,\n          \"speed\": 90,\n          \"gear\": 5\n        },\n        \"fault\": {\n          \"flatTyre\": false\n        }\n      }\n    },\n    \"EnvironmentScanner\": {\n      \"featureId\": \"EnvironmentScanner\",\n      \"properties\": {\n          \"temperature\": 20.8,\n          \"humidity\": 73,\n          \"barometricPressure\": 970.7,\n          \"location\": {\n            \"longitude\": 47.682170,\n            \"latitude\": 9.386372\n          },\n          \"altitude\": 399\n      }\n    }\n  }\n}\n",
       "dataMode": "raw",
       "timestamp": 0,
-      "responses": [],
-      "version": 2
+      "version": 2,
+      "time": 1438349415218
     },
     {
       "collectionId": "d411f449-27b5-d0fb-78c6-4292a7f68204",
@@ -312,10 +312,11 @@
       "url": "https://craas-api.apps.cf.bosch-poc.de/cr/1/things",
       "method": "POST",
       "headers": "",
-      "data": "{\n  \"acl\": {\n    \"ed420ff0-b1c96661e4-9070-3863bbc77d82\": {\n      \"READ\": true,\n      \"WRITE\": true\n    },\n    \"edca04a0-b1c96661e4-9070-3863bbc77d82\": {\n      \"READ\": true\n    }\n  },\n  \"attributes\": {\n    \"manufacturer\": \"ACME\",\n    \"make\": \"Fancy Fab Car\",\n    \"model\": \"Environmental FourWheeler 4711\",\n    \"VIN\": \"0815666337\"\n  },\n  \"features\": {\n    \"Vehicle\": {\n      \"featureId\": \"Vehicle\",\n      \"properties\": {\n        \"configuration\": {\n          \"transmission\": {\n            \"type\": \"manual\",\n            \"gears\": 7\n          }\n        },\n        \"status\": {\n          \"running\": true,\n          \"speed\": 90,\n          \"gear\": 5\n        },\n        \"fault\": {\n          \"flatTyre\": false\n        }\n      }\n    },\n    \"EnvironmentScanner\": {\n      \"featureId\": \"EnvironmentScanner\",\n      \"properties\": {\n          \"temperature\": 20.8,\n          \"humidity\": 73,\n          \"barometricPressure\": 970.7,\n          \"location\": {\n            \"longitude\": 47.682170,\n            \"latitude\": 9.386372\n          },\n          \"altitude\": 399\n      }\n    }\n  }\n}\n",
+      "data": "{\n  \"acl\": {\n    \"ed420ff0-b1c96661e4-9070-3863bbc77d82\": {\n      \"READ\": true,\n      \"WRITE\": true,\n      \"ADMINISTRATE\": true\n    },\n    \"edca04a0-b1c96661e4-9070-3863bbc77d82\": {\n      \"READ\": true\n    }\n  },\n  \"attributes\": {\n    \"manufacturer\": \"ACME\",\n    \"make\": \"Fancy Fab Car\",\n    \"model\": \"Environmental FourWheeler 4711\",\n    \"VIN\": \"0815666337\"\n  },\n  \"features\": {\n    \"Vehicle\": {\n      \"featureId\": \"Vehicle\",\n      \"properties\": {\n        \"configuration\": {\n          \"transmission\": {\n            \"type\": \"manual\",\n            \"gears\": 7\n          }\n        },\n        \"status\": {\n          \"running\": true,\n          \"speed\": 90,\n          \"gear\": 5\n        },\n        \"fault\": {\n          \"flatTyre\": false\n        }\n      }\n    },\n    \"EnvironmentScanner\": {\n      \"featureId\": \"EnvironmentScanner\",\n      \"properties\": {\n          \"temperature\": 20.8,\n          \"humidity\": 73,\n          \"barometricPressure\": 970.7,\n          \"location\": {\n            \"longitude\": 47.682170,\n            \"latitude\": 9.386372\n          },\n          \"altitude\": 399\n      }\n    }\n  }\n}\n",
       "dataMode": "raw",
       "timestamp": 0,
-      "version": 2
+      "version": 2,
+      "time": 1438349403536
     },
     {
       "collectionId": "d411f449-27b5-d0fb-78c6-4292a7f68204",
