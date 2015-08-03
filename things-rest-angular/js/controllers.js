@@ -43,7 +43,7 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, T
         }
 
         Thing.get({thingId: thingId, fields: fields},
-            function success(value, responseHeaders) {
+            function success(value) {
                 logResponse(RESPONSE_TYPE.SUCCESS, "getThing", value.$status, value);
             },
             function error(httpResponse) {
@@ -61,7 +61,7 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, T
         }
 
         Things.getArray({ids: thingIds, fields: fields},
-            function success(value, responseHeaders) {
+            function success(value) {
                 logResponse(RESPONSE_TYPE.SUCCESS, "getThings", value.$status, value);
             },
             function error(httpResponse) {
@@ -123,7 +123,7 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, T
         }
 
         Thing.put({ thingId: t.thingId }, t,
-            function success(value, responseHeaders) {
+            function success(value) {
                 logResponse(RESPONSE_TYPE.SUCCESS,
                     "putThing", value.$status, "Thing modified successfully");
             },
@@ -134,7 +134,7 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, T
 
     $scope.deleteThing = function (thingId) {
         Thing.remove({thingId: thingId},
-            function success(value, responseHeaders) {
+            function success(value) {
                 logResponse(RESPONSE_TYPE.SUCCESS, "deleteThing", value.$status, "Thing deleted successfully.");
             }, function error(httpResponse) {
                 logError("deleteThing", httpResponse);
@@ -143,7 +143,7 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, T
 
     $scope.putThingAttribute = function (thingAttribute) {
         ThingAttribute.put({ thingId: thingAttribute.thingId, path: thingAttribute.path }, thingAttribute.value,
-            function success(value, responseHeaders) {
+            function success(value) {
                 logResponse(RESPONSE_TYPE.SUCCESS, "putThingAttribute", value.$status, "Attribute modified successfully.");
             },
             function error(httpResponse) {
@@ -153,7 +153,7 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, T
 
     $scope.deleteThingAttribute = function (thingAttribute) {
         ThingAttribute.delete({ thingId: thingAttribute.thingId, path: thingAttribute.path },
-            function success(value, responseHeaders) {
+            function success(value) {
                 logResponse(RESPONSE_TYPE.SUCCESS, "deleteThingAttribute", value.$status, "Attribute deleted successfully.");
             },
             function error(httpResponse) {
@@ -167,7 +167,7 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, T
         }
 
         ThingAcl.get({thingId: thingId},
-            function success(value, responseHeaders) {
+            function success(value) {
                 logResponse(RESPONSE_TYPE.SUCCESS, "getThingAcl", value.$status, value);
             },
             function error(httpResponse) {
@@ -184,7 +184,7 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, T
         }
 
         ThingAclEntry.get({thingId: thingId, subject: subject},
-            function success(value, responseHeaders) {
+            function success(value) {
                 logResponse(RESPONSE_TYPE.SUCCESS, "getThingAclEntry", value.$status, value);
             },
             function error(httpResponse) {
@@ -200,7 +200,7 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, T
         var acl = JSON.parse(aclEntries);
 
         ThingAcl.put({thingId: thingId}, acl,
-            function success(value, responseHeaders) {
+            function success(value) {
                 logResponse(RESPONSE_TYPE.SUCCESS, "putThingAcl", value.$status, "ACL modified successfully");
             },
             function error(httpResponse) {
@@ -224,7 +224,7 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, T
         }
 
         ThingAclEntry.put({thingId: thingId, subject: subject}, aclEntryPermissions,
-            function success(value, responseHeaders) {
+            function success(value) {
                 var message = value.$status === 201 ? value : "ACL entry modified successfully";
                 logResponse(RESPONSE_TYPE.SUCCESS, "putThingAclEntry", value.$status, message);
             },
@@ -242,7 +242,7 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, T
         }
 
         ThingAclEntry.delete({thingId: thingId, subject: subject},
-            function success(value, responseHeaders) {
+            function success(value) {
                 logResponse(RESPONSE_TYPE.SUCCESS, "deleteThingAclEntry", value.$status, "ACL entry deleted successfully.");
             },
             function error(httpResponse) {
