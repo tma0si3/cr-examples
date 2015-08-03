@@ -330,20 +330,50 @@
                 </div>
             </tab>
 
-            <tab heading="Owner">
+            <tab heading="ACL">
                 <div class="panel panel-primary">
-                    <div class="panel-heading">Get owner id</div>
+                    <div class="panel-heading">Get the ACL of a Thing</div>
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-lg-12">
-                                <form ng-submit="getThingOwner(getThingOwner)">
+                                <form ng-submit="getThingAcl(aclToGet.thingId)">
                                     <div class="input-group">
                                         <span class="input-group-addon form-addon"
-                                              id="get-owner-thingId">thingId</span>
+                                              id="get-acl-thingId">thingId</span>
                                         <input type="text" class="form-control"
                                                placeholder="the id of the thing"
-                                               aria-describedby="get-owner-thingId"
-                                               ng-model="getThingOwner.thingId" required/>
+                                               aria-describedby="get-acl-thingId"
+                                               ng-model="aclToGet.thingId" required/>
+                                        <span class="input-group-btn"><button class="btn btn-default" type="submit">
+                                            Go!
+                                        </button></span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Get a single ACL entry of a Thing</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="getThingAclEntry(aclEntryToGet.thingId, aclEntryToGet.subject)">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon"
+                                              id="get-acl-entry-thingId">thingId</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="the id of the thing"
+                                               aria-describedby="get-acl-entry-thingId"
+                                               ng-model="aclEntryToGet.thingId" required/>
+                                        <span class="input-group-addon form-addon"
+                                              id="get-acl-entry-subject">subject</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="the authorization subject"
+                                               aria-describedby="get-acl-entry-subject"
+                                               ng-model="aclEntryToGet.subject" required/>
                                         <span class="input-group-btn"><button class="btn btn-default" type="submit">
                                             Go!
                                         </button></span>
@@ -358,24 +388,60 @@
                 <hr/>
 
                 <div class="panel panel-success">
-                    <div class="panel-heading">Update owner</div>
+                    <div class="panel-heading">Update the ACL of a Thing</div>
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-lg-12">
-                                <form ng-submit="updateThingOwner(updateThingOwner)">
+                                <form ng-submit="putThingAcl(aclToUpdate.thingId, aclToUpdate.aclEntries)">
                                     <div class="input-group">
                                         <span class="input-group-addon form-addon"
-                                              id="update-owner-thingId">thingId</span>
+                                              id="update-acl-thingId">thingId</span>
                                         <input type="text" class="form-control"
                                                placeholder="the id of the thing"
-                                               aria-describedby="update-owner-thingId"
-                                               ng-model="updateThingOwner.thingId" required/>
+                                               aria-describedby="update-acl-thingId"
+                                               ng-model="aclToUpdate.thingId" required/>
                                         <span class="input-group-addon form-addon"
-                                              id="update-owner-ownerId">ownerId</span>
+                                              id="update-acl-entries">ACL entries</span>
                                         <input type="text" class="form-control"
-                                               placeholder="the user sid"
-                                               aria-describedby="update-owner-ownerId"
-                                               ng-model="updateThingOwner.ownerId" required/>
+                                               placeholder="the ACL entries"
+                                               aria-describedby="update-acl-entries"
+                                               ng-model="aclToUpdate.aclEntries" required/>
+                                        <span class="input-group-btn"><button class="btn btn-default" type="submit">
+                                            Go!
+                                        </button></span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-success">
+                    <div class="panel-heading">Create/Update a single ACL entry of a Thing</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="putThingAclEntry(aclEntryToUpdate.thingId, aclEntryToUpdate.subject, aclEntryToUpdate.permissions)">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon"
+                                              id="update-acl-entry-thingId">thingId</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="the id of the thing"
+                                               aria-describedby="update-acl-entry-thingId"
+                                               ng-model="aclEntryToUpdate.thingId" required/>
+                                        <span class="input-group-addon form-addon"
+                                              id="update-acl-entry-subject">subject</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="the authorization subject"
+                                               aria-describedby="update-acl-entry-subject"
+                                               ng-model="aclEntryToUpdate.subject" required/>
+                                        <span class="input-group-addon form-addon"
+                                              id="update-acl-entry-permissions">Permissions</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="the permissions separated by ','"
+                                               aria-describedby="update-acl-entry-permissions"
+                                               ng-model="aclEntryToUpdate.permissions" required/>
                                         <span class="input-group-btn"><button class="btn btn-default" type="submit">
                                             Go!
                                         </button></span>
@@ -390,18 +456,24 @@
                 <hr/>
 
                 <div class="panel panel-danger">
-                    <div class="panel-heading">Delete owner. The Thing will no longer be accessible.</div>
+                    <div class="panel-heading">Delete a single ACL entry of a Thing</div>
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-lg-12">
-                                <form ng-submit="deleteThingOwner(deleteThingOwner)">
+                                <form ng-submit="deleteThingAclEntry(aclEntryToDelete.thingId, aclEntryToDelete.subject)">
                                     <div class="input-group">
                                         <span class="input-group-addon form-addon"
-                                              id="delete-owner-thingId">thingId</span>
+                                              id="delete-acl-entry-thingId">thingId</span>
                                         <input type="text" class="form-control"
                                                placeholder="the id of the thing"
-                                               aria-describedby="delete-owner-thingId"
-                                               ng-model="deleteThingOwner.thingId" required/>
+                                               aria-describedby="delete-acl-entry-thingId"
+                                               ng-model="aclEntryToDelete.thingId" required/>
+                                        <span class="input-group-addon form-addon"
+                                              id="delete-acl-entry-subject">subject</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="the authorization subject"
+                                               aria-describedby="delete-acl-entry-subject"
+                                               ng-model="aclEntryToDelete.subject" required/>
                                         <span class="input-group-btn"><button class="btn btn-default" type="submit">
                                             Go!
                                         </button></span>

@@ -24,15 +24,16 @@
  */
 'use strict';
 
-function RestController($scope, $log, Thing, Things, ThingAttribute, ThingOwner) {
+function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, ThingAclEntry) {
     var RESPONSE_TYPE = {SUCCESS: 'success', ERROR: 'error', WARNING: 'warning'};
+    var PERMISSIONS = ["READ", "WRITE", "ADMINISTRATE"];
 
     $scope.responses = [];
     $scope.thingToCreate = new Thing();
     $scope.thingToModify = new Thing();
 
     $scope.getThing = function (thingId, fields) {
-        if (!thingId || thingId === '') {
+        if (isNullOrEmpty(thingId)) {
             throw new Error('The thingId must not be undefined or empty!');
         }
 
@@ -41,17 +42,13 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingOwner)
             fields = undefined;
         }
 
-        try {
-            Thing.get({thingId: thingId, fields: fields},
-                function success(value, responseHeaders) {
-                    logResponse(RESPONSE_TYPE.SUCCESS, "getThing", value.$status, value);
-                },
-                function error(httpResponse) {
-                    logError("getThing", httpResponse);
-                });
-        } catch (e) {
-            $log.error(e);
-        }
+        Thing.get({thingId: thingId, fields: fields},
+            function success(value, responseHeaders) {
+                logResponse(RESPONSE_TYPE.SUCCESS, "getThing", value.$status, value);
+            },
+            function error(httpResponse) {
+                logError("getThing", httpResponse);
+            });
     };
 
     $scope.getThings = function (thingIds, fields) {
@@ -63,101 +60,85 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingOwner)
             fields = undefined;
         }
 
-        try {
-            Things.getArray({ids: thingIds, fields: fields},
-                function success(value, responseHeaders) {
-                    logResponse(RESPONSE_TYPE.SUCCESS, "getThings", value.$status, value);
-                },
-                function error(httpResponse) {
-                    logError("getThings", httpResponse);
-                });
-        } catch (e) {
-            $log.error(e);
-        }
+        Things.getArray({ids: thingIds, fields: fields},
+            function success(value, responseHeaders) {
+                logResponse(RESPONSE_TYPE.SUCCESS, "getThings", value.$status, value);
+            },
+            function error(httpResponse) {
+                logError("getThings", httpResponse);
+            });
     };
 
     $scope.postThing = function (thing) {
-        try {
-            var t = new Thing();
+        var t = new Thing();
 
-            if (thing.owner === '')
-            {
-                delete t.owner;
-            }
-            else if (thing.owner !== undefined)
-            {
-                t.owner = thing.owner;
-            }
-
-            if (thing.attributes === '')
-            {
-                delete t.attributes;
-            }
-            else if (thing.attributes)
-            {
-                t.attributes = JSON.parse(thing.attributes);
-            }
-
-            Things.post({}, t,
-                function success(value, responseHeaders) {
-                    logResponse(RESPONSE_TYPE.SUCCESS,
-                        "postThing", value.$status, "Thing created successfully at " + responseHeaders("location"));
-                },
-                function error(httpResponse) {
-                    logError("postThing", httpResponse);
-                });
-        } catch (e) {
-            $log.error(e);
+        if (thing.owner === '')
+        {
+            delete t.owner;
         }
+        else if (thing.owner !== undefined)
+        {
+            t.owner = thing.owner;
+        }
+
+        if (thing.attributes === '')
+        {
+            delete t.attributes;
+        }
+        else if (thing.attributes)
+        {
+            t.attributes = JSON.parse(thing.attributes);
+        }
+
+        Things.post({}, t,
+            function success(value, responseHeaders) {
+                logResponse(RESPONSE_TYPE.SUCCESS,
+                    "postThing", value.$status, "Thing created successfully at " + responseHeaders("location"));
+            },
+            function error(httpResponse) {
+                logError("postThing", httpResponse);
+            });
     };
 
     $scope.putThing = function (thing) {
-        try {
-            var t = new Thing();
-            t.thingId = thing.thingId;
+        var t = new Thing();
+        t.thingId = thing.thingId;
 
-            if (thing.owner === '')
-            {
-                delete t.owner;
-            }
-            else if (thing.owner !== undefined)
-            {
-                t.owner = thing.owner;
-            }
-
-            if (thing.attributes === '')
-            {
-                delete t.attributes;
-            }
-            else if (thing.attributes)
-            {
-                t.attributes = JSON.parse(thing.attributes);
-            }
-
-            Thing.put({ thingId: t.thingId }, t,
-                function success(value, responseHeaders) {
-                    logResponse(RESPONSE_TYPE.SUCCESS,
-                        "putThing", value.$status, "Thing modified successfully");
-                },
-                function error(httpResponse) {
-                    logError("putThing", httpResponse);
-                });
-        } catch (e) {
-            $log.error(e);
+        if (thing.owner === '')
+        {
+            delete t.owner;
         }
+        else if (thing.owner !== undefined)
+        {
+            t.owner = thing.owner;
+        }
+
+        if (thing.attributes === '')
+        {
+            delete t.attributes;
+        }
+        else if (thing.attributes)
+        {
+            t.attributes = JSON.parse(thing.attributes);
+        }
+
+        Thing.put({ thingId: t.thingId }, t,
+            function success(value, responseHeaders) {
+                logResponse(RESPONSE_TYPE.SUCCESS,
+                    "putThing", value.$status, "Thing modified successfully");
+            },
+            function error(httpResponse) {
+                logError("putThing", httpResponse);
+            });
     };
 
     $scope.deleteThing = function (thingId) {
-        try {
-            Thing.remove({thingId: thingId},
-                function success(value, responseHeaders) {
-                    logResponse(RESPONSE_TYPE.SUCCESS, "deleteThing", value.$status, "Thing deleted successfully.");
-                }, function error(httpResponse) {
-                    logError("deleteThing", httpResponse);
-                });
-        } catch (e) {
-            $log.error(e);
-        }
+        Thing.remove({thingId: thingId},
+            function success(value, responseHeaders) {
+                logResponse(RESPONSE_TYPE.SUCCESS, "deleteThing", value.$status, "Thing deleted successfully.");
+            }, function error(httpResponse) {
+                logError("deleteThing", httpResponse);
+            });
     };
 
     $scope.putThingAttribute = function (thingAttribute) {
@@ -180,33 +161,92 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingOwner)
             });
     };
 
-    $scope.getThingOwner = function (thingOwner) {
-        ThingOwner.get({thingId: thingOwner.thingId},
+    $scope.getThingAcl = function (thingId) {
+        if (isNullOrEmpty(thingId)) {
+            throw new Error('The thingId must not be undefined or empty!');
+        }
+
+        ThingAcl.get({thingId: thingId},
             function success(value, responseHeaders) {
-                logResponse(RESPONSE_TYPE.SUCCESS, "getThingOwner", value.$status, value);
+                logResponse(RESPONSE_TYPE.SUCCESS, "getThingAcl", value.$status, value);
             },
             function error(httpResponse) {
-                logError("getThingOwner", httpResponse);
+                logError("getThingAcl", httpResponse);
+            });
+    };
+    
+    $scope.getThingAclEntry = function (thingId, subject) {
+        if (isNullOrEmpty(thingId)) {
+            throw new Error('The thingId must not be undefined or empty!');
+        }
+        if (isNullOrEmpty(subject)) {
+            throw new Error('The subject must not be undefined or empty!');
+        }
+
+        ThingAclEntry.get({thingId: thingId, subject: subject},
+            function success(value, responseHeaders) {
+                logResponse(RESPONSE_TYPE.SUCCESS, "getThingAclEntry", value.$status, value);
+            },
+            function error(httpResponse) {
+                logError("getThingAclEntry", httpResponse);
             });
     };
 
-    $scope.updateThingOwner = function (thingOwner) {
-        ThingOwner.put({thingId: thingOwner.thingId}, thingOwner.ownerId,
+    $scope.putThingAcl = function (thingId, aclEntries) {
+        if (isNullOrEmpty(thingId)) {
+            throw new Error('The thingId must not be undefined or empty!');
+        }
+
+        var acl = JSON.parse(aclEntries);
+
+        ThingAcl.put({thingId: thingId}, acl,
             function success(value, responseHeaders) {
-                logResponse(RESPONSE_TYPE.SUCCESS, "updateThingOwner", value.$status, "Owner updated successfully.");
+                logResponse(RESPONSE_TYPE.SUCCESS, "putThingAcl", value.$status, "ACL modified successfully");
             },
             function error(httpResponse) {
-                logError("updateThingOwner", httpResponse);
+                logError("putThingAcl", httpResponse);
             });
     };
 
-    $scope.deleteThingOwner = function (thingOwner) {
-        ThingOwner.delete({thingId: thingOwner.thingId},
+    $scope.putThingAclEntry = function (thingId, subject, permissions) {
+        if (isNullOrEmpty(thingId)) {
+            throw new Error('The thingId must not be undefined or empty!');
+        }
+        if (isNullOrEmpty(subject)) {
+            throw new Error('The subject must not be undefined or empty!');
+        }
+
+        permissions = permissions.split(',');
+        var aclEntryPermissions = {};
+        for (var index in PERMISSIONS) {
+            var permission = PERMISSIONS[index];
+            aclEntryPermissions[permission] = arrayContainsPermission(permissions, permission);
+        }
+
+        ThingAclEntry.put({thingId: thingId, subject: subject}, aclEntryPermissions,
             function success(value, responseHeaders) {
-                logResponse(RESPONSE_TYPE.SUCCESS, "deleteThingOwner", value.$status, "Owner deleted successfully.");
+                var message = value.$status === 201 ? value : "ACL entry modified successfully";
+                logResponse(RESPONSE_TYPE.SUCCESS, "putThingAclEntry", value.$status, message);
             },
             function error(httpResponse) {
-                logError("deleteThingOwner", httpResponse);
+                logError("putThingAclEntry", httpResponse);
+            });
+    };
+
+    $scope.deleteThingAclEntry = function (thingId, subject) {
+        if (isNullOrEmpty(thingId)) {
+            throw new Error('The thingId must not be undefined or empty!');
+        }
+        if (isNullOrEmpty(subject)) {
+            throw new Error('The subject must not be undefined or empty!');
+        }
+
+        ThingAclEntry.delete({thingId: thingId, subject: subject},
+            function success(value, responseHeaders) {
+                logResponse(RESPONSE_TYPE.SUCCESS, "deleteThingAclEntry", value.$status, "ACL entry deleted successfully.");
+            },
+            function error(httpResponse) {
+                logError("deleteThingAclEntry", httpResponse);
             });
     };
 
@@ -219,9 +259,28 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingOwner)
         logResponse(RESPONSE_TYPE.ERROR, functionName, httpResponse.status, httpResponse.statusText);
     }
 
+    function isNullOrEmpty(string) {
+        return (!string || string === '');
+    }
+
+    function arrayContainsPermission(array, permission) {
+        var result = false;
+
+        if (array instanceof Array && permission) {
+            result = array.indexOf(permission) !== -1;
+        }
+
+        return result;
+    }
+
     function logResponse(responseType, method, status, message) {
         var ts = new Date().toISOString();
         var response = {type: responseType, method: method, timestamp: ts, status: status, message: message};
+
+        if (typeof message === 'object' && message.$status) {
+            // delete the status property since it doesn't belong to the resource itself
+            delete message.$status;
+        }
 
         $scope.responses.unshift(response); // add at first index in array
     }

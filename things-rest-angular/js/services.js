@@ -120,15 +120,12 @@ services.factory('ThingAttribute', function ($resource) {
     return $resource(url, null, actions);
 });
 
-services.factory('ThingOwner', function ($resource) {
-    var url = '/cr/1/things/:thingId/owner';
+services.factory('ThingAcl', function ($resource) {
+    var url = '/cr/1/things/:thingId/acl';
     var actions = {
         get: {
             method: 'GET',
             params: {thingId: '@thingId'},
-            transformResponse: function (data) {
-                return {result: angular.fromJson(data)}
-            },
             interceptor: {
                 response: services.statusInterceptor
             }
@@ -139,10 +136,31 @@ services.factory('ThingOwner', function ($resource) {
             interceptor: {
                 response: services.statusInterceptor
             }
+        }
+    };
+    return $resource(url, null, actions);
+});
+
+services.factory('ThingAclEntry', function ($resource) {
+    var url = '/cr/1/things/:thingId/acl/:subject';
+    var actions = {
+        get: {
+            method: 'GET',
+            params: {thingId: '@thingId', subject: '@subject'},
+            interceptor: {
+                response: services.statusInterceptor
+            }
+        },
+        put: {
+            method: 'PUT',
+            params: {thingId: '@thingId', subject: '@subject'},
+            interceptor: {
+                response: services.statusInterceptor
+            }
         },
         delete: {
             method: 'DELETE',
-            params: {thingId: '@thingId'},
+            params: {thingId: '@thingId', subject: '@subject'},
             interceptor: {
                 response: services.statusInterceptor
             }
