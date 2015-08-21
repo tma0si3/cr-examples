@@ -34,7 +34,7 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, T
 
     $scope.getThing = function (thingId, fields) {
         if (isNullOrEmpty(thingId)) {
-            throw new Error('The thingId must not be undefined or empty!');
+            throw new Error('The Thing ID must not be undefined or empty!');
         }
 
         if (fields === '') {
@@ -72,21 +72,23 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, T
     $scope.postThing = function (thing) {
         var t = new Thing();
 
-        if (thing.owner === '')
-        {
-            delete t.owner;
-        }
-        else if (thing.owner !== undefined)
-        {
-            t.owner = thing.owner;
+        if (thing.authSubjectId === '') {
+            delete t.acl;
+        } else if (thing.authSubjectId !== undefined) {
+            var permissions = {};
+            for (var i = 0; i < PERMISSIONS.length; i++) {
+                permissions[PERMISSIONS[i]] = true;
+            }
+
+            var acl = {};
+            acl[thing.authSubjectId] = permissions;
+
+            t.acl = acl;
         }
 
-        if (thing.attributes === '')
-        {
+        if (thing.attributes === '') {
             delete t.attributes;
-        }
-        else if (thing.attributes)
-        {
+        } else if (thing.attributes) {
             t.attributes = JSON.parse(thing.attributes);
         }
 
@@ -104,28 +106,30 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, T
         var t = new Thing();
         t.thingId = thing.thingId;
 
-        if (thing.owner === '')
-        {
-            delete t.owner;
-        }
-        else if (thing.owner !== undefined)
-        {
-            t.owner = thing.owner;
+        if (thing.authSubjectId === '') {
+            delete t.acl;
+        } else if (thing.authSubjectId !== undefined) {
+            var permissions = {};
+            for (var i = 0; i < PERMISSIONS.length; i++) {
+                permissions[PERMISSIONS[i]] = true;
+            }
+
+            var acl = {};
+            acl[thing.authSubjectId] = permissions;
+
+            t.acl = acl;
         }
 
-        if (thing.attributes === '')
-        {
+        if (thing.attributes === '') {
             delete t.attributes;
-        }
-        else if (thing.attributes)
-        {
+        } else if (thing.attributes) {
             t.attributes = JSON.parse(thing.attributes);
         }
 
         Thing.put({ thingId: t.thingId }, t,
             function success(value) {
                 logResponse(RESPONSE_TYPE.SUCCESS,
-                    "putThing", value.$status, "Thing modified successfully");
+                    "putThing", value.$status, "Thing modified successfully.");
             },
             function error(httpResponse) {
                 logError("putThing", httpResponse);
@@ -163,7 +167,7 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, T
 
     $scope.getThingAcl = function (thingId) {
         if (isNullOrEmpty(thingId)) {
-            throw new Error('The thingId must not be undefined or empty!');
+            throw new Error('The Thing ID must not be undefined or empty!');
         }
 
         ThingAcl.get({thingId: thingId},
@@ -177,10 +181,10 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, T
     
     $scope.getThingAclEntry = function (thingId, subject) {
         if (isNullOrEmpty(thingId)) {
-            throw new Error('The thingId must not be undefined or empty!');
+            throw new Error('The Authorization Subject ID must not be undefined or empty!');
         }
         if (isNullOrEmpty(subject)) {
-            throw new Error('The subject must not be undefined or empty!');
+            throw new Error('The Authorization Subject ID must not be undefined or empty!');
         }
 
         ThingAclEntry.get({thingId: thingId, subject: subject},
@@ -194,14 +198,14 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, T
 
     $scope.putThingAcl = function (thingId, aclEntries) {
         if (isNullOrEmpty(thingId)) {
-            throw new Error('The thingId must not be undefined or empty!');
+            throw new Error('The Thing ID must not be undefined or empty!');
         }
 
         var acl = JSON.parse(aclEntries);
 
         ThingAcl.put({thingId: thingId}, acl,
             function success(value) {
-                logResponse(RESPONSE_TYPE.SUCCESS, "putThingAcl", value.$status, "ACL modified successfully");
+                logResponse(RESPONSE_TYPE.SUCCESS, "putThingAcl", value.$status, "ACL modified successfully.");
             },
             function error(httpResponse) {
                 logError("putThingAcl", httpResponse);
@@ -210,10 +214,10 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, T
 
     $scope.putThingAclEntry = function (thingId, subject, permissions) {
         if (isNullOrEmpty(thingId)) {
-            throw new Error('The thingId must not be undefined or empty!');
+            throw new Error('The Thing ID must not be undefined or empty!');
         }
         if (isNullOrEmpty(subject)) {
-            throw new Error('The subject must not be undefined or empty!');
+            throw new Error('The Authorization Subject ID must not be undefined or empty!');
         }
 
         permissions = permissions.split(',');
@@ -225,7 +229,7 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, T
 
         ThingAclEntry.put({thingId: thingId, subject: subject}, aclEntryPermissions,
             function success(value) {
-                var message = value.$status === 201 ? value : "ACL entry modified successfully";
+                var message = value.$status === 201 ? value : "ACL entry modified successfully.";
                 logResponse(RESPONSE_TYPE.SUCCESS, "putThingAclEntry", value.$status, message);
             },
             function error(httpResponse) {
@@ -235,10 +239,10 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, T
 
     $scope.deleteThingAclEntry = function (thingId, subject) {
         if (isNullOrEmpty(thingId)) {
-            throw new Error('The thingId must not be undefined or empty!');
+            throw new Error('The Thing ID must not be undefined or empty!');
         }
         if (isNullOrEmpty(subject)) {
-            throw new Error('The subject must not be undefined or empty!');
+            throw new Error('The Authorization Subject ID must not be undefined or empty!');
         }
 
         ThingAclEntry.delete({thingId: thingId, subject: subject},

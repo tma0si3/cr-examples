@@ -28,7 +28,7 @@ var app = angular.module('crClient', ['crClientServices', 'ui.bootstrap']);
 
 app.config(function($httpProvider) {
     $httpProvider.defaults.headers.post['Content-Type'] = 'application/json';
-	$httpProvider.defaults.headers.put['Content-Type'] = 'application/json';
+    $httpProvider.defaults.headers.put['Content-Type'] = 'application/json';
 });
 
 app.controller('RestController', RestController);
