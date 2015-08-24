@@ -24,7 +24,7 @@
  */
 'use strict';
 
-function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, ThingAclEntry) {
+function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, ThingAclEntry, ThingFeatures, ThingFeature) {
     var RESPONSE_TYPE = {SUCCESS: 'success', ERROR: 'error', WARNING: 'warning'};
     var PERMISSIONS = ["READ", "WRITE", "ADMINISTRATE"];
 
@@ -251,6 +251,91 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, T
             },
             function error(httpResponse) {
                 logError("deleteThingAclEntry", httpResponse);
+            });
+    };
+
+
+    $scope.getFeatures = function (thingId) {
+        if (isNullOrEmpty(thingId)) {
+            throw new Error('The Thing ID must not be undefined or empty!');
+        }
+
+        ThingFeatures.get({thingId: thingId},
+            function success(value) {
+                logResponse(RESPONSE_TYPE.SUCCESS, "getFeatures", value.$status, value);
+            },
+            function error(httpResponse) {
+                logError("getFeatures", httpResponse);
+            });
+    };
+
+    $scope.getFeature = function (thingId, featureId) {
+        if (isNullOrEmpty(thingId)) {
+            throw new Error('The Thing ID must not be undefined or empty!');
+        }
+        if (isNullOrEmpty(featureId)) {
+            throw new Error('The Feature ID must not be undefined or empty!');
+        }
+
+        ThingFeature.get({thingId: thingId, featureId: featureId},
+            function success(value) {
+                logResponse(RESPONSE_TYPE.SUCCESS, "getFeature", value.$status, value);
+            },
+            function error(httpResponse) {
+                logError("getThingAclEntry", httpResponse);
+            });
+    };
+
+    $scope.putFeatures = function (thingId, features) {
+        if (isNullOrEmpty(thingId)) {
+            throw new Error('The Thing ID must not be undefined or empty!');
+        }
+
+        var theFeatures = JSON.parse(features);
+
+        ThingFeatures.put({thingId: thingId}, theFeatures,
+            function success(value) {
+                logResponse(RESPONSE_TYPE.SUCCESS, "putFeatures", value.$status, "Features modified successfully.");
+            },
+            function error(httpResponse) {
+                logError("putFeatures", httpResponse);
+            });
+    };
+
+    $scope.putFeature = function (thingId, featureId, feature) {
+        if (isNullOrEmpty(thingId)) {
+            throw new Error('The Thing ID must not be undefined or empty!');
+        }
+        if (isNullOrEmpty(featureId)) {
+            throw new Error('The Feature ID must not be undefined or empty!');
+        }
+
+        var theFeature = JSON.parse(feature);
+
+        ThingFeature.put({thingId: thingId, featureId: featureId}, theFeature,
+            function success(value) {
+                var message = value.$status === 201 ? value : "Feature modified successfully.";
+                logResponse(RESPONSE_TYPE.SUCCESS, "putFeature", value.$status, message);
+            },
+            function error(httpResponse) {
+                logError("putFeature", httpResponse);
+            });
+    };
+
+    $scope.deleteFeature = function (thingId, featureId) {
+        if (isNullOrEmpty(thingId)) {
+            throw new Error('The Thing ID must not be undefined or empty!');
+        }
+        if (isNullOrEmpty(featureId)) {
+            throw new Error('The Feature ID must not be undefined or empty!');
+        }
+
+        ThingFeature.delete({thingId: thingId, featureId: featureId},
+            function success(value) {
+                logResponse(RESPONSE_TYPE.SUCCESS, "deleteFeature", value.$status, "Feature deleted successfully.");
+            },
+            function error(httpResponse) {
+                logError("deleteFeature", httpResponse);
             });
     };
 

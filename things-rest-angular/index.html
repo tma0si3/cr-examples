@@ -471,6 +471,163 @@
                     </div>
                 </div>
             </tab>
+
+            <tab heading="Features">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Get the Features of a Thing</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="getFeatures(featuresToGet.thingId)">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon"
+                                              id="get-features-thingId">Thing ID</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The ID of the Thing"
+                                               aria-describedby="get-features-thingId"
+                                               ng-model="featuresToGet.thingId" required/>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="submit">Go!</button>
+                                        </span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Get a single Feature of a Thing</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="getFeature(featureToGet.thingId, featureToGet.featureId)">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon"
+                                              id="get-feature-thingId">Thing ID</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The ID of the Thing"
+                                               aria-describedby="get-feature-thingId"
+                                               ng-model="featureToGet.thingId" required/>
+                                        <span class="input-group-addon form-addon"
+                                              id="get-feature-featureId">Feature ID</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The ID of the Feature"
+                                               aria-describedby="get-feature-featureId"
+                                               ng-model="featureToGet.featureId" required/>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="submit">Go!</button>
+                                        </span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr/>
+
+                <div class="panel panel-success">
+                    <div class="panel-heading">Update the Features of a Thing</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="putFeatures(featuresToUpdate.thingId, featuresToUpdate.features)">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon"
+                                              id="update-features-thingId">Thing ID</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The ID of the Thing"
+                                               aria-describedby="update-features-thingId"
+                                               ng-model="featureToUpdate.thingId" required/>
+                                        <span class="input-group-addon form-addon"
+                                              id="update-features">Features Body</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The Features"
+                                               aria-describedby="update-features"
+                                               ng-model="featureToUpdate.features" required/>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="submit">Go!</button>
+                                        </span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-success">
+                    <div class="panel-heading">Create or update a single Feature of a Thing</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="putFeature(featureToUpdate.thingId, featureToUpdate.featureId, featureToUpdate.feature)">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon"
+                                              id="update-feature-thingId">Thing ID</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The ID of the Thing"
+                                               aria-describedby="update-feature-thingId"
+                                               ng-model="featureToUpdate.thingId" required/>
+                                        <span class="input-group-addon form-addon"
+                                              id="update-feature-featureId">Feature ID</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The ID of the Feature"
+                                               aria-describedby="update-feature-featureId"
+                                               ng-model="featureToUpdate.featureId" required/>
+                                        <span class="input-group-addon form-addon"
+                                              id="update-feature-body">Feature Body</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The body of the feature"
+                                               aria-describedby="update-feature-body"
+                                               ng-model="featureToUpdate.feature" required/>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="submit">Go!</button>
+                                        </span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr/>
+
+                <div class="panel panel-danger">
+                    <div class="panel-heading">Delete a single Feature of a Thing</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="deleteFeature(featureToDelete.thingId, featureToDelete.featureId)">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon"
+                                              id="delete-feature-thingId">Thing ID</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The ID of the Thing"
+                                               aria-describedby="delete-feature-thingId"
+                                               ng-model="featureToDelete.thingId" required/>
+                                        <span class="input-group-addon form-addon"
+                                              id="delete-feature-featureId">Feature ID</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The ID of the Feature"
+                                               aria-describedby="delete-feature-featureId"
+                                               ng-model="featureToDelete.featureId" required/>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="submit">Go!</button>
+                                        </span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </tab>
+
         </tabset>
 
         <hr/>

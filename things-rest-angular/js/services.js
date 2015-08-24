@@ -168,3 +168,52 @@ services.factory('ThingAclEntry', function ($resource) {
     };
     return $resource(url, null, actions);
 });
+
+services.factory('ThingFeatures', function ($resource) {
+    var url = '/cr/1/things/:thingId/features';
+    var actions = {
+        get: {
+            method: 'GET',
+            params: {thingId: '@thingId'},
+            interceptor: {
+                response: services.statusInterceptor
+            }
+        },
+        put: {
+            method: 'PUT',
+            params: {thingId: '@thingId'},
+            interceptor: {
+                response: services.statusInterceptor
+            }
+        }
+    };
+    return $resource(url, null, actions);
+});
+
+services.factory('ThingFeature', function ($resource) {
+    var url = '/cr/1/things/:thingId/features/:featureId';
+    var actions = {
+        get: {
+            method: 'GET',
+            params: {thingId: '@thingId', featureId: '@featureId'},
+            interceptor: {
+                response: services.statusInterceptor
+            }
+        },
+        put: {
+            method: 'PUT',
+            params: {thingId: '@thingId', featureId: '@featureId'},
+            interceptor: {
+                response: services.statusInterceptor
+            }
+        },
+        delete: {
+            method: 'DELETE',
+            params: {thingId: '@thingId', feature: '@featureId'},
+            interceptor: {
+                response: services.statusInterceptor
+            }
+        }
+    };
+    return $resource(url, null, actions);
+});
