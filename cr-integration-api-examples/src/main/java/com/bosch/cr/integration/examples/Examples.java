@@ -92,7 +92,7 @@ public class Examples
 
    final static void deleteThing(final ThingHandle thingHandle)
    {
-      thingHandle.delete();
+      thingHandle.deleteThing();
    }
 
    final static void destroyClient(final ThingIntegration thingIntegration)
