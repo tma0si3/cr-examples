@@ -42,7 +42,7 @@ public class Examples
    public static CountDownLatch createNewThing(final ThingIntegration thingIntegration, final String thingId)
    {
       final CountDownLatch createdFlag = new CountDownLatch(1);
-      thingIntegration.create("myThing").handleResult( (thing, throwable) ->
+      thingIntegration.createThing("myThing").handleResult( (thing, throwable) ->
       {
          if( throwable != null )
          {
