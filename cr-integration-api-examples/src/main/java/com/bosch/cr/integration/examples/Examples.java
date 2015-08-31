@@ -1,6 +1,5 @@
 package com.bosch.cr.integration.examples;
 
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -15,14 +14,13 @@ import com.bosch.cr.integration.messaging.stomp.StompProviderConfiguration;
 
 public class Examples
 {
+   private static final Logger LOGGER = LoggerFactory.getLogger(Examples.class);
    public static final String BOSCH_IOT_CENTRAL_REGISTRY_ENDPOINT_URI =
       "wss://events-stomper.apps.bosch-iot-cloud.com:443/";
 
-   private static final Logger LOGGER = LoggerFactory.getLogger(Examples.class);
-
-   public static ThingIntegration instantiateClient()
+   public static void main(final String[] args) throws InterruptedException
    {
-
+      /* Create a new integration client */
       final ProviderConfiguration providerConfig = StompProviderConfiguration.newBuilder()
          .proxyHost("cache.innovations.de")    // Configure proxy (if needed)
          .proxyPort(3128)                      // Configure proxy (if needed)
@@ -36,85 +34,65 @@ public class Examples
          .providerConfig(providerConfig)
          .build();
 
-      return ThingIntegrationClient.newInstance(clientConfiguration);
-   }
+      final ThingIntegration thingIntegration = ThingIntegrationClient.newInstance(clientConfiguration);
 
-   public static CountDownLatch createNewThing(final ThingIntegration thingIntegration, final String thingId)
-   {
-      final CountDownLatch createdFlag = new CountDownLatch(1);
-      thingIntegration.createThing("myThing").handleResult( (thing, throwable) ->
-      {
-         if( throwable != null )
-         {
-            LOGGER.error("Failed: {}", throwable);
-         }
-         else
-         {
-            LOGGER.info("Successfully created thing: {}", thing);
-            createdFlag.countDown();
-         }
-      }).apply();
-      return createdFlag;
-   }
+      /* Register for *all* lifecycle events of *all* things */
+      final String registration_1 = "registration_1";
+      thingIntegration.registerForLifecycleEvent(registration_1, lifecycle ->
+            LOGGER.info("lifecycle received: {}", lifecycle)
+      );
 
-   public static void createNewAttributes(final ThingHandle thingHandle, final String path, final String value)
-   {
-      thingHandle.changeAttribute(path, value).handleResult( (_void, throwable) ->
-      {
-         if( throwable != null )
-         {
-            LOGGER.error("Failed: {}", throwable);
-         }
-         else
-         {
-            LOGGER.info("Successfully changed attribute");
-         }
-      }).apply();
-   }
+      /* Register for *all* attribute changes of *all* things */
+      final String registration_2 = "registration_2";
+      thingIntegration.registerForAttributeChange(registration_2,
+         change -> LOGGER.info("attributeChange received: {}", change));
 
-   final static String registerForAttributeChanges(final ThingHandle thingHandle, final String path)
-   {
-      final String registrationId = "myAttributeChangeRegistration";
-      thingHandle.registerForAttributeChange(registrationId, path, change -> {
-         LOGGER.info("attributeChange received: {}", change);
-      });
-      return registrationId;
-   }
+      /* Register for *specific* attribute changes of all things */
+      final String registration_3 = "registration_2";
+      thingIntegration.registerForAttributeChange(registration_3, "address/city",
+         change -> LOGGER.info("attributeChange received: {}", change));
 
-   final static String registerForLifecycleEvents(final ThingHandle thingHandle)
-   {
-      final String registrationId = "myLifecycleRegistration";
-      thingHandle.registerForLifecycleEvent(registrationId, lifecycleEvent -> {
-         LOGGER.info("lifecycle received: {}", lifecycleEvent);
-      });
-      return registrationId;
-   }
+      /* Create a new thing and define handlers for success and failure */
+      thingIntegration.createThing("myThing")
+         .onSuccess( thing -> LOGGER.info("Thing created: {}", thing))
+         .onFailure(throwable -> LOGGER.error("Create Thing Failed: {}", throwable))
+         .apply();
 
-   final static void deleteThing(final ThingHandle thingHandle)
-   {
-      thingHandle.deleteThing();
-   }
+      /* Terminate a registration using the client */
+      thingIntegration.deregister(registration_1);
 
-   final static void destroyClient(final ThingIntegration thingIntegration)
-   {
-      thingIntegration.destroy(30, TimeUnit.SECONDS);
-   }
+      ------------------------------------------------------------------------------------------------------------------
 
-   public static void main(final String[] args) throws InterruptedException
-   {
-      final ThingIntegration thingIntegration = instantiateClient();
-
-      final CountDownLatch createdFlag = createNewThing(thingIntegration, "myThing");
-      createdFlag.await(1, TimeUnit.SECONDS);
+      /* Create a handle for an existing thing */
       final ThingHandle myThing = thingIntegration.forThing("myThing");
 
+      /* Register for *all* attribute changes of a *specific* thing */
+      final String registration_4 = "registration_4";
+      myThing.registerForAttributeChange(registration_4, change -> LOGGER.info("attributeChange received: {}", change));
 
-      registerForAttributeChanges(myThing, "address/city");
-      registerForLifecycleEvents(myThing);
+      /* Register for *specific* attribute changes of a *specific* thing */
+      final String registration_5 = "registration_5";
+      myThing.registerForAttributeChange(registration_5, "address/city",
+         change -> LOGGER.info("attributeChange received: {}", change));
 
-      createNewAttributes(myThing, "address/city", "Berlin");
-      deleteThing(myThing);
+      /* Register for *all* lifecycle events of a *specific* thing */
+      final String registration_6 = "registration_6";
+      myThing.registerForLifecycleEvent(registration_6,
+         lifecycleEvent -> LOGGER.info("lifecycle received: {}", lifecycleEvent));
 
-      destroyClient(thingIntegration);
+      /* Create new attribute for a thing and define handlers for success and failure */
+      myThing.changeAttribute("address/city", "Berlin")
+         .onSuccess( _void -> LOGGER.info("New attribute created successfully."))
+         .onFailure( throwable -> LOGGER.error("Failed to create new attribute: {}", throwable))
+         .apply();
+
+      /* Terminate a registration using a thingHandle */
+      myThing.deregister(registration_4);
+
+      /* Delete a thing */
+      myThing.deleteThing();
+
+      /* Destroy the client and wait 30 seconds for its graceful shutdown */
+      thingIntegration.destroy(30, TimeUnit.SECONDS);
    }
 }
