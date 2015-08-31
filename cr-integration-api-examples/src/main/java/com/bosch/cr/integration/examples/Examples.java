@@ -61,7 +61,7 @@ public class Examples
       /* Terminate a registration using the client */
       thingIntegration.deregister(registration_1);
 
-      ------------------------------------------------------------------------------------------------------------------
+      /*--------------------------------------------------------------------------------------------------------------*/
 
       /* Create a handle for an existing thing */
       final ThingHandle myThing = thingIntegration.forThing("myThing");
