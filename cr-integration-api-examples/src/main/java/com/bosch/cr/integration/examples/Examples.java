@@ -37,19 +37,18 @@ public class Examples
       final ThingIntegration thingIntegration = ThingIntegrationClient.newInstance(clientConfiguration);
 
       /* Register for *all* lifecycle events of *all* things */
-      final String registration_1 = "registration_1";
-      thingIntegration.registerForLifecycleEvent(registration_1, lifecycle ->
-            LOGGER.info("lifecycle received: {}", lifecycle)
-      );
+      final String allThings_lifecycleRegistration = "allThings_lifecycleRegistration";
+      thingIntegration.registerForThingLifecycleEvent(allThings_lifecycleRegistration,
+         lifecycle -> LOGGER.info("lifecycle received: {}", lifecycle));
 
       /* Register for *all* attribute changes of *all* things */
-      final String registration_2 = "registration_2";
-      thingIntegration.registerForAttributeChange(registration_2,
+      final String allThings_attributeChangeRegistration = "allThings_attributeChangeRegistration";
+      thingIntegration.registerForThingAttributeChange(allThings_attributeChangeRegistration,
          change -> LOGGER.info("attributeChange received: {}", change));
 
       /* Register for *specific* attribute changes of all things */
-      final String registration_3 = "registration_2";
-      thingIntegration.registerForAttributeChange(registration_3, "address/city",
+      final String allThings_specificAttributeChangeRegistration = "allThings_specificAttributeChangeRegistration";
+      thingIntegration.registerForThingAttributeChange(allThings_specificAttributeChangeRegistration, "address/city",
          change -> LOGGER.info("attributeChange received: {}", change));
 
       /* Create a new thing and define handlers for success and failure */
@@ -59,26 +58,27 @@ public class Examples
          .apply();
 
       /* Terminate a registration using the client */
-      thingIntegration.deregister(registration_1);
+      thingIntegration.deregister(allThings_lifecycleRegistration);
 
       /*--------------------------------------------------------------------------------------------------------------*/
 
       /* Create a handle for an existing thing */
       final ThingHandle myThing = thingIntegration.forThing("myThing");
 
-      /* Register for *all* attribute changes of a *specific* thing */
-      final String registration_4 = "registration_4";
-      myThing.registerForAttributeChange(registration_4, change -> LOGGER.info("attributeChange received: {}", change));
+      /* Register for *all* lifecycle events of a *specific* thing */
+      final String myThing_lifecycleRegistration = "myThing_lifecycleRegistration";
+      myThing.registerForThingLifecycleEvent(myThing_lifecycleRegistration,
+         lifecycleEvent -> LOGGER.info("lifecycle received: {}", lifecycleEvent));
 
-      /* Register for *specific* attribute changes of a *specific* thing */
-      final String registration_5 = "registration_5";
-      myThing.registerForAttributeChange(registration_5, "address/city",
+      /* Register for *all* attribute changes of a *specific* thing */
+      final String myThing_attributeChangeRegistration = "myThing_attributeChangeRegistration";
+      myThing.registerForThingAttributeChange(myThing_attributeChangeRegistration,
          change -> LOGGER.info("attributeChange received: {}", change));
 
-      /* Register for *all* lifecycle events of a *specific* thing */
-      final String registration_6 = "registration_6";
-      myThing.registerForLifecycleEvent(registration_6,
-         lifecycleEvent -> LOGGER.info("lifecycle received: {}", lifecycleEvent));
+      /* Register for *specific* attribute changes of a *specific* thing */
+      final String myThing_specificAttributeChangeRegistration = "myThing_specificAttributeChangeRegistration";
+      myThing.registerForThingAttributeChange(myThing_specificAttributeChangeRegistration, "address/city",
+         change -> LOGGER.info("attributeChange received: {}", change));
 
       /* Create new attribute for a thing and define handlers for success and failure */
       myThing.changeAttribute("address/city", "Berlin")
@@ -87,7 +87,7 @@ public class Examples
          .apply();
 
       /* Terminate a registration using a thingHandle */
-      myThing.deregister(registration_4);
+      myThing.deregister(myThing_lifecycleRegistration);
 
       /* Delete a thing */
       myThing.deleteThing();
