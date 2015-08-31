@@ -36,7 +36,12 @@ public class Examples
 
       final IntegrationClient integrationClient = IntegrationClientImpl.newInstance(integrationClientConfiguration);
 
-      /* Register for *all* lifecycle events of *all* things */
+      /* Create a new thing and define handlers for success and failure */
+      integrationClient.createThing("myThing")
+         .onSuccess( thing -> LOGGER.info("Thing created: {}", thing))
+         .onFailure(throwable -> LOGGER.error("Create Thing Failed: {}", throwable)).apply();
+
+      /* Register for lifecycle events of *all* things */
       final String allThings_lifecycleRegistration = "allThings_lifecycleRegistration";
       integrationClient.registerForThingLifecycleEvent(allThings_lifecycleRegistration,
          lifecycle -> LOGGER.info("lifecycle received: {}", lifecycle));
@@ -46,16 +51,10 @@ public class Examples
       integrationClient.registerForThingAttributeChange(allThings_attributeChangeRegistration,
          change -> LOGGER.info("attributeChange received: {}", change));
 
-      /* Register for *specific* attribute changes of all things */
+      /* Register for *specific* attribute changes of *all* things */
       final String allThings_specificAttributeChangeRegistration = "allThings_specificAttributeChangeRegistration";
       integrationClient.registerForThingAttributeChange(allThings_specificAttributeChangeRegistration, "address/city",
          change -> LOGGER.info("attributeChange received: {}", change));
-
-      /* Create a new thing and define handlers for success and failure */
-      integrationClient.createThing("myThing")
-         .onSuccess( thing -> LOGGER.info("Thing created: {}", thing))
-         .onFailure(throwable -> LOGGER.error("Create Thing Failed: {}", throwable))
-         .apply();
 
       /* Terminate a registration using the client */
       integrationClient.deregister(allThings_lifecycleRegistration);
