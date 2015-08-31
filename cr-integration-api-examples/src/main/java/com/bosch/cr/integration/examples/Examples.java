@@ -5,10 +5,10 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bosch.cr.integration.ClientConfiguration;
-import com.bosch.cr.integration.ThingHandle;
+import com.bosch.cr.integration.IntegrationClientConfiguration;
+import com.bosch.cr.integration.IntegrationClient;
+import com.bosch.cr.integration.IntegrationClientImpl;
 import com.bosch.cr.integration.ThingIntegration;
-import com.bosch.cr.integration.ThingIntegrationClient;
 import com.bosch.cr.integration.messaging.ProviderConfiguration;
 import com.bosch.cr.integration.messaging.stomp.StompProviderConfiguration;
 
@@ -21,49 +21,49 @@ public class Examples
    public static void main(final String[] args) throws InterruptedException
    {
       /* Create a new integration client */
-      final ProviderConfiguration providerConfig = StompProviderConfiguration.newBuilder()
+      final ProviderConfiguration providerConfiguration = StompProviderConfiguration.newBuilder()
          .proxyHost("cache.innovations.de")    // Configure proxy (if needed)
          .proxyPort(3128)                      // Configure proxy (if needed)
          .sslKeyStoreLocation(Examples.class.getResource("/bosch-iot-cloud.jks"))
          .sslKeyStorePassword("jks")
          .build();
 
-      final ClientConfiguration clientConfiguration = ClientConfiguration.newBuilder()
+      final IntegrationClientConfiguration integrationClientConfiguration = IntegrationClientConfiguration.newBuilder()
          .clientId("examples_client")
          .centralRegistryEndpointUri(BOSCH_IOT_CENTRAL_REGISTRY_ENDPOINT_URI)
-         .providerConfig(providerConfig)
+         .providerConfiguration(providerConfiguration)
          .build();
 
-      final ThingIntegration thingIntegration = ThingIntegrationClient.newInstance(clientConfiguration);
+      final IntegrationClient integrationClient = IntegrationClientImpl.newInstance(integrationClientConfiguration);
 
       /* Register for *all* lifecycle events of *all* things */
       final String allThings_lifecycleRegistration = "allThings_lifecycleRegistration";
-      thingIntegration.registerForThingLifecycleEvent(allThings_lifecycleRegistration,
+      integrationClient.registerForThingLifecycleEvent(allThings_lifecycleRegistration,
          lifecycle -> LOGGER.info("lifecycle received: {}", lifecycle));
 
       /* Register for *all* attribute changes of *all* things */
       final String allThings_attributeChangeRegistration = "allThings_attributeChangeRegistration";
-      thingIntegration.registerForThingAttributeChange(allThings_attributeChangeRegistration,
+      integrationClient.registerForThingAttributeChange(allThings_attributeChangeRegistration,
          change -> LOGGER.info("attributeChange received: {}", change));
 
       /* Register for *specific* attribute changes of all things */
       final String allThings_specificAttributeChangeRegistration = "allThings_specificAttributeChangeRegistration";
-      thingIntegration.registerForThingAttributeChange(allThings_specificAttributeChangeRegistration, "address/city",
+      integrationClient.registerForThingAttributeChange(allThings_specificAttributeChangeRegistration, "address/city",
          change -> LOGGER.info("attributeChange received: {}", change));
 
       /* Create a new thing and define handlers for success and failure */
-      thingIntegration.createThing("myThing")
+      integrationClient.createThing("myThing")
          .onSuccess( thing -> LOGGER.info("Thing created: {}", thing))
          .onFailure(throwable -> LOGGER.error("Create Thing Failed: {}", throwable))
          .apply();
 
       /* Terminate a registration using the client */
-      thingIntegration.deregister(allThings_lifecycleRegistration);
+      integrationClient.deregister(allThings_lifecycleRegistration);
 
       /*--------------------------------------------------------------------------------------------------------------*/
 
       /* Create a handle for an existing thing */
-      final ThingHandle myThing = thingIntegration.forThing("myThing");
+      final ThingIntegration myThing = integrationClient.forThing("myThing");
 
       /* Register for *all* lifecycle events of a *specific* thing */
       final String myThing_lifecycleRegistration = "myThing_lifecycleRegistration";
@@ -93,6 +93,6 @@ public class Examples
       myThing.deleteThing();
 
       /* Destroy the client and wait 30 seconds for its graceful shutdown */
-      thingIntegration.destroy(30, TimeUnit.SECONDS);
+      integrationClient.destroy(30, TimeUnit.SECONDS);
    }
 }
