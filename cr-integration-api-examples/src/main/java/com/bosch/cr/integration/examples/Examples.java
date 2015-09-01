@@ -93,7 +93,7 @@ public class Examples
       myThing.deregister(myThing_lifecycleRegistration);
 
       /* Delete a thing */
-      myThing.delete();
+      myThing.delete().apply();
 
       /* Destroy the client and wait 30 seconds for its graceful shutdown */
       integrationClient.destroy(30, TimeUnit.SECONDS);
