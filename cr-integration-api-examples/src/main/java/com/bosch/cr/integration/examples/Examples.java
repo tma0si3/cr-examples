@@ -30,7 +30,7 @@ public class Examples
          .build();
 
       final IntegrationClientConfiguration integrationClientConfiguration = IntegrationClientConfiguration.newBuilder()
-         .clientId("examples_client")
+         .clientId("uuid:example-clien")
          .centralRegistryEndpointUri(BOSCH_IOT_CENTRAL_REGISTRY_ENDPOINT_URI)
          .providerConfiguration(providerConfiguration)
          .build();
@@ -60,9 +60,6 @@ public class Examples
       thingIntegration.registerForAttributeChange(allThings_specificAttributeChangeRegistration, "address/city",
          change -> LOGGER.info("attributeChange received: {}", change));
 
-      /* Terminate a registration using the client */
-      thingIntegration.deregister(allThings_lifecycleRegistration);
-
       /*--------------------------------------------------------------------------------------------------------------*/
 
       /* Create a handle for an existing thing */
@@ -88,9 +85,6 @@ public class Examples
          .onSuccess( _void -> LOGGER.info("New attribute created successfully."))
          .onFailure( throwable -> LOGGER.error("Failed to create new attribute: {}", throwable))
          .apply();
-
-      /* Terminate a registration using a thingHandle */
-      myThing.deregister(myThing_lifecycleRegistration);
 
       /* Delete a thing */
       myThing.delete().apply();
