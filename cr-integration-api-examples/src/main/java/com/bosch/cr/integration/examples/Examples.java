@@ -16,7 +16,7 @@ import com.bosch.cr.integration.messaging.stomp.StompProviderConfiguration;
 public class Examples
 {
    private static final Logger LOGGER = LoggerFactory.getLogger(Examples.class);
-   public static final String BOSCH_IOT_CENTRAL_REGISTRY_ENDPOINT_URI =
+   public static final String BOSCH_IOT_CENTRAL_REGISTRY_ENDPOINT_URL =
       "wss://events-stomper.apps.bosch-iot-cloud.com:443/";
 
    public static void main(final String[] args) throws InterruptedException
@@ -31,7 +31,7 @@ public class Examples
 
       final IntegrationClientConfiguration integrationClientConfiguration = IntegrationClientConfiguration.newBuilder()
          .clientId("uuid:example-clien")
-         .centralRegistryEndpointUri(BOSCH_IOT_CENTRAL_REGISTRY_ENDPOINT_URI)
+         .centralRegistryEndpointUrl(BOSCH_IOT_CENTRAL_REGISTRY_ENDPOINT_URL)
          .providerConfiguration(providerConfiguration)
          .build();
 
