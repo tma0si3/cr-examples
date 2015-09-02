@@ -302,7 +302,7 @@
       "version": 2,
       "preRequestScript": "",
       "tests": "",
-      "rawModeData": ""
+      "rawModeData": "{}"
     },
     {
       "collectionId": "180e552e-3462-658b-b223-38f9c2006bac",
@@ -335,7 +335,7 @@
       "time": 1440655320992,
       "preRequestScript": "",
       "tests": "",
-      "rawModeData": "{\n  \"acl\": {\n    \"ed420ff0-b1c96661e4-9070-3863bbc77d82\": {\n      \"READ\": true,\n      \"WRITE\": true,\n      \"ADMINISTRATE\": true\n    },\n    \"edca04a0-b1c96661e4-9070-3863bbc77d82\": {\n      \"READ\": true,\n      \"WRITE\": false,\n      \"ADMINISTRATE\": false\n    }\n  },\n  \"attributes\": {\n    \"manufacturer\": \"ACME\",\n    \"make\": \"Fancy Fab Car\",\n    \"model\": \"Environmental FourWheeler 4711\",\n    \"VIN\": \"0815666337\"\n  },\n  \"features\": {\n    \"Vehicle\": {\n      \"properties\": {\n        \"configuration\": {\n          \"transmission\": {\n            \"type\": \"manual\",\n            \"gears\": 7\n          }\n        },\n        \"status\": {\n          \"running\": true,\n          \"speed\": 90,\n          \"gear\": 5\n        },\n        \"fault\": {\n          \"flatTyre\": false\n        }\n      }\n    },\n    \"EnvironmentScanner\": {\n      \"properties\": {\n          \"temperature\": 20.8,\n          \"humidity\": 73,\n          \"barometricPressure\": 970.7,\n          \"location\": {\n            \"longitude\": 47.682170,\n            \"latitude\": 9.386372\n          },\n          \"altitude\": 399\n      }\n    }\n  }\n}\n"
+      "rawModeData": "{\n  \"attributes\": {\n    \"manufacturer\": \"ACME\",\n    \"make\": \"Fancy Fab Car\",\n    \"model\": \"Environmental FourWheeler 4711\",\n    \"VIN\": \"0815666337\"\n  },\n  \"features\": {\n    \"Vehicle\": {\n      \"properties\": {\n        \"configuration\": {\n          \"transmission\": {\n            \"type\": \"manual\",\n            \"gears\": 7\n          }\n        },\n        \"status\": {\n          \"running\": true,\n          \"speed\": 90,\n          \"gear\": 5\n        },\n        \"fault\": {\n          \"flatTyre\": false\n        }\n      }\n    },\n    \"EnvironmentScanner\": {\n      \"properties\": {\n          \"temperature\": 20.8,\n          \"humidity\": 73,\n          \"barometricPressure\": 970.7,\n          \"location\": {\n            \"longitude\": 47.682170,\n            \"latitude\": 9.386372\n          },\n          \"altitude\": 399\n      }\n    }\n  }\n}\n"
     },
     {
       "collectionId": "180e552e-3462-658b-b223-38f9c2006bac",
