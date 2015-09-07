@@ -467,9 +467,11 @@ function RestController($scope, $log, Things, Thing, Attributes, Attribute, Acl,
             });
     };
 
+
     $scope.clearResponses = function () {
         $scope.responses.length = 0;
     };
+
 
     function logError(functionName, httpResponse)
     {
