@@ -83,56 +83,7 @@
     <div class="container" ng-controller="RestController">
 
         <tabset>
-            <tab heading="Thing(s)">
-                <div class="panel panel-primary">
-                    <div class="panel-heading">Get all registered Thing IDs</div>
-                    <div class="panel-body">
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <form ng-submit="getThings('', 'thingId')">
-                                    <div class="input-group">
-                                        <span class="input-group-btn">
-                                            <button class="btn btn-default" type="submit">Go!</button>
-                                        </span>
-                                    </div>
-                                    <!-- /input-group -->
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- /.panel -->
-
-                <div class="panel panel-primary">
-                    <div class="panel-heading">Get a Thing</div>
-                    <div class="panel-body">
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <form ng-submit="getThing(getThingId, getThingFields)">
-                                    <div class="input-group">
-                                        <span class="input-group-addon form-addon" id="get-thing-thingId">Thing ID</span>
-                                        <input type="text" class="form-control"
-                                               placeholder="The Thing ID"
-                                               aria-describedby="get-thing-thingId"
-                                               ng-model="getThingId" required/>
-                                        <span class="input-group-addon form-addon" id="get-thing-fields">Fields</span>
-                                        <input type="text"
-                                               class="form-control"
-                                               placeholder="The fields separated by ','"
-                                               aria-describedby="get-thing-fields"
-                                               ng-model="getThingFields"/>
-                                        <span class="input-group-btn">
-                                            <button class="btn btn-default" type="submit">Go!</button>
-                                        </span>
-                                    </div>
-                                    <!-- /input-group -->
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- /.panel -->
-
+            <tab heading="Things">
                 <div class="panel panel-primary">
                     <div class="panel-heading">Get a list of Things</div>
                     <div class="panel-body">
@@ -163,10 +114,40 @@
                 </div>
                 <!-- /.panel -->
 
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Get a single Thing</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="getThing(getThingId, getThingFields)">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon" id="get-thing-thingId">Thing ID</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The Thing ID"
+                                               aria-describedby="get-thing-thingId"
+                                               ng-model="getThingId" required/>
+                                        <span class="input-group-addon form-addon" id="get-thing-fields">Fields</span>
+                                        <input type="text"
+                                               class="form-control"
+                                               placeholder="The fields separated by ','"
+                                               aria-describedby="get-thing-fields"
+                                               ng-model="getThingFields"/>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="submit">Go!</button>
+                                        </span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.panel -->
+
                 <hr/>
 
                 <div class="panel panel-success">
-                    <div class="panel-heading">Create a new Thing</div>
+                    <div class="panel-heading">Create a new Thing with a generated ID</div>
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-lg-12">
@@ -176,11 +157,11 @@
                                         <input type="text" class="form-control"
                                                placeholder="The ID of the Authorization Subject"
                                                aria-describedby="create-thing-authSubjectId"
-                                               ng-model="thingToCreate.authSubjectId" required/>
-                                        <span class="input-group-addon form-addon" id="create-thing-attributes">Attributes</span>
+                                               ng-model="thingToCreate.authSubjectId"/>
+                                        <span class="input-group-addon form-addon" id="create-thing-attributes">Attributes JSON Object</span>
                                         <input type="text"
                                                class="form-control"
-                                               placeholder="The attributes"
+                                               placeholder="The Attributes"
                                                aria-describedby="create-thing-attributes"
                                                ng-model="thingToCreate.attributes"/>
                                          <span class="input-group-btn">
@@ -195,7 +176,7 @@
                 <!-- /.panel -->
 
                 <div class="panel panel-success">
-                    <div class="panel-heading">Create or modify a specific Thing</div>
+                    <div class="panel-heading">Create or update a Thing with a specific ID</div>
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-lg-12">
@@ -212,11 +193,11 @@
                                         <input type="text" class="form-control"
                                                placeholder="The ID of the Authorization Subject"
                                                aria-describedby="modify-thing-authSubjectId"
-                                               ng-model="thingToModify.authSubjectId" required/>
-                                        <span class="input-group-addon form-addon" id="modify-thing-attributes">Attributes</span>
+                                               ng-model="thingToModify.authSubjectId"/>
+                                        <span class="input-group-addon form-addon" id="modify-thing-attributes">Attributes JSON Object</span>
                                         <input type="text"
                                                class="form-control"
-                                               placeholder="The attributes"
+                                               placeholder="The Attributes"
                                                aria-describedby="modify-thing-attributes"
                                                ng-model="thingToModify.attributes"/>
                                          <span class="input-group-btn">
@@ -256,79 +237,13 @@
                 </div>
             </tab>
 
-            <tab heading="Attributes">
-                <div class="panel panel-success">
-                    <div class="panel-heading">Modify an attribute on a Thing</div>
-                    <div class="panel-body">
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <form ng-submit="modifyThingAttribute(thingAttributeToCreate)">
-                                    <div class="input-group">
-                                        <span class="input-group-addon form-addon"
-                                              id="modify-attribute-thingId">Thing ID</span>
-                                        <input type="text" class="form-control"
-                                               placeholder="The ID of the Thing"
-                                               aria-describedby="modify-attribute-thingId"
-                                               ng-model="thingAttributeToCreate.thingId" required/>
-                                        <span class="input-group-addon form-addon" id="modify-attribute-path">Attribute path</span>
-                                        <input type="text" class="form-control"
-                                               placeholder="The path separated by '/'"
-                                               aria-describedby="modify-attribute-path"
-                                               ng-model="thingAttributeToCreate.path" required/>
-                                        <span class="input-group-addon form-addon" id="modify-attribute-value">Attribute value</span>
-                                        <input type="text" class="form-control"
-                                               placeholder="The value of the attribute"
-                                               aria-describedby="modify-attribute-key"
-                                               ng-model="thingAttributeToCreate.value" required/>
-                                        <span class="input-group-btn">
-                                            <button class="btn btn-default" type="submit">Go!</button>
-                                        </span>
-                                    </div>
-                                    <!-- /input-group -->
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <hr/>
-
-                <div class="panel panel-danger">
-                    <div class="panel-heading">Delete an attribute on a Thing</div>
-                    <div class="panel-body">
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <form ng-submit="deleteThingAttribute(thingAttributeToDelete)">
-                                    <div class="input-group">
-                                        <span class="input-group-addon form-addon" id="delete-attribute-thingId">Thing ID</span>
-                                        <input type="text" class="form-control"
-                                               placeholder="The ID of the Thing"
-                                               aria-describedby="delete-attribute-thingId"
-                                               ng-model="thingAttributeToDelete.thingId" required/>
-                                        <span class="input-group-addon form-addon" id="delete-attribute-path">Attribute path</span>
-                                        <input type="text" class="form-control"
-                                               placeholder="The path separated by '/'"
-                                               aria-describedby="delete-attribute-path"
-                                               ng-model="thingAttributeToDelete.path" required/>
-                                        <span class="input-group-btn">
-                                            <button class="btn btn-default" type="submit">Go!</button>
-                                        </span>
-                                    </div>
-                                    <!-- /input-group -->
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </tab>
-
             <tab heading="ACL">
                 <div class="panel panel-primary">
                     <div class="panel-heading">Get the ACL of a Thing</div>
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-lg-12">
-                                <form ng-submit="getThingAcl(aclToGet.thingId)">
+                                <form ng-submit="getAcl(aclToGet.thingId)">
                                     <div class="input-group">
                                         <span class="input-group-addon form-addon" id="get-acl-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
@@ -351,7 +266,7 @@
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-lg-12">
-                                <form ng-submit="getThingAclEntry(aclEntryToGet.thingId, aclEntryToGet.subject)">
+                                <form ng-submit="getAclEntry(aclEntryToGet.thingId, aclEntryToGet.subject)">
                                     <div class="input-group">
                                         <span class="input-group-addon form-addon" id="get-acl-entry-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
@@ -381,7 +296,7 @@
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-lg-12">
-                                <form ng-submit="putThingAcl(aclToUpdate.thingId, aclToUpdate.aclEntries)">
+                                <form ng-submit="putAcl(aclToUpdate.thingId, aclToUpdate.aclEntries)">
                                     <div class="input-group">
                                         <span class="input-group-addon form-addon" id="update-acl-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
@@ -410,7 +325,7 @@
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-lg-12">
-                                <form ng-submit="putThingAclEntry(aclEntryToUpdate.thingId, aclEntryToUpdate.subject, aclEntryToUpdate.permissions)">
+                                <form ng-submit="putAclEntry(aclEntryToUpdate.thingId, aclEntryToUpdate.subject, aclEntryToUpdate.permissions)">
                                     <div class="input-group">
                                         <span class="input-group-addon form-addon" id="update-acl-entry-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
@@ -447,7 +362,7 @@
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-lg-12">
-                                <form ng-submit="deleteThingAclEntry(aclEntryToDelete.thingId, aclEntryToDelete.subject)">
+                                <form ng-submit="deleteAclEntry(aclEntryToDelete.thingId, aclEntryToDelete.subject)">
                                     <div class="input-group">
                                         <span class="input-group-addon form-addon" id="delete-acl-entry-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
@@ -460,6 +375,157 @@
                                                placeholder="The ID of the Authorization Subject"
                                                aria-describedby="delete-acl-entry-subject"
                                                ng-model="aclEntryToDelete.subject" required/>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="submit">Go!</button>
+                                        </span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </tab>
+
+            <tab heading="Attributes">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Get the Attributes of a Thing</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="getAttributes(attributesToGet.thingId)">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon"
+                                              id="get-attributes-thingId">Thing ID</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The ID of the Thing"
+                                               aria-describedby="get-attributes-thingId"
+                                               ng-model="attributesToGet.thingId" required/>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="submit">Go!</button>
+                                        </span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Get a single Attribute of a Thing</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="getAttribute(attributeToGet.thingId, attributeToGet.jsonPointer)">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon"
+                                              id="get-attribute-thingId">Thing ID</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The ID of the Thing"
+                                               aria-describedby="get-attribute-thingId"
+                                               ng-model="attributeToGet.thingId" required/>
+                                        <span class="input-group-addon form-addon"
+                                              id="get-attribute-json-pointer">Attribute JSON Pointer</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The JSON Pointer of the Attribute"
+                                               aria-describedby="get-attribute-json-pointer"
+                                               ng-model="attributeToGet.jsonPointer" required/>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="submit">Go!</button>
+                                        </span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr/>
+
+                <div class="panel panel-success">
+                    <div class="panel-heading">Update the Attributes of a Thing</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="putAttributes(attributesToUpdate.thingId, attributesToUpdate.jsonObject)">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon"
+                                              id="modify-attributes-thingId">Thing ID</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The ID of the Thing"
+                                               aria-describedby="modify-attributes-thingId"
+                                               ng-model="attributesToUpdate.thingId" required/>
+                                        <span class="input-group-addon form-addon" id="modify-attributes-object">Attributes JSON Object</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The Attributes JSON Object"
+                                               aria-describedby="modify-attributes-object"
+                                               ng-model="attributesToUpdate.jsonObject" required/>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="submit">Go!</button>
+                                        </span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-success">
+                    <div class="panel-heading">Create or update a single Attribute of a Thing</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="putAttribute(attributeToUpdate.thingId, attributeToUpdate.jsonPointer, attributeToUpdate.jsonValue)">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon"
+                                              id="modify-attribute-thingId">Thing ID</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The ID of the Thing"
+                                               aria-describedby="modify-attribute-thingId"
+                                               ng-model="attributeToUpdate.thingId" required/>
+                                        <span class="input-group-addon form-addon" id="modify-attribute-jsonPointer">Attribute JSON Pointer</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The JSON Pointer of the Attribute"
+                                               aria-describedby="modify-attribute-jsonPointer"
+                                               ng-model="attributeToUpdate.jsonPointer" required/>
+                                        <span class="input-group-addon form-addon" id="modify-attribute-value">Attribute JSON Value</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The JSON value of the Attribute"
+                                               aria-describedby="modify-attribute-key"
+                                               ng-model="attributeToUpdate.jsonValue" required/>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="submit">Go!</button>
+                                        </span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr/>
+
+                <div class="panel panel-danger">
+                    <div class="panel-heading">Delete a single Attribute on a Thing</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="deleteAttribute(attributeToDelete.thingId, attributeToDelete.jsonPointer)">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon" id="delete-attribute-thingId">Thing ID</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The ID of the Thing"
+                                               aria-describedby="delete-attribute-thingId"
+                                               ng-model="attributeToDelete.thingId" required/>
+                                        <span class="input-group-addon form-addon" id="delete-attribute-jsonPointer">Attribute JSON Pointer</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The JSON Pointer of the Attribute"
+                                               aria-describedby="delete-attribute-jsonPointer"
+                                               ng-model="attributeToDelete.jsonPointer" required/>
                                         <span class="input-group-btn">
                                             <button class="btn btn-default" type="submit">Go!</button>
                                         </span>

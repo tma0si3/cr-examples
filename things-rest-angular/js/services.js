@@ -37,27 +37,6 @@ services.statusInterceptor = function (response) {
  * The Things service implements basic CRUD functionality for the things REST endpoint.
  *
  */
-services.factory('Thing', function ($resource) {
-    var url = '/cr/1/things/:thingId';
-    var actions = {
-        get: {
-            method: 'GET',
-            params: { thingId: '@thingId', fields: '@fields' },
-            interceptor: {
-                response: services.statusInterceptor
-            }
-        },
-        put: {
-            method: 'PUT',
-            params: { thingId: '@thingId' },
-            interceptor: {
-                response: services.statusInterceptor
-            }
-        }
-    };
-    return $resource(url, null, actions);
-});
-
 services.factory('Things', function ($resource) {
     var url = '/cr/1/things';
     var actions = {
@@ -93,26 +72,19 @@ services.factory('Things', function ($resource) {
     return $resource(url, null, actions);
 });
 
-services.factory('ThingAttribute', function ($resource) {
-    var url = '/cr/1/things/:thingId/attributes/:path';
+services.factory('Thing', function ($resource) {
+    var url = '/cr/1/things/:thingId';
     var actions = {
         get: {
             method: 'GET',
-            params: { thingId: '@thingId', path: '@path' },
+            params: { thingId: '@thingId', fields: '@fields' },
             interceptor: {
                 response: services.statusInterceptor
             }
         },
         put: {
             method: 'PUT',
-            params: { thingId: '@thingId', path: '@path' },
-            interceptor: {
-                response: services.statusInterceptor
-            }
-        },
-        delete: {
-            method: 'DELETE',
-            params: { thingId: '@thingId', path: '@path' },
+            params: { thingId: '@thingId' },
             interceptor: {
                 response: services.statusInterceptor
             }
@@ -121,7 +93,7 @@ services.factory('ThingAttribute', function ($resource) {
     return $resource(url, null, actions);
 });
 
-services.factory('ThingAcl', function ($resource) {
+services.factory('Acl', function ($resource) {
     var url = '/cr/1/things/:thingId/acl';
     var actions = {
         get: {
@@ -142,7 +114,7 @@ services.factory('ThingAcl', function ($resource) {
     return $resource(url, null, actions);
 });
 
-services.factory('ThingAclEntry', function ($resource) {
+services.factory('AclEntry', function ($resource) {
     var url = '/cr/1/things/:thingId/acl/:subject';
     var actions = {
         get: {
@@ -170,7 +142,64 @@ services.factory('ThingAclEntry', function ($resource) {
     return $resource(url, null, actions);
 });
 
-services.factory('ThingFeatures', function ($resource) {
+services.factory('Attributes', function ($resource) {
+    var url = '/cr/1/things/:thingId/attributes';
+    var actions = {
+        get: {
+            method: 'GET',
+            params: {thingId: '@thingId'},
+            interceptor: {
+                response: services.statusInterceptor
+            }
+        },
+        put: {
+            method: 'PUT',
+            params: {thingId: '@thingId'},
+            interceptor: {
+                response: services.statusInterceptor
+            }
+        }
+        //FIXME not yet implemented in CRaaS Things
+        //delete: {
+        //    method: 'DELETE',
+        //    params: {thingId: '@thingId'},
+        //    interceptor: {
+        //        response: services.statusInterceptor
+        //    }
+        //}
+    };
+    return $resource(url, null, actions);
+});
+
+services.factory('Attribute', function ($resource) {
+    var url = '/cr/1/things/:thingId/attributes/:jsonPointer';
+    var actions = {
+        get: {
+            method: 'GET',
+            params: { thingId: '@thingId', jsonPointer: '@jsonPointer' },
+            interceptor: {
+                response: services.statusInterceptor
+            }
+        },
+        put: {
+            method: 'PUT',
+            params: { thingId: '@thingId', jsonPointer: '@jsonPointer' },
+            interceptor: {
+                response: services.statusInterceptor
+            }
+        },
+        delete: {
+            method: 'DELETE',
+            params: { thingId: '@thingId', jsonPointer: '@jsonPointer' },
+            interceptor: {
+                response: services.statusInterceptor
+            }
+        }
+    };
+    return $resource(url, null, actions);
+});
+
+services.factory('Features', function ($resource) {
     var url = '/cr/1/things/:thingId/features';
     var actions = {
         get: {
@@ -191,7 +220,7 @@ services.factory('ThingFeatures', function ($resource) {
     return $resource(url, null, actions);
 });
 
-services.factory('ThingFeature', function ($resource) {
+services.factory('Feature', function ($resource) {
     var url = '/cr/1/things/:thingId/features/:featureId';
     var actions = {
         get: {
@@ -219,7 +248,7 @@ services.factory('ThingFeature', function ($resource) {
     return $resource(url, null, actions);
 });
 
-services.factory('FeatureProperties', function ($resource) {
+services.factory('Properties', function ($resource) {
     var url = '/cr/1/things/:thingId/features/:featureId/properties';
     var actions = {
         get: {
@@ -247,7 +276,7 @@ services.factory('FeatureProperties', function ($resource) {
     return $resource(url, null, actions);
 });
 
-services.factory('FeatureProperty', function ($resource) {
+services.factory('Property', function ($resource) {
     var url = '/cr/1/things/:thingId/features/:featureId/properties/:jsonPointer';
     var actions = {
         get: {
