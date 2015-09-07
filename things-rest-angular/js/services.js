@@ -159,14 +159,6 @@ services.factory('Attributes', function ($resource) {
                 response: services.statusInterceptor
             }
         }
-        //FIXME not yet implemented in CRaaS Things
-        //delete: {
-        //    method: 'DELETE',
-        //    params: {thingId: '@thingId'},
-        //    interceptor: {
-        //        response: services.statusInterceptor
-        //    }
-        //}
     };
     return $resource(url, null, actions);
 });
