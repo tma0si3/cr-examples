@@ -29,6 +29,7 @@ var services = angular.module('crClientServices', ['ngResource']);
 services.statusInterceptor = function (response) {
     var resource = response.resource;
     resource.$status = response.status;
+    resource.$data = response.data || null;
     return resource;
 };
 
@@ -210,6 +211,62 @@ services.factory('ThingFeature', function ($resource) {
         delete: {
             method: 'DELETE',
             params: {thingId: '@thingId', feature: '@featureId'},
+            interceptor: {
+                response: services.statusInterceptor
+            }
+        }
+    };
+    return $resource(url, null, actions);
+});
+
+services.factory('FeatureProperties', function ($resource) {
+    var url = '/cr/1/things/:thingId/features/:featureId/properties';
+    var actions = {
+        get: {
+            method: 'GET',
+            params: {thingId: '@thingId', featureId: '@featureId'},
+            interceptor: {
+                response: services.statusInterceptor
+            }
+        },
+        put: {
+            method: 'PUT',
+            params: {thingId: '@thingId', featureId: '@featureId'},
+            interceptor: {
+                response: services.statusInterceptor
+            }
+        },
+        delete: {
+            method: 'DELETE',
+            params: {thingId: '@thingId', property: '@featureId'},
+            interceptor: {
+                response: services.statusInterceptor
+            }
+        }
+    };
+    return $resource(url, null, actions);
+});
+
+services.factory('FeatureProperty', function ($resource) {
+    var url = '/cr/1/things/:thingId/features/:featureId/properties/:jsonPointer';
+    var actions = {
+        get: {
+            method: 'GET',
+            params: {thingId: '@thingId', property: '@featureId', jsonPointer: '@jsonPointer'},
+            interceptor: {
+                response: services.statusInterceptor
+            }
+        },
+        put: {
+            method: 'PUT',
+            params: {thingId: '@thingId', property: '@featureId', jsonPointer: '@jsonPointer'},
+            interceptor: {
+                response: services.statusInterceptor
+            }
+        },
+        delete: {
+            method: 'DELETE',
+            params: {thingId: '@thingId', property: '@featureId', jsonPointer: '@jsonPointer'},
             interceptor: {
                 response: services.statusInterceptor
             }

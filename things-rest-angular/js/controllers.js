@@ -24,7 +24,7 @@
  */
 'use strict';
 
-function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, ThingAclEntry, ThingFeatures, ThingFeature) {
+function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, ThingAclEntry, ThingFeatures, ThingFeature, FeatureProperties, FeatureProperty) {
     var RESPONSE_TYPE = {SUCCESS: 'success', ERROR: 'error', WARNING: 'warning'};
     var PERMISSIONS = ["READ", "WRITE", "ADMINISTRATE"];
 
@@ -282,7 +282,7 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, T
                 logResponse(RESPONSE_TYPE.SUCCESS, "getFeature", value.$status, value);
             },
             function error(httpResponse) {
-                logError("getThingAclEntry", httpResponse);
+                logError("getFeature", httpResponse);
             });
     };
 
@@ -339,6 +339,95 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, T
             });
     };
 
+
+    $scope.getProperties = function (thingId, featureId) {
+        ensureValueIsDefinedNotNull(thingId, "Thing ID");
+        ensureValueIsDefinedNotNull(featureId, "Feature ID");
+
+        FeatureProperties.get({thingId: thingId, featureId: featureId},
+            function success(value) {
+                logResponse(RESPONSE_TYPE.SUCCESS, "getProperties", value.$status, value);
+            },
+            function error(httpResponse) {
+                logError("getProperties", httpResponse);
+            });
+    };
+
+    $scope.getProperty = function (thingId, featureId, jsonPointer) {
+        ensureValueIsDefinedNotNull(thingId, "Thing ID");
+        ensureValueIsDefinedNotNull(featureId, "Feature ID");
+        ensureValueIsDefinedNotNull(jsonPointer, "JSON Pointer");
+
+        FeatureProperty.get({thingId: thingId, featureId: featureId, jsonPointer: jsonPointer},
+            function success(value) {
+                logResponse(RESPONSE_TYPE.SUCCESS, "getProperty", value.$status, value);
+            },
+            function error(httpResponse) {
+                logError("getProperty", httpResponse);
+            });
+    };
+
+    $scope.putProperties = function (thingId, featureId, jsonObject) {
+        ensureValueIsDefinedNotNull(thingId, "Thing ID");
+        ensureValueIsDefinedNotNull(featureId, "Feature ID");
+        ensureValueIsDefined(jsonObject, "JSON Object");
+
+        var theProperties = JSON.parse(jsonObject);
+
+        FeatureProperties.put({thingId: thingId, featureId: featureId}, theProperties,
+            function success(value) {
+                logResponse(RESPONSE_TYPE.SUCCESS, "putProperties", value.$status, "Properties modified successfully.");
+            },
+            function error(httpResponse) {
+                logError("putProperties", httpResponse);
+            });
+    };
+
+    $scope.putProperty = function (thingId, featureId, jsonPointer, jsonValue) {
+        ensureValueIsDefinedNotNull(thingId, "Thing ID");
+        ensureValueIsDefinedNotNull(featureId, "Feature ID");
+        ensureValueIsDefinedNotNull(jsonPointer, "JSON Pointer");
+        ensureValueIsDefined(jsonValue, "JSON Value");
+
+        var theValue = JSON.parse(jsonValue);
+
+        FeatureProperty.put({thingId: thingId, featureId: featureId, jsonPointer: jsonPointer}, theValue,
+            function success(value) {
+                var message = value.$status === 201 ? value : "Property modified successfully.";
+                logResponse(RESPONSE_TYPE.SUCCESS, "putProperty", value.$status, message);
+            },
+            function error(httpResponse) {
+                logError("putProperty", httpResponse);
+            });
+    };
+
+    $scope.deleteProperties = function (thingId, featureId) {
+        ensureValueIsDefinedNotNull(thingId, "Thing ID");
+        ensureValueIsDefinedNotNull(featureId, "Feature ID");
+
+        FeatureProperties.delete({thingId: thingId, featureId: featureId},
+            function success(value) {
+                logResponse(RESPONSE_TYPE.SUCCESS, "deleteProperties", value.$status, "Properties deleted successfully.");
+            },
+            function error(httpResponse) {
+                logError("deleteProperties", httpResponse);
+            });
+    };
+
+    $scope.deleteProperty = function (thingId, featureId, jsonPointer) {
+        ensureValueIsDefinedNotNull(thingId, "Thing ID");
+        ensureValueIsDefinedNotNull(featureId, "Feature ID");
+        ensureValueIsDefinedNotNull(jsonPointer, "JSON Pointer");
+
+        FeatureProperty.delete({thingId: thingId, featureId: featureId, jsonPointer: jsonPointer},
+            function success(value) {
+                logResponse(RESPONSE_TYPE.SUCCESS, "deleteProperty", value.$status, "Property deleted successfully.");
+            },
+            function error(httpResponse) {
+                logError("deleteProperty", httpResponse);
+            });
+    };
+
     $scope.clearResponses = function () {
         $scope.responses.length = 0;
     };
@@ -348,8 +437,23 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, T
         logResponse(RESPONSE_TYPE.ERROR, functionName, httpResponse.status, httpResponse.statusText);
     }
 
-    function isNullOrEmpty(string) {
-        return (!string || string === '');
+    function ensureValueIsDefined(stringValue, stringName)
+    {
+        if (stringValue === undefined)
+        {
+            throw new Error('The ' + stringName + ' must not be undefined!');
+        }
+    }
+
+    function ensureValueIsDefinedNotNull(stringValue, stringName)
+    {
+        if (isNullOrEmpty(stringValue)) {
+            throw new Error('The ' + stringName + ' must not be null, undefined or empty!');
+        }
+    }
+
+    function isNullOrEmpty(stringValue) {
+        return (!stringValue || stringValue === '');
     }
 
     function arrayContainsPermission(array, permission) {
@@ -369,6 +473,13 @@ function RestController($scope, $log, Thing, Things, ThingAttribute, ThingAcl, T
         if (typeof message === 'object' && message.$status) {
             // delete the status property since it doesn't belong to the resource itself
             delete message.$status;
+        }
+
+        if (typeof message == 'object' && message.$data) {
+            // got primitive value - ngResource can't handle it the "right" way
+            response.message = message.$data;
+            // delete the data property since it doesn't belong to the resource itself
+            delete message.$data;
         }
 
         $scope.responses.unshift(response); // add at first index in array

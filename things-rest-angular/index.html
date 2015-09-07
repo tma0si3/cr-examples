@@ -628,6 +628,222 @@
                 </div>
             </tab>
 
+            <tab heading="Feature Properties">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Get the Properties of a Feature</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="getProperties(propertiesToGet.thingId, propertiesToGet.featureId)">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon"
+                                              id="get-properties-thingId">Thing ID</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The ID of the Thing"
+                                               aria-describedby="get-properties-thingId"
+                                               ng-model="propertiesToGet.thingId" required/>
+                                        <span class="input-group-addon form-addon"
+                                              id="get-properties-featureId">Feature ID</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The ID of the Feature"
+                                               aria-describedby="get-properties-featureId"
+                                               ng-model="propertiesToGet.featureId" required/>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="submit">Go!</button>
+                                        </span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Get a single Property of a Feature</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="getProperty(propertyToGet.thingId, propertyToGet.featureId, propertyToGet.jsonPointer)">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon"
+                                              id="get-property-thingId">Thing ID</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The ID of the Thing"
+                                               aria-describedby="get-property-thingId"
+                                               ng-model="propertyToGet.thingId" required/>
+                                        <span class="input-group-addon form-addon"
+                                              id="get-property-featureId">Feature ID</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The ID of the Feature"
+                                               aria-describedby="get-property-featureId"
+                                               ng-model="propertyToGet.featureId" required/>
+                                        <span class="input-group-addon form-addon"
+                                              id="get-property-json-pointer">Property JSON Pointer</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The JSON Pointer of the Property"
+                                               aria-describedby="get-property-json-pointer"
+                                               ng-model="propertyToGet.jsonPointer" required/>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="submit">Go!</button>
+                                        </span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr/>
+
+                <div class="panel panel-success">
+                    <div class="panel-heading">Update the Properties of a Feature</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="putProperties(propertiesToUpdate.thingId, propertiesToUpdate.featureId, propertiesToUpdate.jsonObject)">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon"
+                                              id="update-properties-thingId">Thing ID</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The ID of the Thing"
+                                               aria-describedby="update-properties-thingId"
+                                               ng-model="propertiesToUpdate.thingId" required/>
+                                        <span class="input-group-addon form-addon"
+                                              id="update-properties-featureId">Feature ID</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The ID of the Feature"
+                                               aria-describedby="update-properties-featureId"
+                                               ng-model="propertiesToUpdate.featureId" required/>
+                                        <span class="input-group-addon form-addon"
+                                              id="update-properties-object">Properties JSON Object</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The Properties JSON Object"
+                                               aria-describedby="update-properties-object"
+                                               ng-model="propertiesToUpdate.jsonObject" required/>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="submit">Go!</button>
+                                        </span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-success">
+                    <div class="panel-heading">Create or update a single Property of a Feature</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="putProperty(propertyToUpdate.thingId, propertyToUpdate.featureId, propertyToUpdate.jsonPointer, propertyToUpdate.jsonValue)">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon"
+                                              id="update-property-thingId">Thing ID</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The ID of the Thing"
+                                               aria-describedby="update-property-thingId"
+                                               ng-model="propertyToUpdate.thingId" required/>
+                                        <span class="input-group-addon form-addon"
+                                              id="update-property-featureId">Feature ID</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The ID of the Feature"
+                                               aria-describedby="update-property-featureId"
+                                               ng-model="propertyToUpdate.featureId" required/>
+                                        <span class="input-group-addon form-addon"
+                                              id="update-property-json-pointer">Property JSON Pointer</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The JSON Pointer of the Property"
+                                               aria-describedby="update-property-json-pointer"
+                                               ng-model="propertyToUpdate.jsonPointer" required/>
+                                        <span class="input-group-addon form-addon"
+                                              id="update-property-value">Property JSON Value</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The JSON value of the Property"
+                                               aria-describedby="update-property-value"
+                                               ng-model="propertyToUpdate.jsonValue" required/>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="submit">Go!</button>
+                                        </span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr/>
+
+                <div class="panel panel-danger">
+                    <div class="panel-heading">Delete all Properties of a Feature</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="deleteProperties(propertiesToDelete.thingId, propertiesToDelete.featureId)">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon"
+                                              id="delete-properties-thingId">Thing ID</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The ID of the Thing"
+                                               aria-describedby="delete-properties-thingId"
+                                               ng-model="propertiesToDelete.thingId" required/>
+                                        <span class="input-group-addon form-addon"
+                                              id="delete-properties-featureId">Feature ID</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The ID of the Feature"
+                                               aria-describedby="delete-properties-featureId"
+                                               ng-model="propertiesToDelete.featureId" required/>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="submit">Go!</button>
+                                        </span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-danger">
+                    <div class="panel-heading">Delete a single Property of a Feature</div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form ng-submit="deleteProperty(propertyToDelete.thingId, propertyToDelete.featureId, propertyToDelete.jsonPointer)">
+                                    <div class="input-group">
+                                        <span class="input-group-addon form-addon"
+                                              id="delete-property-thingId">Thing ID</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The ID of the Thing"
+                                               aria-describedby="delete-property-thingId"
+                                               ng-model="propertyToDelete.thingId" required/>
+                                        <span class="input-group-addon form-addon"
+                                              id="delete-property-featureId">Feature ID</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The ID of the Feature"
+                                               aria-describedby="delete-property-featureId"
+                                               ng-model="propertyToDelete.featureId" required/>
+                                        <span class="input-group-addon form-addon"
+                                              id="delete-property-json-pointer">Property JSON Pointer</span>
+                                        <input type="text" class="form-control"
+                                               placeholder="The JSON Pointer of the Property"
+                                               aria-describedby="delete-property-json-pointer"
+                                               ng-model="propertyToDelete.jsonPointer" required/>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="submit">Go!</button>
+                                        </span>
+                                    </div>
+                                    <!-- /input-group -->
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </tab>
+
         </tabset>
 
         <hr/>
