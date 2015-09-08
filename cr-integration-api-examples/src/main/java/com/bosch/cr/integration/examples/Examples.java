@@ -10,12 +10,20 @@ import com.bosch.cr.integration.IntegrationClient;
 import com.bosch.cr.integration.IntegrationClientImpl;
 import com.bosch.cr.integration.ThingHandle;
 import com.bosch.cr.integration.ThingIntegration;
+import com.bosch.cr.integration.authentication.AuthenticationConfiguration;
+import com.bosch.cr.integration.authentication.PublicKeyAuthenticationConfiguration;
 import com.bosch.cr.integration.messaging.ProviderConfiguration;
 import com.bosch.cr.integration.messaging.stomp.StompProviderConfiguration;
 
 public class Examples
 {
    private static final Logger LOGGER = LoggerFactory.getLogger(Examples.class);
+
+   public static final String KEYSTORE_PASSWORD = "solutionPass";
+   public static final String SIGNATURE_ALGORITHM = "SHA512withECDSA";
+   public static final String ALIAS = "CR";
+   public static final String ALIAS_PASSWORD = "crPass";
+
    public static final String BOSCH_IOT_CENTRAL_REGISTRY_ENDPOINT_URL =
       "wss://events-stomper.apps.bosch-iot-cloud.com:443/";
 
@@ -29,8 +37,17 @@ public class Examples
          .sslKeyStorePassword("jks")
          .build();
 
+      AuthenticationConfiguration authenticationConfiguration = PublicKeyAuthenticationConfiguration.newBuilder()
+         .clientId("uuid:example-client")
+         .keyStoreLocation(Examples.class.getResource("/CRClient.jks"))
+         .keyStorePassword(KEYSTORE_PASSWORD)
+         .signatureAlgorithm(SIGNATURE_ALGORITHM)
+         .alias(ALIAS)
+         .aliasPassword(ALIAS_PASSWORD)
+         .build();
+
       final IntegrationClientConfiguration integrationClientConfiguration = IntegrationClientConfiguration.newBuilder()
-         .clientId("uuid:example-clien")
+         .authenticationConfiguration(authenticationConfiguration)
          .centralRegistryEndpointUrl(BOSCH_IOT_CENTRAL_REGISTRY_ENDPOINT_URL)
          .providerConfiguration(providerConfiguration)
          .build();
