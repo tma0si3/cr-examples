@@ -23,7 +23,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 'use strict';
-
 function RestController($scope, Things, Thing, Attributes, Attribute, Acl, AclEntry, Features, Feature, Properties, Property) {
     var RESPONSE_TYPE = {SUCCESS: 'success', ERROR: 'error', WARNING: 'warning'};
     var PERMISSIONS = ["READ", "WRITE", "ADMINISTRATE"];

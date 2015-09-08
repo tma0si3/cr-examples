@@ -23,12 +23,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 'use strict';
+(function () {
+    var app = angular.module('crJSClient',
+        ['crCore', 'crThings', 'crThingAcl', 'crThingAttributes', 'crFeatures', 'crFeatureProperties', 'ui.bootstrap']);
 
-var app = angular.module('crClient', ['crClientServices', 'ui.bootstrap']);
+    app.config(function($httpProvider) {
+        $httpProvider.defaults.headers.post['Content-Type'] = 'application/json';
+        $httpProvider.defaults.headers.put['Content-Type'] = 'application/json';
+    });
 
-app.config(function($httpProvider) {
-    $httpProvider.defaults.headers.post['Content-Type'] = 'application/json';
-    $httpProvider.defaults.headers.put['Content-Type'] = 'application/json';
-});
-
-app.controller('RestController', RestController);
+    app.controller('RestController', RestController);
+})();
