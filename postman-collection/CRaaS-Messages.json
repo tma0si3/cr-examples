@@ -35,7 +35,7 @@
     {
       "id": "70eed920-2ad1-c78a-8513-970f270ec593",
       "headers": "",
-      "url": "{{craas.baseurl}}/cr/1/things/CRaaSCar/messages/randomMessageTopic",
+      "url": "{{craas.baseurl}}/cr/1/things/{{namespace}}:CRaaSCar/messages/randomMessageTopic",
       "preRequestScript": "",
       "pathVariables": {},
       "method": "POST",
@@ -55,7 +55,7 @@
     {
       "id": "77e66e9f-234e-9df3-5a20-a5344d23e47d",
       "headers": "Content-Type: application/json\n",
-      "url": "{{craas.baseurl}}/cr/1/things/CRaaSCar/features/someFeature/messages/someMessageTopic",
+      "url": "{{craas.baseurl}}/cr/1/things/{{namespace}}:CRaaSCar/features/someFeature/messages/someMessageTopic",
       "preRequestScript": "",
       "pathVariables": {},
       "method": "POST",

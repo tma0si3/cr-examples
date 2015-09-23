@@ -6,6 +6,11 @@
          "key": "craas.baseurl",
          "value": "https://craas-api.apps.bosch-iot-cloud.com",
          "type": "text"
+      },
+      {
+         "key": "namespace",
+         "value": "com.bosch.cr.demo",
+         "type": "text"
       }
    ],
    "timestamp": 1440653923186
