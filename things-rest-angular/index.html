@@ -123,7 +123,7 @@
                                     <div class="input-group">
                                         <span class="input-group-addon form-addon" id="get-thing-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
-                                               placeholder="The Thing ID"
+                                               placeholder="the.namespace:theThingId"
                                                aria-describedby="get-thing-thingId"
                                                ng-model="getThingId" required/>
                                         <span class="input-group-addon form-addon" id="get-thing-fields">Fields</span>
@@ -185,7 +185,7 @@
                                         <span class="input-group-addon form-addon" id="modify-thing-thingId">Thing ID</span>
                                         <input type="text"
                                                class="form-control"
-                                               placeholder="The Thing ID"
+                                               placeholder="the.namespace:theThingId"
                                                aria-describedby="modify-thing-thingId"
                                                ng-model="thingToModify.thingId"
                                                required>
@@ -222,7 +222,7 @@
                                     <div class="input-group">
                                         <span class="input-group-addon form-addon" id="remove-thing-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
-                                               placeholder="The Thing ID"
+                                               placeholder="the.namespace:theThingId"
                                                aria-describedby="remove-thing-thingId"
                                                ng-model="removeThingId" required>
                                         <span class="input-group-btn">
@@ -247,7 +247,7 @@
                                     <div class="input-group">
                                         <span class="input-group-addon form-addon" id="get-acl-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
-                                               placeholder="The ID of the Thing"
+                                               placeholder="the.namespace:theThingId"
                                                aria-describedby="get-acl-thingId"
                                                ng-model="aclToGet.thingId" required/>
                                         <span class="input-group-btn">
@@ -270,7 +270,7 @@
                                     <div class="input-group">
                                         <span class="input-group-addon form-addon" id="get-acl-entry-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
-                                               placeholder="The ID of the Thing"
+                                               placeholder="the.namespace:theThingId"
                                                aria-describedby="get-acl-entry-thingId"
                                                ng-model="aclEntryToGet.thingId" required/>
                                         <span class="input-group-addon form-addon" id="get-acl-entry-subject">Authorization Subject ID</span>
@@ -300,7 +300,7 @@
                                     <div class="input-group">
                                         <span class="input-group-addon form-addon" id="update-acl-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
-                                               placeholder="The ID of the Thing"
+                                               placeholder="the.namespace:theThingId"
                                                aria-describedby="update-acl-thingId"
                                                ng-model="aclToUpdate.thingId" required/>
                                         <span class="input-group-addon form-addon"
@@ -329,7 +329,7 @@
                                     <div class="input-group">
                                         <span class="input-group-addon form-addon" id="update-acl-entry-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
-                                               placeholder="The ID of the Thing"
+                                               placeholder="the.namespace:theThingId"
                                                aria-describedby="update-acl-entry-thingId"
                                                ng-model="aclEntryToUpdate.thingId" required/>
                                         <span class="input-group-addon form-addon"
@@ -366,7 +366,7 @@
                                     <div class="input-group">
                                         <span class="input-group-addon form-addon" id="delete-acl-entry-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
-                                               placeholder="The ID of the Thing"
+                                               placeholder="the.namespace:theThingId"
                                                aria-describedby="delete-acl-entry-thingId"
                                                ng-model="aclEntryToDelete.thingId" required/>
                                         <span class="input-group-addon form-addon"
@@ -398,7 +398,7 @@
                                         <span class="input-group-addon form-addon"
                                               id="get-attributes-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
-                                               placeholder="The ID of the Thing"
+                                               placeholder="the.namespace:theThingId"
                                                aria-describedby="get-attributes-thingId"
                                                ng-model="attributesToGet.thingId" required/>
                                         <span class="input-group-btn">
@@ -422,7 +422,7 @@
                                         <span class="input-group-addon form-addon"
                                               id="get-attribute-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
-                                               placeholder="The ID of the Thing"
+                                               placeholder="the.namespace:theThingId"
                                                aria-describedby="get-attribute-thingId"
                                                ng-model="attributeToGet.thingId" required/>
                                         <span class="input-group-addon form-addon"
@@ -454,7 +454,7 @@
                                         <span class="input-group-addon form-addon"
                                               id="modify-attributes-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
-                                               placeholder="The ID of the Thing"
+                                               placeholder="the.namespace:theThingId"
                                                aria-describedby="modify-attributes-thingId"
                                                ng-model="attributesToUpdate.thingId" required/>
                                         <span class="input-group-addon form-addon" id="modify-attributes-object">Attributes JSON Object</span>
@@ -483,7 +483,7 @@
                                         <span class="input-group-addon form-addon"
                                               id="modify-attribute-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
-                                               placeholder="The ID of the Thing"
+                                               placeholder="the.namespace:theThingId"
                                                aria-describedby="modify-attribute-thingId"
                                                ng-model="attributeToUpdate.thingId" required/>
                                         <span class="input-group-addon form-addon" id="modify-attribute-jsonPointer">Attribute JSON Pointer</span>
@@ -518,7 +518,7 @@
                                     <div class="input-group">
                                         <span class="input-group-addon form-addon" id="delete-attribute-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
-                                               placeholder="The ID of the Thing"
+                                               placeholder="the.namespace:theThingId"
                                                aria-describedby="delete-attribute-thingId"
                                                ng-model="attributeToDelete.thingId" required/>
                                         <span class="input-group-addon form-addon" id="delete-attribute-jsonPointer">Attribute JSON Pointer</span>
@@ -549,7 +549,7 @@
                                         <span class="input-group-addon form-addon"
                                               id="get-features-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
-                                               placeholder="The ID of the Thing"
+                                               placeholder="the.namespace:theThingId"
                                                aria-describedby="get-features-thingId"
                                                ng-model="featuresToGet.thingId" required/>
                                         <span class="input-group-btn">
@@ -573,7 +573,7 @@
                                         <span class="input-group-addon form-addon"
                                               id="get-feature-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
-                                               placeholder="The ID of the Thing"
+                                               placeholder="the.namespace:theThingId"
                                                aria-describedby="get-feature-thingId"
                                                ng-model="featureToGet.thingId" required/>
                                         <span class="input-group-addon form-addon"
@@ -605,7 +605,7 @@
                                         <span class="input-group-addon form-addon"
                                               id="update-features-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
-                                               placeholder="The ID of the Thing"
+                                               placeholder="the.namespace:theThingId"
                                                aria-describedby="update-features-thingId"
                                                ng-model="featuresToUpdate.thingId" required/>
                                         <span class="input-group-addon form-addon"
@@ -635,7 +635,7 @@
                                         <span class="input-group-addon form-addon"
                                               id="update-feature-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
-                                               placeholder="The ID of the Thing"
+                                               placeholder="the.namespace:theThingId"
                                                aria-describedby="update-feature-thingId"
                                                ng-model="featureToUpdate.thingId" required/>
                                         <span class="input-group-addon form-addon"
@@ -673,7 +673,7 @@
                                         <span class="input-group-addon form-addon"
                                               id="delete-feature-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
-                                               placeholder="The ID of the Thing"
+                                               placeholder="the.namespace:theThingId"
                                                aria-describedby="delete-feature-thingId"
                                                ng-model="featureToDelete.thingId" required/>
                                         <span class="input-group-addon form-addon"
@@ -705,7 +705,7 @@
                                         <span class="input-group-addon form-addon"
                                               id="get-properties-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
-                                               placeholder="The ID of the Thing"
+                                               placeholder="the.namespace:theThingId"
                                                aria-describedby="get-properties-thingId"
                                                ng-model="propertiesToGet.thingId" required/>
                                         <span class="input-group-addon form-addon"
@@ -735,7 +735,7 @@
                                         <span class="input-group-addon form-addon"
                                               id="get-property-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
-                                               placeholder="The ID of the Thing"
+                                               placeholder="the.namespace:theThingId"
                                                aria-describedby="get-property-thingId"
                                                ng-model="propertyToGet.thingId" required/>
                                         <span class="input-group-addon form-addon"
@@ -773,7 +773,7 @@
                                         <span class="input-group-addon form-addon"
                                               id="update-properties-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
-                                               placeholder="The ID of the Thing"
+                                               placeholder="the.namespace:theThingId"
                                                aria-describedby="update-properties-thingId"
                                                ng-model="propertiesToUpdate.thingId" required/>
                                         <span class="input-group-addon form-addon"
@@ -809,7 +809,7 @@
                                         <span class="input-group-addon form-addon"
                                               id="update-property-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
-                                               placeholder="The ID of the Thing"
+                                               placeholder="the.namespace:theThingId"
                                                aria-describedby="update-property-thingId"
                                                ng-model="propertyToUpdate.thingId" required/>
                                         <span class="input-group-addon form-addon"
@@ -853,7 +853,7 @@
                                         <span class="input-group-addon form-addon"
                                               id="delete-properties-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
-                                               placeholder="The ID of the Thing"
+                                               placeholder="the.namespace:theThingId"
                                                aria-describedby="delete-properties-thingId"
                                                ng-model="propertiesToDelete.thingId" required/>
                                         <span class="input-group-addon form-addon"
@@ -883,7 +883,7 @@
                                         <span class="input-group-addon form-addon"
                                               id="delete-property-thingId">Thing ID</span>
                                         <input type="text" class="form-control"
-                                               placeholder="The ID of the Thing"
+                                               placeholder="the.namespace:theThingId"
                                                aria-describedby="delete-property-thingId"
                                                ng-model="propertyToDelete.thingId" required/>
                                         <span class="input-group-addon form-addon"
