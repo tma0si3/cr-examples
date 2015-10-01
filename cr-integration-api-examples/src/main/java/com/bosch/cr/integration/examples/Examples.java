@@ -1,6 +1,9 @@
 package com.bosch.cr.integration.examples;
 
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+
+import javax.json.JsonValue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,6 +105,57 @@ public class Examples
          .onSuccess( _void -> LOGGER.info("New attribute created successfully."))
          .onFailure( throwable -> LOGGER.error("Failed to create new attribute: {}", throwable))
          .apply();
+      /*--------------------------------------------------------------------------------------------------------------*/
+
+      /* Register for *all* messages of *all* things of content type application/json and provide it as JsonMessage */
+      final String allThings_jsonMessageRegistration = "allThings_jsonMessageRegistration";
+      thingIntegration.registerForJsonMessage(allThings_jsonMessageRegistration, "application/json", (message) -> {
+         final String topic = message.getTopic();
+         final JsonValue payload = message.getPayload();
+         LOGGER.info("json message for topic {} with payload {} received", topic, payload);
+      });
+
+      /* Register for *all* messages of *all* things of content type application/raw+image and provide it as RawMessage */
+      final String allThings_rawMessageRegistration = "allThings_rawMessageRegistration";
+      thingIntegration.registerForRawMessage(allThings_rawMessageRegistration, "application/raw+image", (message) -> {
+         final String topic = message.getTopic();
+         final byte[] payload = message.getPayload();
+         LOGGER.info("raw message for topic {} with payload {} received", topic, Arrays.toString(payload));
+      });
+
+      /* Register for *all* messages of *all* things of content type application/xml and provide it as StringMessage */
+      final String allThings_stringMessageRegistration = "allThings_stringMessageRegistration";
+      thingIntegration.registerForStringMessage(allThings_stringMessageRegistration, "application/xml", (message) -> {
+         final String topic = message.getTopic();
+         final String payload = message.getPayload();
+         LOGGER.info("string message for topic {} with payload {} received", topic, payload);
+      });
+
+      /* Register for *all* messages of a *specific* thing of content type application/json and provide it as JsonMessage */
+      final String myThing_jsonMessageRegistration = "myThing_jsonMessageRegistration";
+      myThing.registerForJsonMessage(myThing_jsonMessageRegistration, "application/json", (message) -> {
+         final String topic = message.getTopic();
+         final JsonValue payload = message.getPayload();
+         LOGGER.info("json message for topic {} with payload {} received", topic, payload);
+      });
+
+      /* Register for *all* messages of a *specific* thing of content type application/raw+image and provide it as RawMessage */
+      final String myThing_rawMessageRegistration = "myThing_rawMessageRegistration";
+      myThing.registerForRawMessage(myThing_rawMessageRegistration, "application/raw+image", (message) -> {
+         final String topic = message.getTopic();
+         final byte[] payload = message.getPayload();
+         LOGGER.info("raw message for topic {} with payload {} received", topic, Arrays.toString(payload));
+      });
+
+      /* Register for *all* messages of a *specific* thing of content type application/xml and provide it as StringMessage */
+      final String myThing_stringMessageRegistration = "myThing_stringMessageRegistration";
+      myThing.registerForStringMessage(myThing_stringMessageRegistration, "application/xml", (message) -> {
+         final String topic = message.getTopic();
+         final String payload = message.getPayload();
+         LOGGER.info("string message for topic {} with payload {} received", topic, payload);
+      });
+
+      /*--------------------------------------------------------------------------------------------------------------*/
 
       /* Delete a thing */
       myThing.delete().apply();
