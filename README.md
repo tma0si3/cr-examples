@@ -38,7 +38,7 @@ To avoid CORS (Cross-Origin resource sharing) issues, the nginx configuration wi
 location /cr {
 	proxy_pass https://cr.apps.bosch-iot-cloud.com/cr/1;
 }
-````
+```
 
 ### Deployment
 
