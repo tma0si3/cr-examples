@@ -1,8 +1,11 @@
 package com.bosch.cr.integration.examples;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import javax.json.Json;
+import javax.json.JsonObject;
 import javax.json.JsonValue;
 
 import org.slf4j.Logger;
@@ -17,6 +20,11 @@ import com.bosch.cr.integration.authentication.AuthenticationConfiguration;
 import com.bosch.cr.integration.authentication.PublicKeyAuthenticationConfiguration;
 import com.bosch.cr.integration.messaging.ProviderConfiguration;
 import com.bosch.cr.integration.messaging.stomp.StompProviderConfiguration;
+import com.bosch.cr.integration.model.Feature;
+import com.bosch.cr.integration.model.Permission;
+import com.bosch.cr.integration.model.Thing;
+import com.bosch.cr.integration.util.ThingBuilder;
+import com.bosch.cr.integration.util.ThingBuilderImpl;
 
 public class Examples
 {
