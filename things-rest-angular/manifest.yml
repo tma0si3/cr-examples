@@ -26,3 +26,5 @@ applications:
   memory: 16M
   disk_quota: 16M
   buildpack: https://github.com/cloudfoundry/staticfile-buildpack.git
+  host: craas-things-example${cf.space}
+  path: /dist
