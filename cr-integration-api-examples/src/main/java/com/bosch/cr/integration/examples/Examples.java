@@ -1,8 +1,11 @@
 package com.bosch.cr.integration.examples;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import javax.json.Json;
+import javax.json.JsonObject;
 import javax.json.JsonValue;
 
 import org.slf4j.Logger;
@@ -17,6 +20,11 @@ import com.bosch.cr.integration.authentication.AuthenticationConfiguration;
 import com.bosch.cr.integration.authentication.PublicKeyAuthenticationConfiguration;
 import com.bosch.cr.integration.messaging.ProviderConfiguration;
 import com.bosch.cr.integration.messaging.stomp.StompProviderConfiguration;
+import com.bosch.cr.integration.model.Feature;
+import com.bosch.cr.integration.model.Permission;
+import com.bosch.cr.integration.model.Thing;
+import com.bosch.cr.integration.util.ThingBuilder;
+import com.bosch.cr.integration.util.ThingBuilderImpl;
 
 public class Examples
 {
@@ -155,12 +163,69 @@ public class Examples
          LOGGER.info("string message for topic {} with payload {} received", topic, payload);
       });
 
-      /*--------------------------------------------------------------------------------------------------------------*/
-
       /* Delete a thing */
       myThing.delete().apply();
 
+      /*--------------------------------------------------------------------------------------------------------------*/
+
+      /* Create a new thing with acls, features, attributes and define handlers for success and failure */
+      ThingBuilder builder = ThingBuilderImpl.newInstance(":complexThing");
+      builder.aclEntryBuilder("user").permission(Permission.READ, Permission.WRITE, Permission.ADMINISTRATE).end();
+      builder.featureBuilder("featureId").properties(Json.createObjectBuilder().add("property", "value").build()).end();
+      builder.attributes("{\"attr\":true}");
+      Thing complexThing = builder.build();
+
+      thingIntegration.create(complexThing).onSuccess(thing -> LOGGER.info("Thing created: {}", thing))
+        .onFailure(throwable -> LOGGER.error("Create Thing Failed: {}", throwable)).apply();
+
+      /* Retrieve a List of Things */
+      thingIntegration.retrieve(":complexThing1", ":complexThing2").fields("attributes", "acl", "features")
+        .onSuccess(list -> inspectThingListFunction(list))
+        .onFailure(throwable -> LOGGER.error("The List of Things couldn't be retrieved: {}" + throwable)).apply();
+
+      /* Retrieve a Single Thing*/
+      thingIntegration.forId(":complexThing1").retrieve().fields("attributes", "acl", "features")
+        .onSuccess(thing -> inspectThingFunction(thing))
+        .onFailure(throwable -> LOGGER.error("The Thing couldn't be retrieved: {}" + throwable)).apply();
+
       /* Destroy the client and wait 30 seconds for its graceful shutdown */
       integrationClient.destroy(30, TimeUnit.SECONDS);
-   }
+  }
+
+  private static void inspectThingFunction(Thing thing)
+  {
+      /* Acl Checks for Things */
+      boolean ownerOfThing;
+      ownerOfThing = thing.getAcl().getEntry("user")
+        .map(entry -> entry.hasPermission(Permission.READ, Permission.WRITE, Permission.ADMINISTRATE)).orElse(false);
+      if (ownerOfThing)
+      {
+        LOGGER.info("is Owner");
+      }
+      ownerOfThing = thing.getAcl().hasPermission("user1", Permission.READ, Permission.WRITE, Permission.ADMINISTRATE);
+      if (!ownerOfThing)
+      {
+        LOGGER.info("is not Owner");
+      }
+
+      /* Read Features of a Thing */
+      JsonObject retrievedProperties =
+        thing.getFeatures().getFeature("featureId").map(Feature::getProperties).orElse(null);
+      JsonObject expectedProperties = Json.createObjectBuilder().add("property", "value").build();
+      if (expectedProperties.toString().equals(retrievedProperties.toString()))
+      {
+        LOGGER.info("Got the expected Properties");
+      }
+  }
+
+  private static void inspectThingListFunction(List<Thing> thingList)
+  {
+      /* Read simple boolean attribute of attributes */
+      thingList.forEach(thing -> {
+        if (thing.getAttributes().getBoolean("attr"))
+        {
+           LOGGER.info("attr ist true");
+        }
+      });
+  }
 }
