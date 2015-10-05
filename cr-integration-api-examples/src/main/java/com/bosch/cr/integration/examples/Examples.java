@@ -1,8 +1,11 @@
 package com.bosch.cr.integration.examples;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import javax.json.Json;
+import javax.json.JsonObject;
 import javax.json.JsonValue;
 
 import org.slf4j.Logger;
@@ -17,6 +20,11 @@ import com.bosch.cr.integration.authentication.AuthenticationConfiguration;
 import com.bosch.cr.integration.authentication.PublicKeyAuthenticationConfiguration;
 import com.bosch.cr.integration.messaging.ProviderConfiguration;
 import com.bosch.cr.integration.messaging.stomp.StompProviderConfiguration;
+import com.bosch.cr.integration.model.Feature;
+import com.bosch.cr.integration.model.Permission;
+import com.bosch.cr.integration.model.Thing;
+import com.bosch.cr.integration.util.ThingBuilder;
+import com.bosch.cr.integration.util.ThingBuilderImpl;
 
 public class Examples
 {
@@ -160,7 +168,7 @@ public class Examples
 
       /*--------------------------------------------------------------------------------------------------------------*/
 
-      /* Create a new complex thing with acls, features, attributes and define handlers for success and failure */
+      /* Create a new thing with acls, features, attributes and define handlers for success and failure */
       ThingBuilder builder = ThingBuilderImpl.newInstance(":complexThing");
       builder.aclEntryBuilder("user").permission(Permission.READ, Permission.WRITE, Permission.ADMINISTRATE).end();
       builder.featureBuilder("featureId").properties(Json.createObjectBuilder().add("property", "value").build()).end();
