@@ -36,7 +36,7 @@ public class Examples
    public static final String ALIAS_PASSWORD = "crPass";
 
    public static final String BOSCH_IOT_CENTRAL_REGISTRY_ENDPOINT_URL =
-      "wss://events-stomper.apps.bosch-iot-cloud.com:443/";
+      "wss://events.apps.bosch-iot-cloud.com:443/";
 
    public static void main(final String[] args) throws InterruptedException
    {
