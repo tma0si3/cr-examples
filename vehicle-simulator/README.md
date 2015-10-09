@@ -1,0 +1,37 @@
+# Bosch IoT Central Registry - Example Vehicle Simulator
+
+This example shows how to integrate devices information using Java with the CR.
+
+**Notice:** Currently this demo uses a workaround for the representation of Features of Things.
+As soon as the CR supports updating feature properties using the CR-Integration Client for Java this can be changed.
+
+# Build
+
+Use the following maven command to build the server:
+```
+mvn clean install
+```
+
+# Configure your API Key and other settings
+
+Create or adjust file "config.properties"
+
+```
+centralRegistryEndpointUrl=wss\://events.apps.bosch-iot-cloud.com
+clientId=###user solution id ###\:gateway
+keyAlias=CR
+keyStorePassword=### your key password ###
+keyAliasPassword=### your key alias password ###
+http.proxyHost=### your http proxy host, if you need one ###
+http.proxyPort=### your http proxy host, if you need one ###
+```
+
+# Run it
+
+Use the following command to run the example.
+```
+mvn exec:java -Dexec.mainClass="com.bosch.cr.examples.carintegrator.VehicleSimulator"
+```
+
+# Usage
+

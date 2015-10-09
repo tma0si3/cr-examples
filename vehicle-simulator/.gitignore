@@ -2,4 +2,6 @@ target/
 .extract/
 .idea
 *.iml
+CRClient.jks
 config.properties
+things.properties
