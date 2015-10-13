@@ -36,7 +36,7 @@ public class Examples
    public static final String ALIAS_PASSWORD = "crPass";
 
    public static final String BOSCH_IOT_CENTRAL_REGISTRY_ENDPOINT_URL =
-      "wss://events-stomper.apps.bosch-iot-cloud.com:443/";
+      "wss://events.apps.bosch-iot-cloud.com:443/";
 
    public static void main(final String[] args) throws InterruptedException
    {
@@ -168,7 +168,7 @@ public class Examples
 
       /*--------------------------------------------------------------------------------------------------------------*/
 
-      /* Create a new complex thing with acls, features, attributes and define handlers for success and failure */
+      /* Create a new thing with acls, features, attributes and define handlers for success and failure */
       ThingBuilder builder = ThingBuilderImpl.newInstance(":complexThing");
       builder.aclEntryBuilder("user").permission(Permission.READ, Permission.WRITE, Permission.ADMINISTRATE).end();
       builder.featureBuilder("featureId").properties(Json.createObjectBuilder().add("property", "value").build()).end();
