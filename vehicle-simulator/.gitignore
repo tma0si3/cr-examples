@@ -3,5 +3,6 @@ target/
 .idea
 *.iml
 CRClient.jks
-config.properties
-things.properties
+CRClient_key.cer
+config*.properties
+things*.properties

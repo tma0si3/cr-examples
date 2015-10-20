@@ -11,24 +11,24 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-
-        <cr.integration.api.version>2.0.0.M3</cr.integration.api.version>
-        <cr.integration.client.version>0.2.0</cr.integration.client.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.bosch.cr</groupId>
             <artifactId>cr-integration-api</artifactId>
-            <version>${cr.integration.api.version}</version>
+            <version>2.0.0.M4</version>
         </dependency>
-
         <dependency>
             <groupId>com.bosch.cr</groupId>
             <artifactId>cr-integration-client</artifactId>
-            <version>${cr.integration.client.version}</version>
+            <version>0.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.7</version>
         </dependency>
     </dependencies>
-
 
 </project>
