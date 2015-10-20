@@ -102,7 +102,6 @@ public class VehicleSimulator {
                             .fields("thingId", "attributes/_features/geolocation/properties/geoposition")
                             .onFailure(e -> System.out.println("Retrieve thing " + thingId + " failed: " + e))
                             .onSuccess(thing -> {
-//                                System.out.println("Retrieved thing " + thing);
 
                                 JsonObject geoposition = thing.getAttributes().getJsonObject("_features")
                                         .getJsonObject("geolocation").getJsonObject("properties")
@@ -112,7 +111,6 @@ public class VehicleSimulator {
                                         .add("latitude", geoposition.getJsonNumber("latitude").doubleValue() + (random.nextDouble() - 0.5) / 250)
                                         .add("longitude", geoposition.getJsonNumber("longitude").doubleValue() + (random.nextDouble() - 0.5) / 250).build();
 
-//                                System.out.println("Change attribute " + thingId + ": " + geoposition);
                                 client.things().forId(thingId).changeAttribute("_features/geolocation/properties/geoposition", newPeoposition)
                                         .onFailure(e -> System.out.println("Change failed: " + e))
                                         .onSuccess(_void -> {
@@ -141,7 +139,8 @@ public class VehicleSimulator {
 
         System.out.println("Shutting down ...");
         thread.interrupt();
-        client.destroy(10, TimeUnit.SECONDS);
+        Thread.sleep(5000);
+        client.destroy(5000, TimeUnit.MILLISECONDS);
         System.out.println("Client destroyed");
     }
 
