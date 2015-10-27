@@ -54,7 +54,7 @@ public class CentralRegistrySignatureAuthentication
    private static final String HTTP_HEADER_HOST = "Host";
    private static final String HTTP_HEADER_X_CR_DATE = "x-cr-date";
    private static final String HTTP_HEADER_X_CR_SOLUTION_API_TOKEN = "x-craas-solution-api-token";
-   private static final String HTTP_METHOD_POST = "POST";
+   private static final String HTTP_METHOD_PUT = "PUT";
    private static final String HTTP_METHOD_DELETE = "DELETE";
    private static final int HTTP_STATUS_CREATED = 201;
    private static final int HTTP_STATUS_NO_CONTENT = 204;
@@ -95,7 +95,7 @@ public class CentralRegistrySignatureAuthentication
       final String thingJsonString = "{}";
       final String date = OffsetDateTime.now().toString();
       final String path = "/cr/1/things/" + THING_ID;
-      final String signatureData = String.join(";", HTTP_METHOD_POST, HOST, path, thingJsonString, date);
+      final String signatureData = String.join(";", HTTP_METHOD_PUT, HOST, path, thingJsonString, date);
       final String signature = SIGNATURE_FACTORY.sign(signatureData);
 
       final ListenableFuture<Response> future = ASYNC_HTTP_CLIENT.preparePut(BASE_URL + path) //
