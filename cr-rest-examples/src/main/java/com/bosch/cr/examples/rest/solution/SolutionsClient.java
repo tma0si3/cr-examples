@@ -37,28 +37,31 @@ import com.ning.http.client.Response;
 public final class SolutionsClient
 {
 
-   private final String url;
    private final AsyncHttpClient asyncHttpClient;
+   private final String url;
 
    /**
     * Constructs a {@code SolutionsClient}.
     */
-   private SolutionsClient(final String url)
+   private SolutionsClient(final AsyncHttpClient asyncHttpClient, final String url)
    {
+      this.asyncHttpClient = asyncHttpClient;
       this.url = url;
-      this.asyncHttpClient = new AsyncHttpClient();
    }
 
    /**
     * Returns a {@code SolutionsClient} instance.
     *
+    *
+    * @param asyncHttpClient
     * @param url the URL of the Solutions Service.
     * @return the SolutionsClient.
     */
-   public static SolutionsClient newInstance(final String url)
+   public static SolutionsClient newInstance(final AsyncHttpClient asyncHttpClient, final String url)
    {
+      requireNonNull(asyncHttpClient, "The asyncHttpClient must not be null!");
       requireNonNull(url, "The URL must not be null!");
-      return new SolutionsClient(url);
+      return new SolutionsClient(asyncHttpClient, url);
    }
 
    /**
