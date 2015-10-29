@@ -25,16 +25,22 @@ package com.bosch.cr.examples.rest;
 
 import static org.junit.Assert.assertEquals;
 
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import com.bosch.cr.examples.rest.solution.Solution;
 import com.bosch.cr.examples.rest.solution.SolutionsClient;
 import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.client.ListenableFuture;
 import com.ning.http.client.Response;
 
@@ -54,7 +60,7 @@ public class CentralRegistrySignatureAuthenticationTest
    private static final String HTTP_HEADER_CONTENT_TYPE = "Content-Type";
    private static final String HTTP_HEADER_HOST = "Host";
    private static final String HTTP_HEADER_X_CR_DATE = "x-cr-date";
-   private static final String HTTP_HEADER_X_CR_SOLUTION_API_TOKEN = "x-craas-solution-api-token";
+   private static final String HTTP_HEADER_X_CR_API_TOKEN = "x-cr-api-token";
    private static final String HTTP_METHOD_PUT = "PUT";
    private static final String HTTP_METHOD_DELETE = "DELETE";
    private static final int HTTP_STATUS_CREATED = 201;
@@ -74,14 +80,44 @@ public class CentralRegistrySignatureAuthenticationTest
 
    /** */
    @BeforeClass
-   public static void setUp()
+   public static void setUp() throws KeyManagementException, NoSuchAlgorithmException
    {
       thingId = "com.bosch.cr.example:myThing-" + UUID.randomUUID().toString();
       signatureFactory = SignatureFactory.newInstance();
-      final SolutionsClient solutionsClient = SolutionsClient.newInstance(SOLUTIONS_URL);
+
+      final AsyncHttpClientConfig.Builder builder = new AsyncHttpClientConfig.Builder();
+      builder.setSSLContext(setupAcceptingSelfSignedCertificates());
+
+      asyncHttpClient = new AsyncHttpClient(builder.build());
+
+      final SolutionsClient solutionsClient = SolutionsClient.newInstance(asyncHttpClient, SOLUTIONS_URL);
       solution = solutionsClient.createSolution(CUSTOMER_NAME, CUSTOMER_EMAIL, CUSTOMER_INFO, signatureFactory.getPublicKey());
       clientId = solution.getSolutionId() + ":test";
-      asyncHttpClient = new AsyncHttpClient();
+   }
+
+   /**
+    * WORKAROUND: Trust self-signed certificate of BICS until there is a trusted one.
+    */
+   private static SSLContext setupAcceptingSelfSignedCertificates() throws NoSuchAlgorithmException, KeyManagementException
+   {
+      // Create a trust manager that does not validate certificate chains
+      final TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager()
+      {
+         @Override
+         public X509Certificate[] getAcceptedIssuers()
+         {
+            return new X509Certificate[0];
+         }
+
+         @Override
+         public void checkClientTrusted(final X509Certificate[] certs, final String authType) {}
+
+         @Override
+         public void checkServerTrusted(final X509Certificate[] certs, final String authType) {}
+      } };
+      final SSLContext sc = SSLContext.getInstance("SSL");
+      sc.init(null, trustAllCerts, null);
+      return sc;
    }
 
    /**
@@ -104,7 +140,7 @@ public class CentralRegistrySignatureAuthenticationTest
          .addHeader(HTTP_HEADER_AUTHORIZATION, crsFor(signature)) //
          .addHeader(HTTP_HEADER_HOST, HOST) //
          .addHeader(HTTP_HEADER_X_CR_DATE, date) //
-         .addHeader(HTTP_HEADER_X_CR_SOLUTION_API_TOKEN, solution.getApiToken()) //
+         .addHeader(HTTP_HEADER_X_CR_API_TOKEN, solution.getApiToken()) //
          .setBody(thingJsonString) //
          .execute();
 
@@ -131,7 +167,7 @@ public class CentralRegistrySignatureAuthenticationTest
          .addHeader(HTTP_HEADER_AUTHORIZATION, crsFor(signature)) //
          .addHeader(HTTP_HEADER_HOST, HOST) //
          .addHeader(HTTP_HEADER_X_CR_DATE, date) //
-         .addHeader(HTTP_HEADER_X_CR_SOLUTION_API_TOKEN, solution.getApiToken()) //
+         .addHeader(HTTP_HEADER_X_CR_API_TOKEN, solution.getApiToken()) //
          .execute();
 
       final Response response = future.get();
