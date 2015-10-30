@@ -28,7 +28,6 @@ import static org.junit.Assert.assertEquals;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
-import java.time.OffsetDateTime;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import javax.net.ssl.SSLContext;
@@ -52,17 +51,13 @@ import com.ning.http.client.Response;
 public class CentralRegistrySignatureAuthenticationTest
 {
 
-   private static final String HOST = "cr.apps.bosch-iot-cloud.com";
+   private static final String HOST = "craas-api-dev.apps.bosch-iot-cloud.com";
    private static final String BASE_URL = "https://" + HOST;
    private static final String SOLUTIONS_URL = BASE_URL + "/cr/1/solutions";
 
-   private static final String HTTP_HEADER_AUTHORIZATION = "Authorization";
    private static final String HTTP_HEADER_CONTENT_TYPE = "Content-Type";
-   private static final String HTTP_HEADER_HOST = "Host";
-   private static final String HTTP_HEADER_X_CR_DATE = "x-cr-date";
    private static final String HTTP_HEADER_X_CR_API_TOKEN = "x-cr-api-token";
-   private static final String HTTP_METHOD_PUT = "PUT";
-   private static final String HTTP_METHOD_DELETE = "DELETE";
+
    private static final int HTTP_STATUS_CREATED = 201;
    private static final int HTTP_STATUS_NO_CONTENT = 204;
 
@@ -73,9 +68,7 @@ public class CentralRegistrySignatureAuthenticationTest
    private static final String CUSTOMER_INFO = "example solution";
 
    private static String thingId;
-   private static SignatureFactory signatureFactory;
    private static Solution solution;
-   private static String clientId;
    private static AsyncHttpClient asyncHttpClient;
 
    /** */
@@ -83,7 +76,7 @@ public class CentralRegistrySignatureAuthenticationTest
    public static void setUp() throws KeyManagementException, NoSuchAlgorithmException
    {
       thingId = "com.bosch.cr.example:myThing-" + UUID.randomUUID().toString();
-      signatureFactory = SignatureFactory.newInstance();
+      final SignatureFactory signatureFactory = SignatureFactory.newInstance();
 
       final AsyncHttpClientConfig.Builder builder = new AsyncHttpClientConfig.Builder();
       builder.setSSLContext(setupAcceptingSelfSignedCertificates());
@@ -92,7 +85,9 @@ public class CentralRegistrySignatureAuthenticationTest
 
       final SolutionsClient solutionsClient = SolutionsClient.newInstance(asyncHttpClient, SOLUTIONS_URL);
       solution = solutionsClient.createSolution(CUSTOMER_NAME, CUSTOMER_EMAIL, CUSTOMER_INFO, signatureFactory.getPublicKey());
-      clientId = solution.getSolutionId() + ":test";
+      final String clientId = solution.getSolutionId() + ":test";
+
+      asyncHttpClient.setSignatureCalculator(new CrAsymmetricalSignatureCalculator(signatureFactory, clientId));
    }
 
    /**
@@ -130,16 +125,10 @@ public class CentralRegistrySignatureAuthenticationTest
    public void putThingWithCRS() throws ExecutionException, InterruptedException
    {
       final String thingJsonString = "{}";
-      final String date = OffsetDateTime.now().toString();
       final String path = "/cr/1/things/" + thingId;
-      final String signatureData = String.join(";", HTTP_METHOD_PUT, HOST, path, thingJsonString, date);
-      final String signature = signatureFactory.sign(signatureData);
 
       final ListenableFuture<Response> future = asyncHttpClient.preparePut(BASE_URL + path) //
          .addHeader(HTTP_HEADER_CONTENT_TYPE, CONTENT_TYPE_JSON) //
-         .addHeader(HTTP_HEADER_AUTHORIZATION, crsFor(signature)) //
-         .addHeader(HTTP_HEADER_HOST, HOST) //
-         .addHeader(HTTP_HEADER_X_CR_DATE, date) //
          .addHeader(HTTP_HEADER_X_CR_API_TOKEN, solution.getApiToken()) //
          .setBody(thingJsonString) //
          .execute();
@@ -158,26 +147,15 @@ public class CentralRegistrySignatureAuthenticationTest
    @Test
    public void deleteThingWithCRS() throws ExecutionException, InterruptedException
    {
-      final String date = OffsetDateTime.now().toString();
       final String path = "/cr/1/things/" + thingId;
-      final String signatureData = String.join(";", HTTP_METHOD_DELETE, HOST, path, date);
-      final String signature = signatureFactory.sign(signatureData);
 
       final ListenableFuture<Response> future = asyncHttpClient.prepareDelete(BASE_URL + path) //
-         .addHeader(HTTP_HEADER_AUTHORIZATION, crsFor(signature)) //
-         .addHeader(HTTP_HEADER_HOST, HOST) //
-         .addHeader(HTTP_HEADER_X_CR_DATE, date) //
          .addHeader(HTTP_HEADER_X_CR_API_TOKEN, solution.getApiToken()) //
          .execute();
 
       final Response response = future.get();
 
       assertEquals(HTTP_STATUS_NO_CONTENT, response.getStatusCode());
-   }
-
-   private static String crsFor(final String signature)
-   {
-      return "CRS " + clientId + ";" + SignatureFactory.SIGNATURE_ALGORITHM + ";" + signature;
    }
 
 }
