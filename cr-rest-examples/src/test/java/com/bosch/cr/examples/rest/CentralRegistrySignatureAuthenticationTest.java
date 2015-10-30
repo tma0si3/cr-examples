@@ -51,7 +51,7 @@ import com.ning.http.client.Response;
 public class CentralRegistrySignatureAuthenticationTest
 {
 
-   private static final String HOST = "craas-api-dev.apps.bosch-iot-cloud.com";
+   private static final String HOST = "cr.apps.bosch-iot-cloud.com";
    private static final String BASE_URL = "https://" + HOST;
    private static final String SOLUTIONS_URL = BASE_URL + "/cr/1/solutions";
 
