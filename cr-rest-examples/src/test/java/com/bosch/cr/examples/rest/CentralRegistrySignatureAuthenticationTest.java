@@ -84,7 +84,8 @@ public class CentralRegistrySignatureAuthenticationTest
       asyncHttpClient = new AsyncHttpClient(builder.build());
 
       final SolutionsClient solutionsClient = SolutionsClient.newInstance(asyncHttpClient, SOLUTIONS_URL);
-      solution = solutionsClient.createSolution(CUSTOMER_NAME, CUSTOMER_EMAIL, CUSTOMER_INFO, signatureFactory.getPublicKey());
+      solution = solutionsClient.createSolution(CUSTOMER_NAME, CUSTOMER_EMAIL, CUSTOMER_INFO,
+         signatureFactory.getPublicKeyString());
       final String clientId = solution.getSolutionId() + ":test";
 
       asyncHttpClient.setSignatureCalculator(new CrAsymmetricalSignatureCalculator(signatureFactory, clientId));

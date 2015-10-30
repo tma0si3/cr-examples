@@ -35,7 +35,7 @@ public class CrAsymmetricalSignatureCalculator implements SignatureCalculator
    }
 
    @Override
-   public void calculateAndAddSignature(Request request, RequestBuilderBase<?> requestBuilderBase)
+   public void calculateAndAddSignature(final Request request, final RequestBuilderBase<?> requestBuilderBase)
    {
       final String method = request.getMethod();
       final String path = request.getUri().toRelativeUrl();
