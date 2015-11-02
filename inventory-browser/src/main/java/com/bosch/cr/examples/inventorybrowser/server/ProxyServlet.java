@@ -74,7 +74,9 @@ public class ProxyServlet extends HttpServlet {
         super.init(config);
         props = new Properties(System.getProperties());
         try {
-            props.load(new FileReader("proxy.properties"));
+            FileReader r = new FileReader("config.properties");
+            props.load(r);
+            r.close();
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
