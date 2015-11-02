@@ -25,9 +25,16 @@ package com.bosch.cr.examples.rest;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
+import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import javax.net.ssl.SSLContext;
@@ -36,11 +43,10 @@ import javax.net.ssl.X509TrustManager;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import com.bosch.cr.examples.rest.solution.Solution;
-import com.bosch.cr.examples.rest.solution.SolutionsClient;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.client.ListenableFuture;
+import com.ning.http.client.ProxyServer;
 import com.ning.http.client.Response;
 
 /**
@@ -51,44 +57,61 @@ import com.ning.http.client.Response;
 public class CentralRegistrySignatureAuthenticationTest
 {
 
-   private static final String HOST = "cr.apps.bosch-iot-cloud.com";
-   private static final String BASE_URL = "https://" + HOST;
-   private static final String SOLUTIONS_URL = BASE_URL + "/cr/1/solutions";
-
    private static final String HTTP_HEADER_CONTENT_TYPE = "Content-Type";
-   private static final String HTTP_HEADER_X_CR_API_TOKEN = "x-cr-api-token";
+   private static final String CONTENT_TYPE_JSON = "application-json";
 
    private static final int HTTP_STATUS_CREATED = 201;
    private static final int HTTP_STATUS_NO_CONTENT = 204;
 
-   private static final String CONTENT_TYPE_JSON = "application-json";
-
-   private static final String CUSTOMER_NAME = "example";
-   private static final String CUSTOMER_EMAIL = "solution@example.com";
-   private static final String CUSTOMER_INFO = "example solution";
-
-   private static String thingId;
-   private static Solution solution;
+   private static String centralRegistryEndpointUrl;
    private static AsyncHttpClient asyncHttpClient;
+   private static String thingId;
 
    /** */
    @BeforeClass
-   public static void setUp() throws KeyManagementException, NoSuchAlgorithmException
+   public static void setUp() throws KeyManagementException, NoSuchAlgorithmException, IOException
    {
-      thingId = "com.bosch.cr.example:myThing-" + UUID.randomUUID().toString();
-      final SignatureFactory signatureFactory = SignatureFactory.newInstance();
+      final Properties props = new Properties(System.getProperties());
+      final FileReader r;
+      if (Files.exists(Paths.get("config.properties")))
+      {
+         r = new FileReader(Paths.get("config.properties").toFile());
+      }
+      else
+      {
+         r = new FileReader(
+            CentralRegistrySignatureAuthenticationTest.class.getClassLoader().getResource("config.properties").getFile());
+      }
+      props.load(r);
+      r.close();
+
+      centralRegistryEndpointUrl = props.getProperty("centralRegistryEndpointUrl");
+
+      final String clientId = props.getProperty("clientId");
+      final String apiToken = props.getProperty("apiToken");
+
+      final URI keystoreUri = new File(props.getProperty("keystoreLocation")).toURI();
+      final String keyStorePassword = props.getProperty("keyStorePassword");
+      final String keyAlias = props.getProperty("keyAlias");
+      final String keyAliasPassword = props.getProperty("keyAliasPassword");
+
+      final SignatureFactory signatureFactory =
+         SignatureFactory.newInstance(keystoreUri, keyStorePassword, keyAlias, keyAliasPassword);
 
       final AsyncHttpClientConfig.Builder builder = new AsyncHttpClientConfig.Builder();
       builder.setSSLContext(setupAcceptingSelfSignedCertificates());
 
+      final String proxyHost = props.getProperty("http.proxyHost");
+      final String proxyPort = props.getProperty("http.proxyPort");
+      if (proxyHost != null && proxyPort != null)
+      {
+         builder.setProxyServer(new ProxyServer(ProxyServer.Protocol.HTTPS, proxyHost, Integer.valueOf(proxyPort)));
+      }
+
       asyncHttpClient = new AsyncHttpClient(builder.build());
+      asyncHttpClient.setSignatureCalculator(new CrAsymmetricalSignatureCalculator(signatureFactory, clientId, apiToken));
 
-      final SolutionsClient solutionsClient = SolutionsClient.newInstance(asyncHttpClient, SOLUTIONS_URL);
-      solution = solutionsClient.createSolution(CUSTOMER_NAME, CUSTOMER_EMAIL, CUSTOMER_INFO,
-         signatureFactory.getPublicKeyString());
-      final String clientId = solution.getSolutionId() + ":test";
-
-      asyncHttpClient.setSignatureCalculator(new CrAsymmetricalSignatureCalculator(signatureFactory, clientId));
+      thingId = "com.bosch.cr.example:myThing-" + UUID.randomUUID().toString();
    }
 
    /**
@@ -128,14 +151,12 @@ public class CentralRegistrySignatureAuthenticationTest
       final String thingJsonString = "{}";
       final String path = "/cr/1/things/" + thingId;
 
-      final ListenableFuture<Response> future = asyncHttpClient.preparePut(BASE_URL + path) //
+      final ListenableFuture<Response> future = asyncHttpClient.preparePut(centralRegistryEndpointUrl + path) //
          .addHeader(HTTP_HEADER_CONTENT_TYPE, CONTENT_TYPE_JSON) //
-         .addHeader(HTTP_HEADER_X_CR_API_TOKEN, solution.getApiToken()) //
          .setBody(thingJsonString) //
          .execute();
 
       final Response response = future.get();
-
       assertEquals(HTTP_STATUS_CREATED, response.getStatusCode());
    }
 
@@ -150,12 +171,10 @@ public class CentralRegistrySignatureAuthenticationTest
    {
       final String path = "/cr/1/things/" + thingId;
 
-      final ListenableFuture<Response> future = asyncHttpClient.prepareDelete(BASE_URL + path) //
-         .addHeader(HTTP_HEADER_X_CR_API_TOKEN, solution.getApiToken()) //
+      final ListenableFuture<Response> future = asyncHttpClient.prepareDelete(centralRegistryEndpointUrl + path) //
          .execute();
 
       final Response response = future.get();
-
       assertEquals(HTTP_STATUS_NO_CONTENT, response.getStatusCode());
    }
 

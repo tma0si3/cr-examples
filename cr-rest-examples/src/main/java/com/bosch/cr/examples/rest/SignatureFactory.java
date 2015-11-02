@@ -23,13 +23,23 @@
  */
 package com.bosch.cr.examples.rest;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Paths;
+import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 
@@ -98,6 +108,44 @@ public final class SignatureFactory
    public static SignatureFactory newInstance(final String privateKeyString, final String publicKeyString)
    {
       return new SignatureFactory(createPrivateKeyFor(privateKeyString), publicKeyString);
+   }
+
+   /**
+    * Returns a {@code SignatureFactory} instance for a given keystore location.
+    *
+    * @param keystoreUri the keystore location as URI.
+    * @param keyStorePassword the keystore's password.
+    * @param keyAlias the key's alias.
+    * @param keyAliasPassword the key alias' password.
+    * @return a SignatureFactory instance.
+    */
+   public static SignatureFactory newInstance(final URI keystoreUri, final String keyStorePassword,
+      final String keyAlias, final String keyAliasPassword)
+   {
+      try
+      {
+         final FileInputStream inputStream = new FileInputStream(Paths.get(keystoreUri).toFile());
+         final KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+         keystore.load(inputStream, keyStorePassword.toCharArray());
+         final Key key = keystore.getKey(keyAlias, keyAliasPassword.toCharArray());
+         if (key instanceof PrivateKey)
+         {
+            // Get certificate of public key
+            final Certificate cert = keystore.getCertificate(keyAlias);
+
+            // Get public key
+            final PublicKey publicKey = cert.getPublicKey();
+            return new SignatureFactory((PrivateKey) key, createPublicKeyString(publicKey));
+         }
+         else
+         {
+            throw new IllegalStateException("Retrieved key was not a private key");
+         }
+      }
+      catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException e)
+      {
+         throw new IllegalStateException("Could not load private/public keypair from keystore", e);
+      }
    }
 
    private static PrivateKey createPrivateKeyFor(final String privateKey)
