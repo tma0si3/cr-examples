@@ -21,17 +21,21 @@ public class CrAsymmetricalSignatureCalculator implements SignatureCalculator
 
    private static final String HTTP_HEADER_HOST = "Host";
    private static final String HTTP_HEADER_X_CR_DATE = "x-cr-date";
+   private static final String HTTP_HEADER_X_CR_API_TOKEN = "x-cr-api-token";
 
    private static final String HTTP_METHOD_PUT = "PUT";
    private static final String HTTP_METHOD_POST = "POST";
 
    private final SignatureFactory signatureFactory;
    private final String clientId;
+   private final String apiToken;
 
-   public CrAsymmetricalSignatureCalculator(final SignatureFactory signatureFactory, final String clientId)
+   public CrAsymmetricalSignatureCalculator(final SignatureFactory signatureFactory, final String clientId,
+      final String apiToken)
    {
       this.signatureFactory = signatureFactory;
       this.clientId = clientId;
+      this.apiToken = apiToken;
    }
 
    @Override
@@ -54,6 +58,7 @@ public class CrAsymmetricalSignatureCalculator implements SignatureCalculator
       final String signature = signatureFactory.sign(signatureData);
       requestBuilderBase.addHeader(HTTP_HEADER_HOST, host);
       requestBuilderBase.addHeader(HTTP_HEADER_X_CR_DATE, date);
+      requestBuilderBase.addHeader(HTTP_HEADER_X_CR_API_TOKEN, apiToken);
       requestBuilderBase.addHeader(HTTP_HEADER_AUTHORIZATION,
          CRS_AUTH_PREFIX + clientId + DELIMITER + SignatureFactory.SIGNATURE_ALGORITHM + DELIMITER + signature);
    }

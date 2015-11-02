@@ -6,8 +6,24 @@ You can find more information on the different authentication processes at our [
 
 ## Configure
 
-The test is configured to run against `cr.apps.bosch-iot-cloud.com` by default.
-To test against a local or docker instance of the CR, simply change the `HOST` at the top of the test.
+Create or adjust file "config.properties"
+
+```
+centralRegistryEndpointUrl=https\://cr.apps.bosch-iot-cloud.com
+clientId=### user solution id ###\:restcli
+apiToken=### user solution API Token ###
+keystoreLocation=CRClient.jks
+keyAlias=CR
+keyStorePassword=### your key password ###
+keyAliasPassword=### your key alias password ###
+http.proxyHost=### your http proxy host, if you need one ###
+http.proxyPort=### your http proxy host, if you need one ###
+```
+
+The `keystoreLocation` is a path relative to the path the test is run from.
+
+In order to adjust to your settings, e.g. copy the `src/test/resources/config.properties` into this directory (containing `README.md`), 
+adjust the properties accordingly and put your `.jks` (`CRClient.jks`) file here as well.
 
 ## Build
 
