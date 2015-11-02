@@ -2,6 +2,9 @@
 
 This example shows how to create a simple user interface to list things and their details and show the things on a map.
 
+**Notice:** Currently this demo uses a workaround for the representation of Features of Things.
+As soon as the CR supports updating feature properties using the CR-Integration Client for Java this can be changed.
+
 ![Screenshot](screenshot.png)
 
 # Build
@@ -13,10 +16,10 @@ mvn clean install
 
 # Configure your API Key and other settings
 
-Create or adjust file "proxy.properties"
+Create or adjust file "config.properties"
 
 ```
-centralRegistryTargetHost=https://craas-api-dev.apps.bosch-iot-cloud.com
+centralRegistryTargetHost=https://cr.apps.bosch-iot-cloud.com
 centralRegistryApiToken=### your CR Solution API Token ###
 http.proxyHost=### your http proxy host, if you need one ###
 http.proxyPort=### your http proxy port, if you need one ###
@@ -24,7 +27,7 @@ http.proxyPort=### your http proxy port, if you need one ###
 
 # Run Server
 
-Use the following command to run the server. Adapt your proxy settings in advance:
+Use the following command to run the server.
 ```
 java -jar target/inventory-browser.jar
 ```
@@ -34,6 +37,10 @@ java -jar target/inventory-browser.jar
 ## Show Dashboard
 
 Browse to the Bosch IoT Central Registry Dashboard: <https://cr.apps.bosch-iot-cloud.com/>
+
+## Create a Solution
+
+Use the dashboard to create a solution.
 
 ## Create Demo User
 
@@ -53,31 +60,40 @@ thing:
 {}
 ```
 
+Look in the response for the created Thing. Within this you will find your user's unique id which can be used in the next steps.
+
 ## Create Thing for Herbie
 
 Use "Things - PUT /things"
-thingId: demo:car-53
+thingId: demo:vehicle-53
 
 thing:
+
+_Change the ids before executing this call._
 ```
 {
-  "attributes": {
-      "name": "Herbie 53",
-      "manufacturer": "VW",
-      "VIN": "5313879"
+  "acl": {
+    "### id of your user ###":             { "READ": true, "WRITE": true, "ADMINISTRATE": true },
+    "### id of your solution ###:gateway": { "READ": true, "WRITE": true, "ADMINISTRATE": false }
   },
-    "features": {
-      "geolocation": {
-        "properties": {
-          "_definition": "org.eclipse.vorto.Geolocation:1.0.0",
-          "geoposition": {
-            "latitude": 47.68,
-            "longitude": 9.3865
-          },
-          "accuracy": 15
+  "attributes": {
+      "name":         "Herbie 53",
+      "manufacturer": "VW",
+      "VIN":          "5313879",
+
+      "_features": {
+        "geolocation": {
+          "properties": {
+            "_definition": "org.eclipse.vorto.Geolocation:1.0.0",
+            "geoposition": {
+              "latitude":   47.68,
+              "longitude":  9.3865
+            },
+            "accuracy": 15
+          }
         }
-      }
-   }
+     }
+  }
 }
 ```
 
@@ -87,13 +103,21 @@ thing:
 
 Use "Features - PUT /things/{thingId}/features/{featureId}/properties/{propertyPath}"
 
-thingId: demo:car-53
+thingId: demo:vehicle-53
 
 featureId: geolocation
 
-propertyPath: geoposition/latitude
+propertyPath: _features/geolocation/properties/geoposition/latitude
 ```
 47.665
+```
+
+propertyPath: _features/geolocation/properties/geoposition
+```
+{
+  "latitude": 47.68,
+  "longitude": 9.3865
+}
 ```
 
 # Refresh Things in Inventory Browser
