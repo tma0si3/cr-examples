@@ -3,3 +3,4 @@ target/
 .idea
 *.iml
 config*.properties
+**/config*.properties

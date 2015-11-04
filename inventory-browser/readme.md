@@ -7,22 +7,22 @@ As soon as the CR supports updating feature properties using the CR-Integration 
 
 ![Screenshot](screenshot.png)
 
-# Build
-
-Use the following maven command to build the server:
-```
-mvn clean install
-```
-
 # Configure your API Key and other settings
 
-Create or adjust file "config.properties"
+Create or adjust file "src/main/resources/config.properties"
 
 ```
 centralRegistryTargetHost=https://cr.apps.bosch-iot-cloud.com
 centralRegistryApiToken=### your CR Solution API Token ###
 http.proxyHost=### your http proxy host, if you need one ###
 http.proxyPort=### your http proxy port, if you need one ###
+```
+
+# Build
+
+Use the following maven command to build the server:
+```
+mvn clean install
 ```
 
 # Run Server
@@ -72,28 +72,27 @@ thing:
 _Change the ids before executing this call._
 ```
 {
-  "acl": {
-    "### id of your user ###":             { "READ": true, "WRITE": true, "ADMINISTRATE": true },
-    "### id of your solution ###:gateway": { "READ": true, "WRITE": true, "ADMINISTRATE": false }
-  },
-  "attributes": {
-      "name":         "Herbie 53",
-      "manufacturer": "VW",
-      "VIN":          "5313879",
-
-      "_features": {
+    "acl": {
+        "### id of your user ###":             { "READ": true, "WRITE": true, "ADMINISTRATE": true },
+        "### id of your solution ###:gateway": { "READ": true, "WRITE": true, "ADMINISTRATE": false }
+    },
+    "attributes": {
+        "name": "Herbie 53",
+        "manufacturer": "VW",
+        "VIN": "5313879"
+    },
+    "features": {
         "geolocation": {
-          "properties": {
-            "_definition": "org.eclipse.vorto.Geolocation:1.0.0",
-            "geoposition": {
-              "latitude":   47.68,
-              "longitude":  9.3865
-            },
-            "accuracy": 15
-          }
+            "properties": {
+                "_definition": "org.eclipse.vorto.Geolocation:1.0.0",
+                "geoposition": {
+                    "latitude": 47.68,
+                    "longitude": 9.3865
+                },
+                "accuracy": 15
+            }
         }
-     }
-  }
+    }
 }
 ```
 
@@ -107,12 +106,12 @@ thingId: demo:vehicle-53
 
 featureId: geolocation
 
-propertyPath: _features/geolocation/properties/geoposition/latitude
+propertyPath: features/geolocation/properties/geoposition/latitude
 ```
 47.665
 ```
 
-propertyPath: _features/geolocation/properties/geoposition
+propertyPath: features/geolocation/properties/geoposition
 ```
 {
   "latitude": 47.68,
