@@ -1,24 +1,25 @@
 /*
- Copyright (c) 2015, Bosch Software Innovations GmbH, Germany
- All rights reserved.
-
- Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-
- 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-
- 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer
- in the documentation and/or other materials provided with the distribution.
-
- 3. Neither the name of the Bosch Software Innovations GmbH, Germany nor the names of its contributors
- may be used to endorse or promote products derived from this software without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
- INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
- OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
- OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
- OF SUCH DAMAGE.
+ * Copyright (c) 2015 Bosch Software Innovations GmbH, Germany. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+ * following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+ * disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+ * following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the Bosch Software Innovations GmbH, Germany nor the names of its contributors may be used to
+ * endorse or promote products derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 "use strict";
@@ -38,10 +39,6 @@ $(document).ready(function () {
             if ("attributes" in thing) {
                 // --- for each attribute put row in details table
                 var attrNames = Object.getOwnPropertyNames(thing.attributes);
-                if (attrNames.indexOf("_features") != -1)
-                {
-                    attrNames.splice(attrNames.indexOf("_features"), 1);
-                }
                 var first = true;
                 attrNames.forEach(function (attribute) {
                     var value = thing.attributes[attribute];
@@ -54,11 +51,12 @@ $(document).ready(function () {
                     row.append($("<td>").text(typeof value == "object" ? JSON.stringify(value) : value));
                     tablebody.append(row);
                 });
-
-                if ("_features" in thing.attributes) {
-                    // --- for each feature property put row in details table
-                    Object.getOwnPropertyNames(thing.attributes._features).forEach(function (featureId) {
-                        var feature = thing.attributes._features[featureId];
+            }
+            if ("features" in thing) {
+                // --- for each feature property put row in details table
+                Object.getOwnPropertyNames(thing.features).forEach(function (featureId) {
+                    var feature = thing.features[featureId];
+                    if ("properties" in feature) {
                         var propNames = Object.getOwnPropertyNames(feature.properties);
                         var first = true;
                         propNames.forEach(function (prop) {
@@ -72,8 +70,8 @@ $(document).ready(function () {
                             row.append($("<td>").text(typeof value == "object" ? JSON.stringify(value) : value));
                             tablebody.append(row);
                         });
-                    });
-                }
+                    }
+                });
             }
 
             $("#details").show();
@@ -85,7 +83,7 @@ $(document).ready(function () {
     // --- Handler for refreshing list and map of things
     var refreshTable = function () {
 
-        $.getJSON("cr/1/search/things?fields=thingId,attributes/name,attributes/_features/geolocation").done(function (data, textStatus) {
+        $.getJSON("cr/1/search/things?fields=thingId,attributes/name,features/geolocation").done(function (data, textStatus) {
 
             // --- clear table content and clear map
             $("#tableBody").empty();
@@ -116,15 +114,11 @@ $(document).ready(function () {
                 $("#tableBody").append(row);
 
                 // --- when thing has a "geolocation" feature with "geoposition" properties
-                //if ("features" in t && "geolocation" in t.features && "geoposition" in t.features.geolocation.properties) {
-                if ("attributes" in t && "_features" in t.attributes && "geolocation" in t.attributes._features
-                    && "geoposition" in t.attributes._features.geolocation.properties) {
+                if ("features" in t && "geolocation" in t.features && "geoposition" in t.features.geolocation.properties) {
 
                     // --- add marker for thing on map
-                    //var latlng = [t.features.geolocation.properties.geoposition.latitude,
-                    //    t.features.geolocation.properties.geoposition.longitude];
-                    var latlng = [t.attributes._features.geolocation.properties.geoposition.latitude,
-                        t.attributes._features.geolocation.properties.geoposition.longitude];
+                    var latlng = [t.features.geolocation.properties.geoposition.latitude,
+                        t.features.geolocation.properties.geoposition.longitude];
                     var marker = L.marker(latlng);
                     marker._thingId = t.thingId;
                     marker.bindPopup(t.thingId);
