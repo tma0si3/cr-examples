@@ -1,25 +1,26 @@
 /*
-Copyright (c) 2015, Bosch Software Innovations GmbH, Germany
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer
-   in the documentation and/or other materials provided with the distribution.
-
-3. Neither the name of the Bosch Software Innovations GmbH, Germany nor the names of its contributors
-   may be used to endorse or promote products derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
-INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
-OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
-OF SUCH DAMAGE.
-*/
+ * Copyright (c) 2015 Bosch Software Innovations GmbH, Germany. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+ * following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+ * disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+ * following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the Bosch Software Innovations GmbH, Germany nor the names of its contributors may be used to
+ * endorse or promote products derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 package com.bosch.cr.examples.inventorybrowser.server;
 
@@ -47,12 +48,13 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.Properties;
 
 /**
@@ -72,15 +74,20 @@ public class ProxyServlet extends HttpServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        props = new Properties(System.getProperties());
         try {
-            FileReader r = new FileReader("config.properties");
-            props.load(r);
-            r.close();
+            props = new Properties(System.getProperties());
+            if (new File("config.properties").exists()) {
+                props.load(new FileReader("config.properties"));
+            } else {
+                InputStream i = Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties");
+                props.load(i);
+                i.close();
+            }
+            System.out.println("Config: " + props);
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
-        targetHost = HttpHost.create(props.getProperty("centralRegistryTargetHost", "https://craas-api-int.apps.bosch-iot-cloud.com"));
+        targetHost = HttpHost.create(props.getProperty("centralRegistryTargetHost", "https://cr.apps.bosch-iot-cloud.com"));
     }
 
     @Override
@@ -93,27 +100,27 @@ public class ProxyServlet extends HttpServlet {
         }
 
         try {
+            long time = System.currentTimeMillis();
             CloseableHttpClient c = getHttpClient();
 
             String targetUrl = URL_PREFIX + req.getPathInfo() + (req.getQueryString() != null ? ("?" + req.getQueryString()) : "");
             BasicHttpRequest targetReq = new BasicHttpRequest(req.getMethod(), targetUrl);
 
+            String user = "";
             if (auth.toUpperCase().startsWith("BASIC ")) {
                 String userpassDecoded = new String(new sun.misc.BASE64Decoder().decodeBuffer(auth.substring("BASIC ".length())));
-                String user = userpassDecoded.substring(0, userpassDecoded.indexOf(':'));
+                user = userpassDecoded.substring(0, userpassDecoded.indexOf(':'));
                 String pass = userpassDecoded.substring(userpassDecoded.indexOf(':') + 1);
-                System.out.println("Forward user: " + user);
                 UsernamePasswordCredentials creds = new UsernamePasswordCredentials(user, pass);
                 targetReq.addHeader(new BasicScheme().authenticate(creds, targetReq, null));
             }
 
-            targetReq.addHeader("x-craas-solution-api-token", props.getProperty("centralRegistryApiToken"));
-            System.out.println("Headers: " + Arrays.asList(targetReq.getAllHeaders()));
-
-            System.out.println("Request:  " + targetHost + targetUrl);
+            targetReq.addHeader("x-cr-api-token", props.getProperty("centralRegistryApiToken"));
             CloseableHttpResponse targetResp = c.execute(targetHost, targetReq);
 
-            System.out.println("Response: " + targetResp);
+            System.out.println("Request: " + targetHost + targetUrl + ", user " + user
+                    + " -> " + (System.currentTimeMillis() - time) + " msec: " + targetResp.getStatusLine());
+
             resp.setStatus(targetResp.getStatusLine().getStatusCode());
             targetResp.getEntity().writeTo(resp.getOutputStream());
 
