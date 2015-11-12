@@ -83,7 +83,7 @@ $(document).ready(function () {
     // --- Handler for refreshing list and map of things
     var refreshTable = function () {
 
-        $.getJSON("cr/1/search/things?fields=thingId,attributes/name,features/geolocation").done(function (data, textStatus) {
+        $.getJSON("cr/1/search/things?fields=thingId,attributes/name,features/geolocation,features/orientation").done(function (data, textStatus) {
 
             // --- clear table content and clear map
             $("#tableBody").empty();
@@ -119,7 +119,22 @@ $(document).ready(function () {
                     // --- add marker for thing on map
                     var latlng = [t.features.geolocation.properties.geoposition.latitude,
                         t.features.geolocation.properties.geoposition.longitude];
-                    var marker = L.marker(latlng);
+
+                    var marker;
+                    if ("features" in t && "orientation" in t.features && "z" in t.features.orientation.properties) {
+                        // --- add rotated marker based on "orientation"
+                        var direction = t.features.orientation.properties.z;
+                        var icon = L.divIcon({
+                            className: "",
+                            iconSize: null,
+                            html: '<span class="arrow glyphicon glyphicon-arrow-up" style="font-size: 30px; transform: rotate(' + direction + 'deg);" />'
+                        });
+                        marker = L.marker(latlng, {icon: icon});
+                    } else {
+                        // --- add default marker (without "orientation")
+                        marker = L.marker(latlng);
+                    }
+
                     marker._thingId = t.thingId;
                     marker.bindPopup(t.thingId);
                     marker.on("click", function (e) {

@@ -72,27 +72,42 @@ thing:
 _Change the ids before executing this call._
 ```
 {
-    "acl": {
-        "### id of your user ###":             { "READ": true, "WRITE": true, "ADMINISTRATE": true },
-        "### id of your solution ###:gateway": { "READ": true, "WRITE": true, "ADMINISTRATE": false }
-    },
-    "attributes": {
-        "name": "Herbie 53",
-        "manufacturer": "VW",
-        "VIN": "5313879"
-    },
-    "features": {
-        "geolocation": {
-            "properties": {
-                "_definition": "org.eclipse.vorto.Geolocation:1.0.0",
-                "geoposition": {
-                    "latitude": 47.68,
-                    "longitude": 9.3865
-                },
-                "accuracy": 15
-            }
-        }
-    }
+   "acl":{
+      "### id of your user ###":{
+         "READ":true,
+         "WRITE":true,
+         "ADMINISTRATE":true
+      },
+      "### id of your solution ###:gateway":{
+         "READ":true,
+         "WRITE":true,
+         "ADMINISTRATE":false
+      }
+   },
+   "attributes":{
+      "name":"Herbie 53",
+      "manufacturer":"VW",
+      "VIN":"5313879"
+   },
+   "features":{
+      "geolocation":{
+         "properties":{
+            "_definition":"org.eclipse.vorto.Geolocation:1.0.0",
+            "geoposition":{
+               "latitude":47.68,
+               "longitude":9.3865
+            },
+            "accuracy":15
+         }
+      },
+      "orientation":{
+         "properties":{
+            "x":30,
+            "y":20,
+            "z":147
+         }
+      }
+   }
 }
 ```
 
