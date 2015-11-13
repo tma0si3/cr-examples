@@ -127,7 +127,7 @@ $(document).ready(function () {
                         var icon = L.divIcon({
                             className: "",
                             iconSize: null,
-                            html: '<span class="arrow glyphicon glyphicon-arrow-up" style="font-size: 30px; transform: rotate(' + direction + 'deg);" />'
+                            html: '<span class="glyphicon glyphicon-arrow-up" style="font-size: 30px; text-shadow: 3px 3px 3px black; color: #4597D0; transform: rotate(' + direction + 'deg);" />'
                         });
                         marker = L.marker(latlng, {icon: icon});
                     } else {
@@ -150,8 +150,11 @@ $(document).ready(function () {
             }
 
         });
-    };
 
+        if ($("#autoRefresh").is(":checked")) {
+            window.setTimeout(refreshTable, 1000);
+        }
+    };
 
     // --- create map
     var map = L.map("map");
@@ -164,6 +167,11 @@ $(document).ready(function () {
     var markers = null;
 
     $("#refreshTable").click(refreshTable);
+    $("#autoRefresh").on("change", function () {
+        if ($("#autoRefresh").is(":checked")) {
+            window.setTimeout(refreshTable, 1000);
+        }
+    });
 
     $("#tableBody").on("click", "tr", function () {
         var row = $(this);
