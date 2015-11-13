@@ -178,8 +178,12 @@
                 features: {
                     geolocation: {
                         properties: {
-                            latitude: null,
-                            longitude: null
+                            _definition: 'org.eclipse.vorto.Geolocation:1.0.0',
+                            geoposition: {
+                                latitude: null,
+                                longitude: null
+                            },
+                            accuracy: null
                         }
                     },
                     orientation: {
@@ -205,20 +209,38 @@
     }
 
     function updateGeolocation(position) {
-        return updateFeatureProperties(device, 'geolocation', position);
+        return updateFeatureProperty(device, 'geolocation', 'geoposition', position);
     }
 
     function updateOrientation(orientation) {
         return updateFeatureProperties(device, 'orientation', orientation);
     }
 
-    function updateFeatureProperties(thing, feature, properties) {
+    function updateFeatureProperty(thing, feature, jsonPointer, jsonValue) {
+        return new Promise(function (resolve, reject) {
+            if (thing) {
+                $.ajax({
+                    type: 'PUT',
+                    url: '/cr/1/things/' + thing.thingId + '/features/' + feature + '/properties/' + jsonPointer,
+                    data: JSON.stringify(jsonValue),
+                    contentType: 'application/json; charset=UTF-8',
+                    beforeSend: setAuthorizationHeader
+                }).then(resolve, function onError(data) {
+                    reject(data.responseText || data.statusText)
+                });
+            } else {
+                reject('no thing registered');
+            }
+        });
+    }
+
+    function updateFeatureProperties(thing, feature, jsonValue) {
         return new Promise(function (resolve, reject) {
             if (thing) {
                 $.ajax({
                     type: 'PUT',
                     url: '/cr/1/things/' + thing.thingId + '/features/' + feature + '/properties',
-                    data: JSON.stringify(properties),
+                    data: JSON.stringify(jsonValue),
                     contentType: 'application/json; charset=UTF-8',
                     beforeSend: setAuthorizationHeader
                 }).then(resolve, function onError(data) {
