@@ -24,6 +24,8 @@
  */
 'use strict';
 (function ($, Promise, window, geolocation) {
+    var THROTTLE_RATE_MS = 100;
+
     var ui = {};
     ui.window = $(window);
     ui.geolocationLabel = $('#geolocation-label');
@@ -54,13 +56,13 @@
 
                 // listen for geolocation changes
                 if (geolocation) {
-                    geolocation.watchPosition(geolocationChanged);
+                    geolocation.watchPosition(throttle(geolocationChanged, THROTTLE_RATE_MS));
                 } else {
                     ui.geolocationLabel.text('Not available.');
                 }
 
                 // listen for orientation changes and transmit data every 100ms
-                ui.window.on('deviceorientation', throttle(orientationChanged, 100));
+                ui.window.on('deviceorientation', throttle(orientationChanged, THROTTLE_RATE_MS));
 
                 // listen for permission changes
                 ui.permissionCheckbox.on('change', permissionChanged);
