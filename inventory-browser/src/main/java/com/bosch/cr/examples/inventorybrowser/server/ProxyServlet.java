@@ -115,6 +115,7 @@ public class ProxyServlet extends HttpServlet {
                 targetReq.addHeader(new BasicScheme().authenticate(creds, targetReq, null));
             }
 
+            targetReq.addHeader("x-craas-solution-api-token", props.getProperty("centralRegistryApiToken"));
             targetReq.addHeader("x-cr-api-token", props.getProperty("centralRegistryApiToken"));
             CloseableHttpResponse targetResp = c.execute(targetHost, targetReq);
 
