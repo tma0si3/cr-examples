@@ -59,9 +59,8 @@
                     ui.geolocationLabel.text('Not available.');
                 }
 
-                // listen for orientation changes
-                ui.window.on('deviceorientation', orientationChanged);
-                ui.orientationLabel.text(JSON.stringify(device.features.orientation.properties, null, 3));
+                // listen for orientation changes and transmit data every 100ms
+                ui.window.on('deviceorientation', throttle(orientationChanged, 100));
 
                 // listen for permission changes
                 ui.permissionCheckbox.on('change', permissionChanged);
@@ -122,6 +121,7 @@
         };
 
         ui.orientationLabel.text(JSON.stringify(orientation, null, 3));
+
         updateOrientation(orientation)
             .then(function onSuccess(data) {
                 logger.info('Orientation updated successfully.');
@@ -261,6 +261,29 @@
 
     function encodeBase64(value) {
         return window.btoa(value);
+    }
+
+    function throttle(fn, threshhold, scope) {
+        threshhold || (threshhold = 250);
+        var last,
+            deferTimer;
+        return function () {
+            var context = scope || this;
+
+            var now = +new Date,
+                args = arguments;
+            if (last && now < last + threshhold) {
+                // hold on to it
+                clearTimeout(deferTimer);
+                deferTimer = setTimeout(function () {
+                    last = now;
+                    fn.apply(context, args);
+                }, threshhold);
+            } else {
+                last = now;
+                fn.apply(context, args);
+            }
+        };
     }
 
     var logger = {
