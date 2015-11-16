@@ -99,6 +99,7 @@ $(document).ready(function () {
             var count = data.items.length;
             for (var i = 0; i < count; i++) {
                 var t = data.items[i];
+                var currentlySelected = (t.thingId == $("#details").attr("thingId"));
 
                 // --- add heading data to table
                 var row = $("<tr>");
@@ -131,12 +132,14 @@ $(document).ready(function () {
                         if ("features" in t && "orientation" in t.features && "z" in t.features.orientation.properties) {
                             var direction = t.features.orientation.properties.z;
                             if (direction - parseFloat(direction) + 1 >= 0) {
+                                var color =  currentlySelected ? "#D06245" : "#4597D0";
+                                var style = "font-size: 30px; text-shadow: 3px 3px 3px black; color: " + color + "; transform-origin: 50% 0; transform: translate(-50%,0) rotate(" + direction + "deg);"
                                 var icon = L.divIcon({
                                     className: "",
                                     iconSize: null,
-                                    html: '<span class="glyphicon glyphicon-arrow-up" style="font-size: 30px; text-shadow: 3px 3px 3px black; color: #4597D0; transform-origin: 50% 0; transform: translate(-50%,0) rotate(' + direction + 'deg);" />'
+                                    html: '<span class="glyphicon glyphicon-arrow-up" style="' + style + '" />'
                                 });
-                                marker = L.marker(latlng, {icon: icon});
+                                marker = L.marker(latlng, {icon: icon, zIndexOffset: currentlySelected ? 1000 : 0});
                             }
                         }
 
