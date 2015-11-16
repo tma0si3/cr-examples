@@ -31,7 +31,8 @@ import com.bosch.cr.integration.IntegrationClientConfiguration;
 import com.bosch.cr.integration.IntegrationClientImpl;
 import com.bosch.cr.integration.authentication.AuthenticationConfiguration;
 import com.bosch.cr.integration.authentication.PublicKeyAuthenticationConfiguration;
-import com.bosch.cr.integration.messaging.stomp.StompProviderConfiguration;
+import com.bosch.cr.integration.configuration.ProxyConfiguration;
+import com.bosch.cr.integration.configuration.TrustStoreConfiguration;
 import com.bosch.cr.integration.registration.ThingLifecycleEvent;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfig;
@@ -89,32 +90,36 @@ public class VehicleSimulator {
         String keyAlias = props.getProperty("keyAlias");
         String keyAliasPassword = props.getProperty("keyAliasPassword");
 
-        final AuthenticationConfiguration authConfig = PublicKeyAuthenticationConfiguration.newBuilder()
-                .clientId(clientId)
-                .keyStoreLocation(keystoreUri.toURL())
-                .keyStorePassword(keystorePassword)
-                .signatureAlgorithm("SHA512withECDSA")
+
+        IntegrationClientConfiguration.ClientConfigurationBuilder clientConfigBuilder = IntegrationClientConfiguration.newBuilder();
+
+        PublicKeyAuthenticationConfiguration.PublicKeyAuthenticationConfigurationBuilder authenticationBuilder =
+                PublicKeyAuthenticationConfiguration.newBuilder();
+
+        AuthenticationConfiguration authenticationConfiguration = authenticationBuilder.clientId(clientId)
+                .keyStoreLocation(keystoreUri.toURL()).keyStorePassword(keystorePassword)
                 .alias(keyAlias).aliasPassword(keyAliasPassword).build();
+
+        IntegrationClientConfiguration.OptionalConfigSettable optionalConfig = clientConfigBuilder
+                .authenticationConfiguration(authenticationConfiguration)
+                .centralRegistryEndpointUrl(props.getProperty("centralRegistryMessagingUrl"));
 
         final String proxyHost = props.getProperty("http.proxyHost");
         final String proxyPort = props.getProperty("http.proxyPort");
-
-        final StompProviderConfiguration.StompProviderConfigurationBuilder providerConfigBuilder = StompProviderConfiguration.newBuilder()
-                .sslKeyStoreLocation(VehicleSimulator.class.getResource("/bosch-iot-cloud.jks"))
-                .sslKeyStorePassword("jks");
         if (proxyHost != null && proxyPort != null) {
-            providerConfigBuilder.proxyHost(props.getProperty("http.proxyHost"));
-            providerConfigBuilder.proxyPort(Integer.valueOf(props.getProperty("http.proxyPort")));
+            ProxyConfiguration proxyConfiguration = ProxyConfiguration.newBuilder()
+                    .proxyHost(proxyHost)
+                    .proxyPort(Integer.valueOf(proxyPort)).build();
+            optionalConfig.proxyConfiguration(proxyConfiguration);
         }
-        final StompProviderConfiguration providerConfig = providerConfigBuilder.build();
 
-        final IntegrationClientConfiguration clientConfig = IntegrationClientConfiguration.newBuilder()
-                .authenticationConfiguration(authConfig)
-                .centralRegistryEndpointUrl(props.getProperty("centralRegistryMessagingUrl"))
-                .providerConfiguration(providerConfig)
-                .build();
+        TrustStoreConfiguration trustStoreConfiguration = TrustStoreConfiguration.newBuilder()
+                .location(VehicleSimulator.class.getResource("/bosch-iot-cloud.jks")).password("jks").build();
+
+        IntegrationClientConfiguration clientConfig =  optionalConfig.trustStoreConfiguration(trustStoreConfiguration).build();
 
         final IntegrationClient client = IntegrationClientImpl.newInstance(clientConfig);
+
 
         // ### WORKAROUND: prepare HttpClient to make REST calls the CR-Integration-Client does not support yet
         String apiToken = props.getProperty("apiToken");
