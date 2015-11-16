@@ -37,7 +37,8 @@ public class Examples
 
    public static final String BOSCH_IOT_CENTRAL_REGISTRY_ENDPOINT_URL = "wss://events.apps.bosch-iot-cloud.com:443/";
    public static final URL KEYSTORE_LOCATION = Examples.class.getResource("/CRClient.jks");
-   public static final URL TRUSTSTORE_LOCATION = Examples.class.getResource("/truststore.jks");
+   public static final URL TRUSTSTORE_LOCATION = Examples.class.getResource("/bosch-iot-cloud.jks");
+   public static final String TRUSTSTORE_PASSWORD = "jks";
 
    public static void main(final String[] args) throws InterruptedException
    {
@@ -53,7 +54,7 @@ public class Examples
       /* optionally configure a proxy server or a truststore */
       ProxyConfiguration proxy = ProxyConfiguration.newBuilder().proxyHost("some.proxy.server").proxyPort(1234).build();
       TrustStoreConfiguration trustStore = TrustStoreConfiguration.newBuilder()
-         .location(TRUSTSTORE_LOCATION).password("pw").build();
+         .location(TRUSTSTORE_LOCATION).password(TRUSTSTORE_PASSWORD).build();
 
       /* provide required configuration (authentication configuration and CR URI),
          optional configuration (proxy, truststore etc.) can be added when needed */
