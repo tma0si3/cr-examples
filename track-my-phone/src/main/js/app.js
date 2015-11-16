@@ -24,7 +24,7 @@
  */
 'use strict';
 (function ($, Promise, window, geolocation) {
-    var THROTTLE_RATE_MS = 100;
+    var THROTTLE_RATE_MS = 1000;
 
     var ui = {};
     ui.window = $(window);
