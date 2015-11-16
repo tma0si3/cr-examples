@@ -1,5 +1,6 @@
 package com.bosch.cr.integration.examples;
 
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -14,15 +15,15 @@ import org.slf4j.LoggerFactory;
 import com.bosch.cr.integration.IntegrationClient;
 import com.bosch.cr.integration.IntegrationClientConfiguration;
 import com.bosch.cr.integration.IntegrationClientImpl;
-import com.bosch.cr.integration.ProviderConfiguration;
 import com.bosch.cr.integration.ThingHandle;
 import com.bosch.cr.integration.ThingIntegration;
 import com.bosch.cr.integration.authentication.AuthenticationConfiguration;
 import com.bosch.cr.integration.authentication.PublicKeyAuthenticationConfiguration;
+import com.bosch.cr.integration.configuration.ProxyConfiguration;
+import com.bosch.cr.integration.configuration.TrustStoreConfiguration;
 import com.bosch.cr.integration.model.Feature;
 import com.bosch.cr.integration.model.Permission;
 import com.bosch.cr.integration.model.Thing;
-import com.bosch.cr.integration.stomp.StompProviderConfiguration;
 import com.bosch.cr.integration.util.ThingBuilder;
 import com.bosch.cr.integration.util.ThingBuilderImpl;
 
@@ -31,29 +32,39 @@ public class Examples
    private static final Logger LOGGER = LoggerFactory.getLogger(Examples.class);
 
    public static final String KEYSTORE_PASSWORD = "solutionPass";
-   public static final String SIGNATURE_ALGORITHM = "SHA512withECDSA";
    public static final String ALIAS = "CR";
    public static final String ALIAS_PASSWORD = "crPass";
 
    public static final String BOSCH_IOT_CENTRAL_REGISTRY_ENDPOINT_URL = "wss://events.apps.bosch-iot-cloud.com:443/";
+   public static final URL KEYSTORE_LOCATION = Examples.class.getResource("/CRClient.jks");
+   public static final URL TRUSTSTORE_LOCATION = Examples.class.getResource("/bosch-iot-cloud.jks");
+   public static final String TRUSTSTORE_PASSWORD = "jks";
 
    public static void main(final String[] args) throws InterruptedException
    {
-      /* Create a new integration client */
-      final ProviderConfiguration providerConfiguration =
-         StompProviderConfiguration.newBuilder().proxyHost("cache.innovations.de") // Configure proxy (if needed)
-            .proxyPort(3128) // Configure proxy (if needed)
-            .sslKeyStoreLocation(Examples.class.getResource("/bosch-iot-cloud.jks")).sslKeyStorePassword("jks").build();
-
       AuthenticationConfiguration authenticationConfiguration =
-         PublicKeyAuthenticationConfiguration.newBuilder().clientId("uuid:example-client")
-            .keyStoreLocation(Examples.class.getResource("/CRClient.jks")).keyStorePassword(KEYSTORE_PASSWORD)
-            .signatureAlgorithm(SIGNATURE_ALGORITHM).alias(ALIAS).aliasPassword(ALIAS_PASSWORD).build();
+         PublicKeyAuthenticationConfiguration.newBuilder()
+            .clientId("example-client")
+            .keyStoreLocation(KEYSTORE_LOCATION)
+            .keyStorePassword(KEYSTORE_PASSWORD)
+            .alias(ALIAS)
+            .aliasPassword(ALIAS_PASSWORD)
+            .build();
 
+      /* optionally configure a proxy server or a truststore */
+      ProxyConfiguration proxy = ProxyConfiguration.newBuilder().proxyHost("some.proxy.server").proxyPort(1234).build();
+      TrustStoreConfiguration trustStore = TrustStoreConfiguration.newBuilder()
+         .location(TRUSTSTORE_LOCATION).password(TRUSTSTORE_PASSWORD).build();
+
+      /* provide required configuration (authentication configuration and CR URI),
+         optional configuration (proxy, truststore etc.) can be added when needed */
       final IntegrationClientConfiguration integrationClientConfiguration =
-         IntegrationClientConfiguration.newBuilder().authenticationConfiguration(authenticationConfiguration)
+         IntegrationClientConfiguration.newBuilder()
+            .authenticationConfiguration(authenticationConfiguration)
             .centralRegistryEndpointUrl(BOSCH_IOT_CENTRAL_REGISTRY_ENDPOINT_URL)
-            .providerConfiguration(providerConfiguration).build();
+            // .proxyConfiguration(proxy)
+            // .trustStoreConfiguration(trustStore)
+            .build();
 
       final IntegrationClient integrationClient = IntegrationClientImpl.newInstance(integrationClientConfiguration);
 
