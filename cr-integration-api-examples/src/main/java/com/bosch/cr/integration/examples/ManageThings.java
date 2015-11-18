@@ -41,11 +41,13 @@ public class ManageThings extends ExamplesBase
     */
    public void createReadUpdateDelete() throws InterruptedException, ExecutionException, TimeoutException
    {
-      thingIntegration.create(myThingId).thenApply(createdThing -> myThing.changeAttribute("address/city", "Berlin"))
-         .thenApply(changedSuccessfully -> myThing.retrieve()).thenApply(retrievedThing -> {
-         LOGGER.info("My thing as persisted on the Bosch IoT Central Registry: {}", retrievedThing);
-         return myThing.delete();
-      }).get(10, TimeUnit.SECONDS);
+      thingIntegration.create(myThingId)
+         .thenCompose(createdThing -> myThing.changeAttribute("address/city", "Berlin"))
+         .thenCompose(changedSuccessfully -> myThing.retrieve())
+         .thenCompose(retrievedThing -> {
+            LOGGER.info("My thing as persisted on the Bosch IoT Central Registry: {}", retrievedThing);
+            return myThing.delete();
+         }).get(10, TimeUnit.SECONDS);
    }
 
    /**
