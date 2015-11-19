@@ -99,6 +99,7 @@ $(document).ready(function () {
             var count = data.items.length;
             for (var i = 0; i < count; i++) {
                 var t = data.items[i];
+                var currentlySelected = (t.thingId == $("#details").attr("thingId"));
 
                 // --- add heading data to table
                 var row = $("<tr>");
@@ -107,8 +108,7 @@ $(document).ready(function () {
 
                 if ("attributes" in t && "name" in t.attributes) {
                     row.append($("<td>").text(t.attributes.name));
-                }
-                else {
+                } else {
                     row.append($("<td>").text("-"));
                 }
                 $("#tableBody").append(row);
@@ -116,32 +116,41 @@ $(document).ready(function () {
                 // --- when thing has a "geolocation" feature with "geoposition" properties
                 if ("features" in t && "geolocation" in t.features && "geoposition" in t.features.geolocation.properties) {
 
-                    // --- add marker for thing on map
-                    var latlng = [t.features.geolocation.properties.geoposition.latitude,
-                        t.features.geolocation.properties.geoposition.longitude];
+                    // --- if latitude and longitude are available and are numbers then ..
+                    var latitude = t.features.geolocation.properties.geoposition.latitude;
+                    var longitude = t.features.geolocation.properties.geoposition.longitude;
+                    if ((latitude -  parseFloat(latitude) + 1 >= 0) && (longitude -  parseFloat(longitude) + 1 >= 0)) {
 
-                    var marker;
-                    if ("features" in t && "orientation" in t.features && "z" in t.features.orientation.properties) {
-                        // --- add rotated marker based on "orientation"
-                        var direction = t.features.orientation.properties.z;
-                        var icon = L.divIcon({
-                            className: "",
-                            iconSize: null,
-                            html: '<span class="arrow glyphicon glyphicon-arrow-up" style="font-size: 30px; transform: rotate(' + direction + 'deg);" />'
+                        // --- add marker for thing on map
+                        var latlng = [t.features.geolocation.properties.geoposition.latitude,
+                            t.features.geolocation.properties.geoposition.longitude];
+
+                        // --- default marker (without "orientation")
+                        var marker = L.marker(latlng);
+
+                        // --- if direction is available and is a number then use rotated marker
+                        if ("features" in t && "orientation" in t.features && "z" in t.features.orientation.properties) {
+                            var direction = t.features.orientation.properties.z;
+                            if (direction - parseFloat(direction) + 1 >= 0) {
+                                var color =  currentlySelected ? "#D06245" : "#4597D0";
+                                var style = "font-size: 30px; text-shadow: 3px 3px 3px black; color: " + color + "; transform-origin: 50% 0; transform: translate(-50%,0) rotate(" + direction + "deg);"
+                                var icon = L.divIcon({
+                                    className: "",
+                                    iconSize: null,
+                                    html: '<span class="glyphicon glyphicon-arrow-up" style="' + style + '" />'
+                                });
+                                marker = L.marker(latlng, {icon: icon, zIndexOffset: currentlySelected ? 1000 : 0});
+                            }
+                        }
+
+                        marker._thingId = t.thingId;
+                        marker.bindPopup(t.thingId);
+                        marker.on("click", function (e) {
+                            $("#details").attr("thingId", e.target._thingId);
+                            refreshDetails();
                         });
-                        marker = L.marker(latlng, {icon: icon});
-                    } else {
-                        // --- add default marker (without "orientation")
-                        marker = L.marker(latlng);
+                        marker.addTo(markers);
                     }
-
-                    marker._thingId = t.thingId;
-                    marker.bindPopup(t.thingId);
-                    marker.on("click", function (e) {
-                        $("#details").attr("thingId", e.target._thingId);
-                        refreshDetails();
-                    });
-                    marker.addTo(markers);
                 }
             }
 
@@ -150,8 +159,11 @@ $(document).ready(function () {
             }
 
         });
-    };
 
+        if ($("#autoRefresh").is(":checked")) {
+            window.setTimeout(refreshTable, 1000);
+        }
+    };
 
     // --- create map
     var map = L.map("map");
@@ -164,6 +176,11 @@ $(document).ready(function () {
     var markers = null;
 
     $("#refreshTable").click(refreshTable);
+    $("#autoRefresh").on("change", function () {
+        if ($("#autoRefresh").is(":checked")) {
+            window.setTimeout(refreshTable, 1000);
+        }
+    });
 
     $("#tableBody").on("click", "tr", function () {
         var row = $(this);
