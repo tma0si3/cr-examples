@@ -23,7 +23,7 @@ public class RegisterForAndSendMessages extends ExamplesBase
    private static final Logger LOGGER = LoggerFactory.getLogger(RegisterForAndSendMessages.class);
 
    /**
-    * Shows various possibilities to register handlers for {@cod Message}s of interest.
+    * Shows various possibilities to register handlers for {@code Message}s of interest.
     */
    public void registerForMessages()
    {
