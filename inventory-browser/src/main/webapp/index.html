@@ -29,13 +29,6 @@ OF SUCH DAMAGE.
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.css"/>
-    <style>
-        .arrow {
-            color: #4597D0;
-            text-shadow: 3px 3px 3px black;
-        }
-    </style>
-
 </head>
 <body>
 <nav class="navbar navbar-inverse">
@@ -50,9 +43,12 @@ OF SUCH DAMAGE.
 
         <h2>
             Things
-            <button id="refreshTable" type="button" class="btn btn-default" aria-label="Refresh">
-                <span class="glyphicon glyphicon glyphicon-refresh" aria-hidden="true"></span>
+            <button id="refreshTable" type="button" class="btn btn-default" aria-label="Refresh" style="margin-left: 20px">
+                <span class="glyphicon glyphicon-refresh" style="margin-right: 10px"></span>Refresh
             </button>
+            <span style="margin-left: 20px; font-size: small">
+                <input type="checkbox" id="autoRefresh" style="margin-right: 10px">Auto refresh
+            </span>
         </h2>
 
         <div class="row">
@@ -92,7 +88,7 @@ OF SUCH DAMAGE.
 
 <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-<script src="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.js"></script>
+<script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
 
 <script src="main.js"></script>
 
