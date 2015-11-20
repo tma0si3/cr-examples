@@ -7,7 +7,8 @@
 		"886b11d3-8032-c663-73ce-4d18d02c901d",
 		"de29b9cc-dac6-5831-873e-28e7e277e462",
 		"cf620a51-cddc-9f5e-6706-146c6ac0641e",
-		"63f101dc-1007-cd85-b18e-578ea3ddef0c"
+		"63f101dc-1007-cd85-b18e-578ea3ddef0c",
+		"e8a7d342-125d-8c15-f413-38b392103279"
 	],
 	"folders": [],
 	"timestamp": 1448014906428,
@@ -113,6 +114,25 @@
 			"collectionId": "3778dfb8-8052-ccc8-d13d-ce8c41b8c5e3",
 			"responses": [],
 			"rawModeData": "{\n    \"target\": \"cric://com.bosch.cr.demo:crdemoclient\"\n}"
+		},
+		{
+			"id": "e8a7d342-125d-8c15-f413-38b392103279",
+			"headers": "Accept: application/json\n",
+			"url": "{{craas.baseurl}}/cr/1/subscriptions/<subscriptionId>",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "GET",
+			"data": [],
+			"dataMode": "params",
+			"version": 2,
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1448044835673,
+			"name": "Query: A Subscription with given ID",
+			"description": "",
+			"collectionId": "3778dfb8-8052-ccc8-d13d-ce8c41b8c5e3",
+			"responses": []
 		}
 	]
 }
