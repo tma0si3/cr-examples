@@ -27,52 +27,52 @@ public class RegisterForAndSendMessages extends ExamplesBase
     */
    public void registerForMessages()
    {
-      /* Register for *all* messages of *all* things of content type application/json and provide it as JsonMessage */
+      /* Register for *all* messages of *all* things and provide payload as JsonValue */
       final String allThings_jsonMessageRegistration = "allThings_jsonMessageRegistration";
-      thingIntegration.registerForJsonMessage(allThings_jsonMessageRegistration, "application/json", (message) -> {
+      thingIntegration.registerForMessage(allThings_jsonMessageRegistration, "*", (message) -> {
          final String topic = message.getTopic();
-         final JsonValue payload = message.getPayload().get();
-         LOGGER.info("json message for topic {} with payload {} received", topic, payload);
+         final JsonValue payload = message.getPayloadAsJson().get();
+         LOGGER.info("message for topic {} with payload {} received", topic, payload);
       });
 
-      /* Register for *all* messages of *all* things of content type application/raw+image and provide it as RawMessage */
+      /* Register for messages with topic *topicOfInterest* of *all* things and provide payload as byte array */
       final String allThings_rawMessageRegistration = "allThings_rawMessageRegistration";
-      thingIntegration.registerForRawMessage(allThings_rawMessageRegistration, "application/raw+image", (message) -> {
+      thingIntegration.registerForMessage(allThings_rawMessageRegistration, "topicOfInterest", (message) -> {
          final String topic = message.getTopic();
          final byte[] payload = message.getPayload().get();
-         LOGGER.info("raw message for topic {} with payload {} received", topic, Arrays.toString(payload));
+         LOGGER.info("message for topic {} with payload {} received", topic, Arrays.toString(payload));
       });
 
-      /* Register for *all* messages of *all* things of content type application/xml and provide it as StringMessage */
+      /* Register for messages with topic *some.topic* of *all* things and provide payload as String */
       final String allThings_stringMessageRegistration = "allThings_stringMessageRegistration";
-      thingIntegration.registerForStringMessage(allThings_stringMessageRegistration, "application/xml", (message) -> {
+      thingIntegration.registerForMessage(allThings_stringMessageRegistration, "some.topic", (message) -> {
          final String topic = message.getTopic();
-         final String payload = message.getPayload().get();
-         LOGGER.info("string message for topic {} with payload {} received", topic, payload);
+         final String payload = message.getPayloadAsString().get();
+         LOGGER.info("message for topic {} with payload {} received", topic, payload);
       });
 
-      /* Register for *all* messages of a *specific* thing of content type application/json and provide it as JsonMessage */
+      /* Register for *all* messages of a *specific* thing of and provide payload as JsonValue */
       final String myThing_jsonMessageRegistration = "myThing_jsonMessageRegistration";
-      myThing.registerForJsonMessage(myThing_jsonMessageRegistration, "application/json", (message) -> {
+      myThing.registerForMessage(myThing_jsonMessageRegistration, "*", (message) -> {
          final String topic = message.getTopic();
-         final JsonValue payload = message.getPayload().get();
-         LOGGER.info("json message for topic {} with payload {} received", topic, payload);
+         final JsonValue payload = message.getPayloadAsJson().get();
+         LOGGER.info("message for topic {} with payload {} received", topic, payload);
       });
 
-      /* Register for *all* messages of a *specific* thing of content type application/raw+image and provide it as RawMessage */
+      /* Register for *all* messages with topic *some_message_topic* of a *specific* thing and provide payload as byte array */
       final String myThing_rawMessageRegistration = "myThing_rawMessageRegistration";
-      myThing.registerForRawMessage(myThing_rawMessageRegistration, "application/raw+image", (message) -> {
+      myThing.registerForMessage(myThing_rawMessageRegistration, "some_message_topic", (message) -> {
          final String topic = message.getTopic();
          final byte[] payload = message.getPayload().get();
-         LOGGER.info("raw message for topic {} with payload {} received", topic, Arrays.toString(payload));
+         LOGGER.info("message for topic {} with payload {} received", topic, Arrays.toString(payload));
       });
 
-      /* Register for *all* messages of a *specific* thing of content type application/xml and provide it as StringMessage */
+      /* Register for *all* messages of a *specific* thing and provide payload as String */
       final String myThing_stringMessageRegistration = "myThing_stringMessageRegistration";
-      myThing.registerForStringMessage(myThing_stringMessageRegistration, "application/xml", (message) -> {
+      myThing.registerForMessage(myThing_stringMessageRegistration, "*", (message) -> {
          final String topic = message.getTopic();
-         final String payload = message.getPayload().get();
-         LOGGER.info("string message for topic {} with payload {} received", topic, payload);
+         final String payload = message.getPayloadAsString().get();
+         LOGGER.info("message for topic {} with payload {} received", topic, payload);
       });
    }
 
