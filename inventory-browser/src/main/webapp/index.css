@@ -1,0 +1,18 @@
+#map {
+    height: 400px;
+}
+#table-wrapper {
+    max-height: 320px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+#details {
+    display: none;
+}
+#detailsThingId {
+    word-wrap: break-word;
+}
+td {
+    word-break: break-all;
+    word-wrap: break-word;
+}
