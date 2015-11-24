@@ -26,5 +26,6 @@ applications:
   memory: 16M
   disk_quota: 16M
   buildpack: https://github.com/cloudfoundry/staticfile-buildpack.git
-  host: demos
+  domain: internal.bosch-iot-cloud.com
+  host: track-my-phone
   path: /dist

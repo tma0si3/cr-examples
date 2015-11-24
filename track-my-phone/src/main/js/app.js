@@ -24,6 +24,8 @@
  */
 'use strict';
 (function ($, Promise, window, geolocation) {
+    var THROTTLE_RATE_MS = 1000;
+
     var ui = {};
     ui.window = $(window);
     ui.geolocationLabel = $('#geolocation-label');
@@ -54,14 +56,13 @@
 
                 // listen for geolocation changes
                 if (geolocation) {
-                    geolocation.watchPosition(geolocationChanged);
+                    geolocation.watchPosition(throttle(geolocationChanged, THROTTLE_RATE_MS));
                 } else {
                     ui.geolocationLabel.text('Not available.');
                 }
 
-                // listen for orientation changes
-                ui.window.on('deviceorientation', orientationChanged);
-                ui.orientationLabel.text(JSON.stringify(device.features.orientation.properties, null, 3));
+                // listen for orientation changes and transmit data every 100ms
+                ui.window.on('deviceorientation', throttle(orientationChanged, THROTTLE_RATE_MS));
 
                 // listen for permission changes
                 ui.permissionCheckbox.on('change', permissionChanged);
@@ -122,6 +123,7 @@
         };
 
         ui.orientationLabel.text(JSON.stringify(orientation, null, 3));
+
         updateOrientation(orientation)
             .then(function onSuccess(data) {
                 logger.info('Orientation updated successfully.');
@@ -176,8 +178,12 @@
                 features: {
                     geolocation: {
                         properties: {
-                            latitude: null,
-                            longitude: null
+                            _definition: 'org.eclipse.vorto.Geolocation:1.0.0',
+                            geoposition: {
+                                latitude: null,
+                                longitude: null
+                            },
+                            accuracy: null
                         }
                     },
                     orientation: {
@@ -203,20 +209,38 @@
     }
 
     function updateGeolocation(position) {
-        return updateFeatureProperties(device, 'geolocation', position);
+        return updateFeatureProperty(device, 'geolocation', 'geoposition', position);
     }
 
     function updateOrientation(orientation) {
         return updateFeatureProperties(device, 'orientation', orientation);
     }
 
-    function updateFeatureProperties(thing, feature, properties) {
+    function updateFeatureProperty(thing, feature, jsonPointer, jsonValue) {
+        return new Promise(function (resolve, reject) {
+            if (thing) {
+                $.ajax({
+                    type: 'PUT',
+                    url: '/cr/1/things/' + thing.thingId + '/features/' + feature + '/properties/' + jsonPointer,
+                    data: JSON.stringify(jsonValue),
+                    contentType: 'application/json; charset=UTF-8',
+                    beforeSend: setAuthorizationHeader
+                }).then(resolve, function onError(data) {
+                    reject(data.responseText || data.statusText)
+                });
+            } else {
+                reject('no thing registered');
+            }
+        });
+    }
+
+    function updateFeatureProperties(thing, feature, jsonValue) {
         return new Promise(function (resolve, reject) {
             if (thing) {
                 $.ajax({
                     type: 'PUT',
                     url: '/cr/1/things/' + thing.thingId + '/features/' + feature + '/properties',
-                    data: JSON.stringify(properties),
+                    data: JSON.stringify(jsonValue),
                     contentType: 'application/json; charset=UTF-8',
                     beforeSend: setAuthorizationHeader
                 }).then(resolve, function onError(data) {
@@ -261,6 +285,29 @@
 
     function encodeBase64(value) {
         return window.btoa(value);
+    }
+
+    function throttle(fn, threshhold, scope) {
+        threshhold || (threshhold = 250);
+        var last,
+            deferTimer;
+        return function () {
+            var context = scope || this;
+
+            var now = +new Date,
+                args = arguments;
+            if (last && now < last + threshhold) {
+                // hold on to it
+                clearTimeout(deferTimer);
+                deferTimer = setTimeout(function () {
+                    last = now;
+                    fn.apply(context, args);
+                }, threshhold);
+            } else {
+                last = now;
+                fn.apply(context, args);
+            }
+        };
     }
 
     var logger = {

@@ -169,7 +169,7 @@ $(document).ready(function () {
 
     // --- create map
     var map = L.map("map");
-    var osm = new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    var osm = new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         minZoom: 5, maxZoom: 20,
         attribution: "Map data &copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a> contributors"
     });
