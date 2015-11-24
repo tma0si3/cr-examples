@@ -29,6 +29,7 @@ OF SUCH DAMAGE.
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.css"/>
+    <link rel="stylesheet" href="index.css"/>
 </head>
 <body>
 <nav class="navbar navbar-inverse">
@@ -41,48 +42,53 @@ OF SUCH DAMAGE.
 <div class="container">
     <div class="starter-template">
 
-        <h2>
-            Things
-            <button id="refreshTable" type="button" class="btn btn-default" aria-label="Refresh" style="margin-left: 20px">
-                <span class="glyphicon glyphicon-refresh" style="margin-right: 10px"></span>Refresh
-            </button>
-            <span style="margin-left: 20px; font-size: small">
-                <input type="checkbox" id="autoRefresh" style="margin-right: 10px">Auto refresh
-            </span>
-        </h2>
+        <div class="row">
+            <div class="col-md-12">
+                <div id="map"></div>
+            </div>
+        </div>
 
         <div class="row">
-            <div class="col-md-6">
-                <table id="table" class="table table-striped">
+            <div class="col-md-12">
+                <h3>
+                    Things
+                    <button id="refreshTable" type="button" class="btn btn-default" aria-label="Refresh" style="margin-left: 20px">
+                        <span class="glyphicon glyphicon-refresh" style="margin-right: 10px"></span>Refresh
+                    </button>
+                    <span style="margin-left: 20px; font-size: small"><input type="checkbox" id="autoRefresh" style="margin-right: 10px">Auto refresh</span>
+                </h3>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12" id="table-wrapper">
+                <table class="table table-striped" id="table">
                     <thead>
                     <tr>
-                        <th width="50%">Id</th>
-                        <th>Name</th>
+                        <th>Id</th>
                     </tr>
                     </thead>
                     <tbody id="tableBody" style="cursor: pointer;"></tbody>
                 </table>
             </div>
-            <div id="map" class="col-md-6" style="height: 400px">
+            <div class="col-md-6" id="details">
+                <h3>Details of "<span id="detailsThingId"></span>"</h3>
+
+                <div id="detailsData">
+                    <table id="detailsTable" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th width="30%">Information</th>
+                            <th width="30%">Key</th>
+                            <th>Value</th>
+                        </tr>
+                        </thead>
+                        <tbody id="detailsTableBody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <div id="details" style="display: none">
-            <h2>Details of "<span id="detailsThingId"></span>"</h2>
-
-            <div id="detailsData">
-                <table id="detailsTable" class="table table-striped">
-                    <thead>
-                    <tr>
-                        <th width="25%">Information</th>
-                        <th width="25%">Key</th>
-                        <th>Value</th>
-                    </tr>
-                    </thead>
-                    <tbody id="detailsTableBody"></tbody>
-                </table>
-            </div>
-        </div>
     </div>
 </div>
 
