@@ -48,7 +48,7 @@ $(document).ready(function () {
                         first = false;
                     }
                     row.append($("<td>").text(attribute));
-                    row.append($("<td>").text(typeof value == "object" ? JSON.stringify(value) : value));
+                    row.append($("<td>").text(typeof value == "object" ? JSON.stringify(value, null, 3) : value));
                     tablebody.append(row);
                 });
             }
@@ -67,15 +67,17 @@ $(document).ready(function () {
                                 first = false;
                             }
                             row.append($("<td>").text(prop));
-                            row.append($("<td>").text(typeof value == "object" ? JSON.stringify(value) : value));
+                            row.append($("<td>").text(typeof value == "object" ? JSON.stringify(value, null, 3) : value));
                             tablebody.append(row);
                         });
                     }
                 });
             }
 
+            $("#table-wrapper").removeClass("col-md-12").addClass("col-md-6");
             $("#details").show();
         }).fail(function () {
+            $("#table-wrapper").removeClass("col-md-6").addClass("col-md-12");
             $("#details").hide();
         });
     };
@@ -83,7 +85,7 @@ $(document).ready(function () {
     // --- Handler for refreshing list and map of things
     var refreshTable = function () {
 
-        $.getJSON("cr/1/search/things?fields=thingId,attributes/name,features/geolocation,features/orientation").done(function (data, textStatus) {
+        $.getJSON("cr/1/search/things?fields=thingId,attributes/name,features/geolocation,features/orientation&limit(0,200)").done(function (data, textStatus) {
 
             // --- clear table content and clear map
             $("#tableBody").empty();
@@ -106,11 +108,11 @@ $(document).ready(function () {
                 row.attr("thingId", t.thingId);
                 row.append($("<td>").text(t.thingId));
 
-                if ("attributes" in t && "name" in t.attributes) {
-                    row.append($("<td>").text(t.attributes.name));
-                } else {
-                    row.append($("<td>").text("-"));
-                }
+                //if ("attributes" in t && "name" in t.attributes) {
+                //    row.append($("<td>").text(t.attributes.name));
+                //} else {
+                //    row.append($("<td>").text("-"));
+                //}
                 $("#tableBody").append(row);
 
                 // --- when thing has a "geolocation" feature with "geoposition" properties
