@@ -64,6 +64,14 @@ public abstract class ExamplesBase
          .build();
 
       this.integrationClient = IntegrationClientImpl.newInstance(integrationClientConfiguration);
+
+      // create a subscription for this client, this step can be skipped if a subscription was created via REST
+      this.integrationClient.subscriptions().create().thenRun(
+         // and start consuming events that were triggered by the subscription
+         () -> this.integrationClient.subscriptions().consume());
+
+      this.integrationClient.subscriptions().consume();
+
       this.thingIntegration = integrationClient.things();
       this.myThingId = ":myThing";
       this.myThing = thingIntegration.forId(myThingId);

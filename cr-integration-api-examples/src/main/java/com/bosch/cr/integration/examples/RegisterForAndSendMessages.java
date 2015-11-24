@@ -15,6 +15,8 @@ import com.bosch.cr.integration.ThingHandle;
  * This examples shows the various possibilities that the {@code IntegrationClient} offers to register handlers for
  * {@link com.bosch.cr.integration.model.Message}s being sent to/from your {@code Thing}s, and shows how you can send
  * such {@code Message}s using the {@code IntegrationClient}.
+ * Make sure to invoke {@code IntegrationClient.subscriptions().consume()} once after all message handlers are
+ * registered to start receiving events from Central Registry.
  *
  * @since 2.0.0
  */
