@@ -85,7 +85,7 @@ $(document).ready(function () {
     // --- Handler for refreshing list and map of things
     var refreshTable = function () {
 
-        $.getJSON("cr/1/search/things?fields=thingId,attributes/name,features/geolocation,features/orientation&option=limit(0,200)").done(function (data, textStatus) {
+        $.getJSON("cr/1/search/things?fields=thingId,attributes/name,features/geolocation,features/orientation,features/xdk-sensors&option=limit(0,200)").done(function (data, textStatus) {
 
             // --- clear table content and clear map
             $("#tableBody").empty();
@@ -129,6 +129,24 @@ $(document).ready(function () {
 
                         // --- default marker (without "orientation")
                         var marker = L.marker(latlng);
+
+                        // --- if xdk sensors and a value for light are available
+                        if ("features" in t && "xdk-sensors" in t.features && "light" in t.features['xdk-sensors'].properties) {
+                            var light = t.features['xdk-sensors'].properties.light;
+                            var lightNormalized = (Math.log10(light) / 5);
+
+                            var shadow = Math.floor(15 * lightNormalized);
+                            var shadowNormalized = shadow > 0 ? shadow : 0;
+
+                            //var style = "font-size: 30px; color: black; opacity: " + opacity + ";";
+                            var style = "font-size: 30px; color: black; box-shadow: 0px 0px 25px " + shadowNormalized + "px rgba(255,255,0,1);";
+                            var icon = L.divIcon({
+                                className: "",
+                                iconSize: null,
+                                html: '<span class="icon-lightbulb" style="' + style + '" />'
+                            });
+                            marker = L.marker(latlng, {icon: icon, zIndexOffset: currentlySelected ? 1000 : 0});
+                        }
 
                         // --- if direction is available and is a number then use rotated marker
                         if ("features" in t && "orientation" in t.features && "z" in t.features.orientation.properties) {
