@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
  * This example shows the various possibilities that the {@code IntegrationClient} offers for registering
  * handlers to be informed about {@link com.bosch.cr.integration.registration.ThingLifecycleEvent}s and
  * {@link com.bosch.cr.integration.registration.ThingAttributeChange}s of your {@code Thing}s.
+ * Make sure to invoke {@code IntegrationClient.subscriptions().consume()} once after all handlers are
+ * registered to start receiving events from Central Registry.
  *
  * @since 2.0.0
  */
