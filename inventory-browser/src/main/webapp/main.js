@@ -119,27 +119,29 @@ $(document).ready(function () {
                         var latlng = [t.features.geolocation.properties.geoposition.latitude,
                             t.features.geolocation.properties.geoposition.longitude];
                         var marker = L.marker(latlng);
+                        var defaultMarker = true;
 
+                        var color = currentlySelected ? "#D06245" : "#4597D0";
                         // --- if feature "xdk-sensors" with a value for "light" is available then use lightbulb icon
                         if ("features" in t && "xdk-sensors" in t.features && "light" in t.features['xdk-sensors'].properties) {
                             var light = t.features['xdk-sensors'].properties.light;
                             var lightNormalized = (Math.log10(light) / 5);
                             var shadow = Math.floor(15 * lightNormalized);
                             var shadowNormalized = shadow > 0 ? shadow : 0;
-                            var style = "font-size: 30px; color: black; box-shadow: 0px 0px 25px " + shadowNormalized + "px rgba(255,255,0,1);";
+                            var style = "font-size: 30px; color: " + color + "; box-shadow: 0px 0px 25px " + shadowNormalized + "px rgba(255,255,0,1);";
                             var icon = L.divIcon({
                                 className: "",
                                 iconSize: null,
                                 html: '<span class="icon-lightbulb" style="' + style + '" />'
                             });
                             marker = L.marker(latlng, {icon: icon, zIndexOffset: currentlySelected ? 1000 : 0});
+                            defaultMarker = false;
                         }
 
                         // --- if feature "orientation" is available and "direction" is a number then use rotated marker
                         if ("features" in t && "orientation" in t.features && "z" in t.features.orientation.properties) {
                             var direction = t.features.orientation.properties.z;
                             if (direction - parseFloat(direction) + 1 >= 0) {
-                                var color = currentlySelected ? "#D06245" : "#4597D0";
                                 var style = "font-size: 30px; text-shadow: 3px 3px 3px black; color: " + color + "; transform-origin: 50% 0; transform: translate(-50%,0) rotate(" + direction + "deg);"
                                 var icon = L.divIcon({
                                     className: "",
@@ -147,6 +149,7 @@ $(document).ready(function () {
                                     html: '<span class="glyphicon glyphicon-arrow-up" style="' + style + '" />'
                                 });
                                 marker = L.marker(latlng, {icon: icon, zIndexOffset: currentlySelected ? 1000 : 0});
+                                defaultMarker = false;
                             }
                         }
 
@@ -157,6 +160,9 @@ $(document).ready(function () {
                             refreshDetails();
                         });
                         marker.addTo(markers);
+                        if (defaultMarker && currentlySelected) {
+                            marker.valueOf()._icon.style.filter = "hue-rotate(160deg)";
+                        }
                     }
                 }
             }
