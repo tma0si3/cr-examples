@@ -33,7 +33,9 @@ import com.bosch.cr.integration.authentication.AuthenticationConfiguration;
 import com.bosch.cr.integration.authentication.PublicKeyAuthenticationConfiguration;
 import com.bosch.cr.integration.configuration.ProxyConfiguration;
 import com.bosch.cr.integration.configuration.TrustStoreConfiguration;
+import com.bosch.cr.integration.model.Thing;
 import com.bosch.cr.integration.registration.ThingLifecycleEvent;
+import com.bosch.cr.integration.util.FieldSelector;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.client.ProxyServer;
@@ -54,6 +56,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Example implementation of a "Gateway" that brings devices into your Solution.
@@ -82,6 +85,7 @@ public class VehicleSimulator {
         }
 
         centralRegistryEndpointUrl = props.getProperty("centralRegistryEndpointUrl");
+        String centralRegistryMessagingUrl = props.getProperty("centralRegistryMessagingUrl");
 
         String clientId = props.getProperty("clientId");
 
@@ -90,35 +94,28 @@ public class VehicleSimulator {
         String keyAlias = props.getProperty("keyAlias");
         String keyAliasPassword = props.getProperty("keyAliasPassword");
 
+        final String proxyHost = props.getProperty("http.proxyHost");
+        final String proxyPort = props.getProperty("http.proxyPort");
 
-        IntegrationClientConfiguration.ClientConfigurationBuilder clientConfigBuilder = IntegrationClientConfiguration.newBuilder();
-
-        PublicKeyAuthenticationConfiguration.PublicKeyAuthenticationConfigurationBuilder authenticationBuilder =
-                PublicKeyAuthenticationConfiguration.newBuilder();
-
-        AuthenticationConfiguration authenticationConfiguration = authenticationBuilder.clientId(clientId)
+        AuthenticationConfiguration authenticationConfiguration = PublicKeyAuthenticationConfiguration.newBuilder()
+                .clientId(clientId)
                 .keyStoreLocation(keystoreUri.toURL()).keyStorePassword(keystorePassword)
                 .alias(keyAlias).aliasPassword(keyAliasPassword).build();
 
-        IntegrationClientConfiguration.OptionalConfigSettable optionalConfig = clientConfigBuilder
-                .authenticationConfiguration(authenticationConfiguration)
-                .centralRegistryEndpointUrl(props.getProperty("centralRegistryMessagingUrl"));
+        TrustStoreConfiguration trustStore = TrustStoreConfiguration.newBuilder()
+                .location(VehicleSimulator.class.getResource("/bosch-iot-cloud.jks"))
+                .password("jks").build();
 
-        final String proxyHost = props.getProperty("http.proxyHost");
-        final String proxyPort = props.getProperty("http.proxyPort");
+        IntegrationClientConfiguration.OptionalConfigSettable configSettable = IntegrationClientConfiguration.newBuilder()
+                .authenticationConfiguration(authenticationConfiguration)
+                .centralRegistryEndpointUrl(centralRegistryMessagingUrl)
+                .trustStoreConfiguration(trustStore);
         if (proxyHost != null && proxyPort != null) {
-            ProxyConfiguration proxyConfiguration = ProxyConfiguration.newBuilder()
-                    .proxyHost(proxyHost)
-                    .proxyPort(Integer.valueOf(proxyPort)).build();
-            optionalConfig.proxyConfiguration(proxyConfiguration);
+            configSettable = configSettable.proxyConfiguration(ProxyConfiguration.newBuilder()
+                    .proxyHost(proxyHost).proxyPort(Integer.parseInt(proxyPort)).build());
         }
 
-        TrustStoreConfiguration trustStoreConfiguration = TrustStoreConfiguration.newBuilder()
-                .location(VehicleSimulator.class.getResource("/bosch-iot-cloud.jks")).password("jks").build();
-
-        IntegrationClientConfiguration clientConfig =  optionalConfig.trustStoreConfiguration(trustStoreConfiguration).build();
-
-        final IntegrationClient client = IntegrationClientImpl.newInstance(clientConfig);
+        IntegrationClient client = IntegrationClientImpl.newInstance(configSettable.build());
 
 
         // ### WORKAROUND: prepare HttpClient to make REST calls the CR-Integration-Client does not support yet
@@ -153,37 +150,33 @@ public class VehicleSimulator {
             while (true) {
                 for (String thingId : activeThings) {
 
-                    client.things().forId(thingId).retrieve()
-                            .fields("thingId", "features/geolocation/properties/geoposition")
-                            .onFailure(e -> System.out.println("Retrieve thing " + thingId + " failed: " + e))
-                            .onSuccess(thing -> {
+                    try {
+                        Thing thing = client.things().forId(thingId).retrieve(FieldSelector.of("thingId", "features/geolocation/properties/geoposition")).get(5, TimeUnit.SECONDS);
 
-                                if (thing.getFeatures() == null || thing.getFeatures().getFeature("geolocation") == null) {
-                                    System.out.println("Thing " + thingId + " has no Feature \"geolocation\"");
-                                    return;
-                                }
+                        if (thing.getFeatures() == null || thing.getFeatures().getFeature("geolocation") == null) {
+                            System.out.println("Thing " + thingId + " has no Feature \"geolocation\"");
+                            return;
+                        }
 
-                                JsonObject geoposition = thing.getFeatures().getFeature("geolocation").orElseThrow(RuntimeException::new)
-                                        .getProperties().getJsonObject("geoposition");
-                                JsonObject newGeoposition = Json.createObjectBuilder()
-                                        .add("latitude", geoposition.getJsonNumber("latitude").doubleValue() + (random.nextDouble() - 0.5) / 250)
-                                        .add("longitude", geoposition.getJsonNumber("longitude").doubleValue() + (random.nextDouble() - 0.5) / 250).build();
+                        JsonObject geoposition = thing.getFeatures().getFeature("geolocation").orElseThrow(RuntimeException::new)
+                                .getProperties().getJsonObject("geoposition");
+                        JsonObject newGeoposition = Json.createObjectBuilder()
+                                .add("latitude", geoposition.getJsonNumber("latitude").doubleValue() + (random.nextDouble() - 0.5) / 250)
+                                .add("longitude", geoposition.getJsonNumber("longitude").doubleValue() + (random.nextDouble() - 0.5) / 250).build();
 
-                                changeProperty(thingId, "geolocation", "geoposition", newGeoposition);
+                        changeProperty(thingId, "geolocation", "geoposition", newGeoposition);
 
-                                System.out.print(".");
-                                if (random.nextDouble() < 0.01) {
-                                    System.out.println();
-                                }
-
-                            }).apply(5, TimeUnit.SECONDS);
-                }
-
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException ex) {
-                    System.out.println("Update thread interrupted");
-                    return;
+                        System.out.print(".");
+                        if (random.nextDouble() < 0.01) {
+                            System.out.println();
+                        }
+                        Thread.sleep(250);
+                    } catch (InterruptedException e) {
+                        System.out.println("Update thread interrupted");
+                        return;
+                    } catch (ExecutionException | TimeoutException e) {
+                        System.out.println("Retrieve thing " + thingId + " failed: " + e);
+                    }
                 }
             }
         });
@@ -208,7 +201,7 @@ public class VehicleSimulator {
             r.close();
             return Arrays.asList(p.getProperty("thingIds").split(","));
         } catch (FileNotFoundException ex) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
@@ -227,7 +220,7 @@ public class VehicleSimulator {
     }
 
     // ### WORKAROUND: change property using REST until CR-Integration-Client supports it
-    private static void changeProperty(String thingId, String feature, String property, JsonObject value) {
+    private static void changeProperty(String thingId, String feature, String property, JsonObject value) throws InterruptedException {
         final String thingJsonString = value.toString();
         final String path = "/cr/1/things/" + thingId + "/features/" + feature + "/properties/" + property;
 
@@ -241,7 +234,7 @@ public class VehicleSimulator {
             if (re.getStatusCode() < 200 || re.getStatusCode() >= 300) {
                 throw new RuntimeException("Updated failed; " + re.getStatusCode() + ": " + re.getResponseBody());
             }
-        } catch (IOException | InterruptedException | ExecutionException ex) {
+        } catch (IOException | ExecutionException ex) {
             throw new RuntimeException(ex);
         }
     }
