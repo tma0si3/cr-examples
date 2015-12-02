@@ -2,7 +2,6 @@
 package com.bosch.cr.integration.examples;
 
 import java.net.URL;
-import java.util.concurrent.TimeUnit;
 
 import com.bosch.cr.integration.IntegrationClient;
 import com.bosch.cr.integration.IntegrationClientConfiguration;
@@ -82,6 +81,6 @@ public abstract class ExamplesBase
     */
    public void terminate()
    {
-      integrationClient.destroy(30, TimeUnit.SECONDS);
+      integrationClient.destroy();
    }
 }
