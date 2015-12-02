@@ -81,7 +81,7 @@
 		{
 			"id": "0c8ccdbb-8bcd-58af-1ba8-ea96d80f30fb",
 			"headers": "Content-Type: application/json\n",
-			"url": "{{craas.baseurl}}/cr/1/relations/{{namespace}}:MyRelation?fields=relationId,sourceId,targetId",
+			"url": "{{craas.baseurl}}/cr/1/relations/{{namespace}}:MyRelation?fields=relationId,source,target",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "GET",
@@ -92,8 +92,8 @@
 			"currentHelper": "normal",
 			"helperAttributes": {},
 			"time": 1441285176725,
-			"name": "Query: One Relation (relationId,sourceId,targetId)",
-			"description": "Queries a Relation with the \"relationId\",\"sourceId\" and \"targetId\" field selector.",
+			"name": "Query: One Relation (relationId,source,target)",
+			"description": "Queries a Relation with the \"relationId\",\"source\" and \"target\" field selector.",
 			"collectionId": "81d2762b-ac31-8390-173f-5b44d59dd091",
 			"responses": [],
 			"folder": "057e0616-a2f7-91ce-2759-665be7ed91fe"
@@ -122,7 +122,7 @@
 		{
 			"id": "29e2f643-2e4f-c3b2-cf39-d654491ac023",
 			"headers": "Content-Type: application/json\n",
-			"url": "{{craas.baseurl}}/cr/1/relations?ids={{namespace}}:MyRelation,{{namespace}}:MyRelation2>&fields=relationId,sourceId,targetId",
+			"url": "{{craas.baseurl}}/cr/1/relations?ids={{namespace}}:MyRelation,{{namespace}}:MyRelation2>&fields=relationId,source,target",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "GET",
@@ -133,8 +133,8 @@
 			"currentHelper": "normal",
 			"helperAttributes": {},
 			"time": 1441285661450,
-			"name": "Query: A List of Relations (relationId,sourceId,targetId)",
-			"description": "Queries a list of Relations with the \"relationId\",\"sourceId\" and \"targetId\" field selector",
+			"name": "Query: A List of Relations (relationId,source,target)",
+			"description": "Queries a list of Relations with the \"relationId\",\"source\" and \"target\" field selector",
 			"collectionId": "81d2762b-ac31-8390-173f-5b44d59dd091",
 			"responses": [],
 			"folder": "057e0616-a2f7-91ce-2759-665be7ed91fe"
@@ -199,7 +199,7 @@
 			"collectionId": "81d2762b-ac31-8390-173f-5b44d59dd091",
 			"responses": [],
 			"folder": "36ea94cd-0d31-39fe-62c5-5e9add5845d6",
-			"rawModeData": "{\r\n  \"sourceId\": \"<sourceId>\",\r\n  \"targetId\": \"<targetId>\",\r\n  \"attributes\": {\r\n      parent:{\r\n          child:{\r\n              attribute:\"cool\"\r\n          }\r\n      }\r\n  }\r\n}"
+			"rawModeData": "{\r\n  \"source\": \"<source>\",\r\n  \"target\": \"<target>\",\r\n  \"attributes\": {\r\n      parent:{\r\n          child:{\r\n              attribute:\"cool\"\r\n          }\r\n      }\r\n  }\r\n}"
 		},
 		{
 			"id": "7f12bf1d-2f6b-d68e-120f-177930f65429",
@@ -220,7 +220,7 @@
 			"collectionId": "81d2762b-ac31-8390-173f-5b44d59dd091",
 			"responses": [],
 			"folder": "36ea94cd-0d31-39fe-62c5-5e9add5845d6",
-			"rawModeData": "{\r\n  \"sourceId\": \"<sourceId>\",\r\n  \"targetId\": \"<targetId>\",\r\n  \"attributes\": {}\r\n}"
+			"rawModeData": "{\r\n  \"source\": \"<source>\",\r\n  \"target\": \"<target>\",\r\n  \"attributes\": {}\r\n}"
 		},
 		{
 			"id": "baff4151-6a40-3978-9ecb-cd09bb8d5cfe",
@@ -261,7 +261,7 @@
 			"collectionId": "81d2762b-ac31-8390-173f-5b44d59dd091",
 			"responses": [],
 			"folder": "36ea94cd-0d31-39fe-62c5-5e9add5845d6",
-			"rawModeData": "{\r\n  \"sourceId\": \"<sourceId>\",\r\n  \"targetId\": \"<targetId>\",\r\n  \"attributes\": {\r\n    \"simpleString\": \"simple\",\r\n    \"simpleInt\": 42,\r\n    \"nested\": {\r\n      \"nestedString\": \"nested\",\r\n      \"nestedBoolean\": false,\r\n      \"subnested\" : {\r\n        \"list\": [\r\n          1,2,3,5,8\r\n        ],\r\n        \"some\": \"value\"\r\n      }\r\n    },\r\n    \"toplist\": [\r\n      \"IOT\",\"BUM\",\"FOO\"\r\n    ],\r\n    \"toplistWithObjects\": [\r\n      {\r\n        \"thevalue\": 1,\r\n        \"nested\": {\r\n          \"bum\": \"lux\",\r\n          \"foo\": 3\r\n        }\r\n      },\r\n      {\r\n        \"thevalue\": 2,\r\n        \"nested\": {\r\n          \"bum\": \"ta\",\r\n          \"foo\": 6\r\n        }\r\n      }\r\n    ]\r\n  }\r\n}"
+			"rawModeData": "{\r\n  \"source\": \"<source>\",\r\n  \"target\": \"<target>\",\r\n  \"attributes\": {\r\n    \"simpleString\": \"simple\",\r\n    \"simpleInt\": 42,\r\n    \"nested\": {\r\n      \"nestedString\": \"nested\",\r\n      \"nestedBoolean\": false,\r\n      \"subnested\" : {\r\n        \"list\": [\r\n          1,2,3,5,8\r\n        ],\r\n        \"some\": \"value\"\r\n      }\r\n    },\r\n    \"toplist\": [\r\n      \"IOT\",\"BUM\",\"FOO\"\r\n    ],\r\n    \"toplistWithObjects\": [\r\n      {\r\n        \"thevalue\": 1,\r\n        \"nested\": {\r\n          \"bum\": \"lux\",\r\n          \"foo\": 3\r\n        }\r\n      },\r\n      {\r\n        \"thevalue\": 2,\r\n        \"nested\": {\r\n          \"bum\": \"ta\",\r\n          \"foo\": 6\r\n        }\r\n      }\r\n    ]\r\n  }\r\n}"
 		},
 		{
 			"id": "ce54bdfb-7c9d-adba-a434-f6238236faeb",
@@ -322,7 +322,7 @@
 			"collectionId": "81d2762b-ac31-8390-173f-5b44d59dd091",
 			"responses": [],
 			"folder": "6ef20026-92da-b5b6-009a-902a6e3646dd",
-			"rawModeData": "{\n  \"sourceId\":\"<sourceId>\",\n  \"targetId\":\"<targetId>\",\n  \"attributes\": {\n    \"foo\":\"bar\",\n    \"baz\": 42\n  }\n}\n"
+			"rawModeData": "{\n  \"source\":\"<source>\",\n  \"target\":\"<target>\",\n  \"attributes\": {\n    \"foo\":\"bar\",\n    \"baz\": 42\n  }\n}\n"
 		},
 		{
 			"id": "e94bcdb3-9518-d8e7-8646-11c04571c170",
