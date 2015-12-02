@@ -4,7 +4,7 @@
    "values": [
       {
          "key": "craas.baseurl",
-         "value": "https://craas-api.apps.bosch-iot-cloud.com",
+         "value": "https://cr.apps.bosch-iot-cloud.com",
          "type": "text"
       },
       {

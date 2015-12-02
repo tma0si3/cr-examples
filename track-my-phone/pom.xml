@@ -37,6 +37,8 @@
    <name>IoT Central Registry :: Examples :: Track my Phone</name>
 
    <properties>
+      <!-- The URL of the Central Registry REST API -->
+      <cr.host></cr.host>
       <!-- The Solution API Token to use in the reverse proxy -->
       <api.token></api.token>
    </properties>

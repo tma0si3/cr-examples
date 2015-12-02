@@ -2,12 +2,9 @@
 
 This example shows how to create a simple user interface to list things and their details and show the things on a map.
 
-**Notice:** Currently this demo uses a workaround for the representation of Features of Things.
-As soon as the CR supports updating feature properties using the CR-Integration Client for Java this can be changed.
-
 ![Screenshot](screenshot.png)
 
-# Configure your API Key and other settings
+# Configure your API Token and other settings
 
 Create or adjust file "src/main/resources/config.properties"
 
