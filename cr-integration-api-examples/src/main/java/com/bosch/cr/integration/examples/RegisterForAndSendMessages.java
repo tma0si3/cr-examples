@@ -3,12 +3,11 @@ package com.bosch.cr.integration.examples;
 
 import java.util.Arrays;
 
-import javax.json.JsonValue;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bosch.cr.integration.ThingHandle;
+import com.bosch.cr.json.JsonValue;
 
 
 /**

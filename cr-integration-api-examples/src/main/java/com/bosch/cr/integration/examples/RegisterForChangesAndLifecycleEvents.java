@@ -4,10 +4,11 @@ package com.bosch.cr.integration.examples;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bosch.cr.json.JsonFactory;
+
 /**
  * This example shows the various possibilities that the {@code IntegrationClient} offers for registering
- * handlers to be informed about {@link com.bosch.cr.integration.registration.ThingLifecycleEvent}s and
- * {@link com.bosch.cr.integration.registration.ThingAttributeChange}s of your {@code Thing}s.
+ * handlers to be informed about {@code ThingLifecycleEvent}s and {@code ThingAttributeChange}s of your {@code Thing}s.
  * Make sure to invoke {@code IntegrationClient.subscriptions().consume()} once after all handlers are
  * registered to start receiving events from Central Registry.
  *
@@ -45,8 +46,8 @@ public class RegisterForChangesAndLifecycleEvents extends ExamplesBase
 
       /* Register for *specific* attribute changes of *all* things */
       final String allThings_specificAttributeChangeRegistration = "allThings_specificAttributeChangeRegistration";
-      thingIntegration.registerForAttributeChange(allThings_specificAttributeChangeRegistration, "address/city",
-         change -> LOGGER.info("attributeChange received: {}", change));
+      thingIntegration.registerForAttributeChange(allThings_specificAttributeChangeRegistration,
+         JsonFactory.newPointer("address/city"), change -> LOGGER.info("attributeChange received: {}", change));
 
       /* Register for *all* attribute changes of a *specific* thing */
       final String myThing_attributeChangeRegistration = "myThing_attributeChangeRegistration";
@@ -55,7 +56,7 @@ public class RegisterForChangesAndLifecycleEvents extends ExamplesBase
 
       /* Register for *specific* attribute changes of a *specific* thing */
       final String myThing_specificAttributeChangeRegistration = "myThing_specificAttributeChangeRegistration";
-      myThing.registerForAttributeChange(myThing_specificAttributeChangeRegistration, "address/city",
-         change -> LOGGER.info("attributeChange received: {}", change));
+      myThing.registerForAttributeChange(myThing_specificAttributeChangeRegistration,
+         JsonFactory.newPointer("address/city"), change -> LOGGER.info("attributeChange received: {}", change));
    }
 }
