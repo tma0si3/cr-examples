@@ -8,8 +8,10 @@ import com.bosch.cr.json.JsonFactory;
 
 /**
  * This example shows the various possibilities that the {@code IntegrationClient} offers for registering
- * handlers to be informed about {@code ThingLifecycleEvent}s and {@code ThingAttributeChange}s of your {@code Thing}s.
- * Make sure to invoke {@code IntegrationClient.subscriptions().consume()} once after all handlers are
+ * handlers to be informed about {@link com.bosch.cr.integration.model.ThingLifecycleEvent}s and
+ * {@link com.bosch.cr.integration.model.ThingAttributeChange}s of your {@code Thing}s.
+ * <p>
+ * NOTE: Make sure to invoke {@code IntegrationClient.subscriptions().consume()} once after all handlers are
  * registered to start receiving events from Central Registry.
  *
  * @since 2.0.0
@@ -35,7 +37,7 @@ public class RegisterForChangesAndLifecycleEvents extends ExamplesBase
    }
 
    /**
-    * Register for {@code ThingAttributeChange}s.
+    * Register for {@code ImmutableThingAttributeChange}s.
     */
    public void registerForAttributeChanges()
    {
