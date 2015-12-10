@@ -1,0 +1,16 @@
+#map {
+    height: 50vh;
+}
+#table-wrapper {
+    margin-bottom: 1vh;
+}
+#details {
+    display: none;
+}
+#detailsThingId {
+    word-wrap: break-word;
+}
+td {
+    word-break: break-all;
+    word-wrap: break-word;
+}

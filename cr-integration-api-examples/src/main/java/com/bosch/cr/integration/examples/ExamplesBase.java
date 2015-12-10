@@ -2,7 +2,6 @@
 package com.bosch.cr.integration.examples;
 
 import java.net.URL;
-import java.util.concurrent.TimeUnit;
 
 import com.bosch.cr.integration.IntegrationClient;
 import com.bosch.cr.integration.IntegrationClientConfiguration;
@@ -41,7 +40,7 @@ public abstract class ExamplesBase
     */
    public ExamplesBase()
    {
-      AuthenticationConfiguration authenticationConfiguration = PublicKeyAuthenticationConfiguration.newBuilder()
+      final AuthenticationConfiguration authenticationConfiguration = PublicKeyAuthenticationConfiguration.newBuilder()
          .clientId("example-client")
          .keyStoreLocation(KEYSTORE_LOCATION)
          .keyStorePassword(KEYSTORE_PASSWORD)
@@ -50,20 +49,34 @@ public abstract class ExamplesBase
          .build();
 
       /* optionally configure a proxy server or a truststore */
-      ProxyConfiguration proxy = ProxyConfiguration.newBuilder().proxyHost("some.proxy.server").proxyPort(1234).build();
-      TrustStoreConfiguration trustStore =
-         TrustStoreConfiguration.newBuilder().location(TRUSTSTORE_LOCATION).password(TRUSTSTORE_PASSWORD).build();
+      final ProxyConfiguration proxy = ProxyConfiguration.newBuilder()
+         .proxyHost("some.proxy.server")
+         .proxyPort(1234).build();
+
+      final TrustStoreConfiguration trustStore = TrustStoreConfiguration.newBuilder()
+         .location(TRUSTSTORE_LOCATION)
+         .password(TRUSTSTORE_PASSWORD)
+         .build();
 
       /* provide required configuration (authentication configuration and CR URI),
          optional configuration (proxy, truststore etc.) can be added when needed */
       final IntegrationClientConfiguration integrationClientConfiguration = IntegrationClientConfiguration.newBuilder()
-         .authenticationConfiguration(authenticationConfiguration).centralRegistryEndpointUrl(
-            BOSCH_IOT_CENTRAL_REGISTRY_ENDPOINT_URL)
-            // .proxyConfiguration(proxy)
-            .trustStoreConfiguration(trustStore)
+         .authenticationConfiguration(authenticationConfiguration)
+         .centralRegistryEndpointUrl(BOSCH_IOT_CENTRAL_REGISTRY_ENDPOINT_URL)
+         //.proxyConfiguration(proxy)
+         .trustStoreConfiguration(trustStore)
          .build();
 
       this.integrationClient = IntegrationClientImpl.newInstance(integrationClientConfiguration);
+
+      // create a subscription for this client, this step can be skipped if a subscription was created via REST
+      this.integrationClient.subscriptions()
+         .create()
+         // and start consuming events that were triggered by the subscription
+         .thenRun(() -> this.integrationClient.subscriptions().consume());
+
+      this.integrationClient.subscriptions().consume();
+
       this.thingIntegration = integrationClient.things();
       this.myThingId = ":myThing";
       this.myThing = thingIntegration.forId(myThingId);
@@ -74,6 +87,6 @@ public abstract class ExamplesBase
     */
    public void terminate()
    {
-      integrationClient.destroy(30, TimeUnit.SECONDS);
+      integrationClient.destroy();
    }
 }

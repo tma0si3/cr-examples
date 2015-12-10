@@ -26,13 +26,13 @@
 
 $(document).ready(function () {
 
-    // --- Handler for refreshing details
+    // --- Click handler for refreshing details
     var refreshDetails = function () {
         var thingId = $("#details").attr("thingId");
         $.getJSON("cr/1/things/" + thingId).done(function (thing, textStatus) {
 
+            // --- clear table content and remember thingId
             $("#detailsThingId").text(thingId);
-
             var tablebody = $("#detailsTableBody");
             tablebody.empty();
 
@@ -48,7 +48,7 @@ $(document).ready(function () {
                         first = false;
                     }
                     row.append($("<td>").text(attribute));
-                    row.append($("<td>").text(typeof value == "object" ? JSON.stringify(value) : value));
+                    row.append($("<td>").text(typeof value == "object" ? JSON.stringify(value, null, 3) : value));
                     tablebody.append(row);
                 });
             }
@@ -67,35 +67,35 @@ $(document).ready(function () {
                                 first = false;
                             }
                             row.append($("<td>").text(prop));
-                            row.append($("<td>").text(typeof value == "object" ? JSON.stringify(value) : value));
+                            row.append($("<td>").text(typeof value == "object" ? JSON.stringify(value, null, 3) : value));
                             tablebody.append(row);
                         });
                     }
                 });
             }
 
+            $("#table-wrapper").removeClass("col-md-12").addClass("col-md-6");
             $("#details").show();
         }).fail(function () {
+            $("#table-wrapper").removeClass("col-md-6").addClass("col-md-12");
             $("#details").hide();
         });
     };
 
-    // --- Handler for refreshing list and map of things
+    // --- Click handler for refreshing list and map of things
     var refreshTable = function () {
 
-        $.getJSON("cr/1/search/things?fields=thingId,attributes/name,features/geolocation,features/orientation").done(function (data, textStatus) {
+        $.getJSON("cr/1/search/things?fields=thingId,features/geolocation,features/orientation,features/xdk-sensors&option=limit(0,200)").done(function (data, textStatus) {
 
             // --- clear table content and clear map
             $("#tableBody").empty();
             if (markers != null) {
                 map.removeLayer(markers);
             }
-
-            // new marker layer on map
             markers = new L.FeatureGroup();
             map.addLayer(markers);
 
-            // iterate of retrieved things
+            // --- iterate of retrieved things
             var count = data.items.length;
             for (var i = 0; i < count; i++) {
                 var t = data.items[i];
@@ -105,34 +105,43 @@ $(document).ready(function () {
                 var row = $("<tr>");
                 row.attr("thingId", t.thingId);
                 row.append($("<td>").text(t.thingId));
-
-                if ("attributes" in t && "name" in t.attributes) {
-                    row.append($("<td>").text(t.attributes.name));
-                } else {
-                    row.append($("<td>").text("-"));
-                }
                 $("#tableBody").append(row);
 
                 // --- when thing has a "geolocation" feature with "geoposition" properties
                 if ("features" in t && "geolocation" in t.features && "geoposition" in t.features.geolocation.properties) {
 
-                    // --- if latitude and longitude are available and are numbers then ..
+                    // --- if latitude and longitude are available and are numbers then ...
                     var latitude = t.features.geolocation.properties.geoposition.latitude;
                     var longitude = t.features.geolocation.properties.geoposition.longitude;
-                    if ((latitude -  parseFloat(latitude) + 1 >= 0) && (longitude -  parseFloat(longitude) + 1 >= 0)) {
+                    if ((latitude - parseFloat(latitude) + 1 >= 0) && (longitude - parseFloat(longitude) + 1 >= 0)) {
 
-                        // --- add marker for thing on map
+                        // --- add marker for thing on map; default marker (without "orientation")
                         var latlng = [t.features.geolocation.properties.geoposition.latitude,
                             t.features.geolocation.properties.geoposition.longitude];
-
-                        // --- default marker (without "orientation")
                         var marker = L.marker(latlng);
+                        var defaultMarker = true;
 
-                        // --- if direction is available and is a number then use rotated marker
+                        var color = currentlySelected ? "#D06245" : "#4597D0";
+                        // --- if feature "xdk-sensors" with a value for "light" is available then use lightbulb icon
+                        if ("features" in t && "xdk-sensors" in t.features && "light" in t.features['xdk-sensors'].properties) {
+                            var light = t.features['xdk-sensors'].properties.light;
+                            var lightNormalized = (Math.log10(light) / 5);
+                            var shadow = Math.floor(15 * lightNormalized);
+                            var shadowNormalized = shadow > 0 ? shadow : 0;
+                            var style = "font-size: 30px; color: " + color + "; box-shadow: 0px 0px 25px " + shadowNormalized + "px rgba(255,255,0,1);";
+                            var icon = L.divIcon({
+                                className: "",
+                                iconSize: null,
+                                html: '<span class="icon-lightbulb" style="' + style + '" />'
+                            });
+                            marker = L.marker(latlng, {icon: icon, zIndexOffset: currentlySelected ? 1000 : 0});
+                            defaultMarker = false;
+                        }
+
+                        // --- if feature "orientation" is available and "direction" is a number then use rotated marker
                         if ("features" in t && "orientation" in t.features && "z" in t.features.orientation.properties) {
                             var direction = t.features.orientation.properties.z;
                             if (direction - parseFloat(direction) + 1 >= 0) {
-                                var color =  currentlySelected ? "#D06245" : "#4597D0";
                                 var style = "font-size: 30px; text-shadow: 3px 3px 3px black; color: " + color + "; transform-origin: 50% 0; transform: translate(-50%,0) rotate(" + direction + "deg);"
                                 var icon = L.divIcon({
                                     className: "",
@@ -140,6 +149,7 @@ $(document).ready(function () {
                                     html: '<span class="glyphicon glyphicon-arrow-up" style="' + style + '" />'
                                 });
                                 marker = L.marker(latlng, {icon: icon, zIndexOffset: currentlySelected ? 1000 : 0});
+                                defaultMarker = false;
                             }
                         }
 
@@ -150,6 +160,9 @@ $(document).ready(function () {
                             refreshDetails();
                         });
                         marker.addTo(markers);
+                        if (defaultMarker && currentlySelected) {
+                            marker.valueOf()._icon.style.filter = "hue-rotate(160deg)";
+                        }
                     }
                 }
             }
@@ -196,5 +209,4 @@ $(document).ready(function () {
     });
 
     refreshTable();
-
 });
