@@ -16,7 +16,7 @@ import com.bosch.cr.json.JsonFactory;
  *
  * @since 2.0.0
  */
-public class RegisterForChangesAndLifecycleEvents extends ExamplesBase
+public final class RegisterForChangesAndLifecycleEvents extends ExamplesBase
 {
    private static final Logger LOGGER = LoggerFactory.getLogger(RegisterForChangesAndLifecycleEvents.class);
 

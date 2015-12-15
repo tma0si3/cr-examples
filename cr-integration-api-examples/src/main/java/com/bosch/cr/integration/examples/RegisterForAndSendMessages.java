@@ -20,7 +20,7 @@ import com.bosch.cr.json.JsonValue;
  *
  * @since 2.0.0
  */
-public class RegisterForAndSendMessages extends ExamplesBase
+public final class RegisterForAndSendMessages extends ExamplesBase
 {
    private static final Logger LOGGER = LoggerFactory.getLogger(RegisterForAndSendMessages.class);
 
@@ -84,25 +84,49 @@ public class RegisterForAndSendMessages extends ExamplesBase
    public void sendMessages()
    {
       /* Send a message *from* a thing with the given topic but without any payload */
-      thingIntegration.message().from(":sendFromThisThing").topic("some.arbitrary.topic").send();
+      thingIntegration.message() //
+         .from(":sendFromThisThing") //
+         .topic("some.arbitrary.topic") //
+         .send();
 
       /* Send a message *from* a feature with the given topic but without any payload */
-      thingIntegration.message().from(":thingId").featureId("sendFromThisFeature").topic("justWantToLetYouKnow").send();
+      thingIntegration.message() //
+         .from(":thingId") //
+         .featureId("sendFromThisFeature") //
+         .topic("justWantToLetYouKnow") //
+         .send();
 
       /* Send a message *to* a thing with the given topic and text payload */
-      thingIntegration.message().to("com.bosch.building:sprinklerSystem").topic("monitoring/building/fireAlert")
-         .payload("Roof is on fire").contentType("application/text").send();
+      thingIntegration.message() //
+         .to("com.bosch.building:sprinklerSystem") //
+         .topic("monitoring/building/fireAlert") //
+         .payload("Roof is on fire") //
+         .contentType("application/text") //
+         .send();
 
       /* Send a message *from* a feature with the given topic and json payload */
-      thingIntegration.message().from("com.bosch.building.monitoring:fireDetectionDevice").featureId("smokeDetector")
-         .topic("fireAlert").payload("{\"action\" : \"call fire department\"}").contentType("application/json").send();
+      thingIntegration.message() //
+         .from("com.bosch.building.monitoring:fireDetectionDevice") //
+         .featureId("smokeDetector") //
+         .topic("fireAlert") //
+         .payload("{\"action\" : \"call fire department\"}") //
+         .contentType("application/json") //
+         .send();
 
       final ThingHandle thingHandle = thingIntegration.forId(":thingId");
       /* Send a message *to* a thing (id already defined by the ThingHandle) with the given topic but without any payload */
-      thingHandle.message().to().topic("someTopic").send();
+      thingHandle.message() //
+         .to() //
+         .topic("someTopic") //
+         .send();
 
       /* Send a message *from* a feature (thing id already defined by the ThingHandle) with the given topic and text payload */
-      thingHandle.message().from().featureId("sendFromThisFeature").topic("someTopic").payload("someContent")
-         .contentType("application/text").send();
+      thingHandle.message() //
+         .from() //
+         .featureId("sendFromThisFeature") //
+         .topic("someTopic") //
+         .payload("someContent") //
+         .contentType("application/text") //
+         .send();
    }
 }
