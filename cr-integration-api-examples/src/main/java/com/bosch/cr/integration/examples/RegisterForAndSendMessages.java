@@ -1,18 +1,19 @@
 /* Copyright (c) 2011-2015 Bosch Software Innovations GmbH, Germany. All rights reserved. */
 package com.bosch.cr.integration.examples;
 
-import java.util.Arrays;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.bosch.cr.integration.ThingHandle;
+import com.bosch.cr.json.JsonFactory;
 import com.bosch.cr.json.JsonValue;
 
 
 /**
  * This examples shows the various possibilities that the {@code IntegrationClient} offers to register handlers for
- * {@link com.bosch.cr.integration.model.Message}s being sent to/from your {@code Thing}s, and shows how you can send
+ * {@link com.bosch.cr.model.messages.Message}s being sent to/from your {@code Thing}s, and shows how you can send
  * such {@code Message}s using the {@code IntegrationClient}.
  * <p>
  * NOTE: Make sure to invoke {@code IntegrationClient.subscriptions().consume()} once after all message handlers are
@@ -31,49 +32,49 @@ public final class RegisterForAndSendMessages extends ExamplesBase
    {
       /* Register for *all* messages of *all* things and provide payload as JsonValue */
       final String allThings_jsonMessageRegistration = "allThings_jsonMessageRegistration";
-      thingIntegration.registerForMessage(allThings_jsonMessageRegistration, "*", (message) -> {
+      thingIntegration.registerForMessage(allThings_jsonMessageRegistration, "*", JsonValue.class, message -> {
          final String topic = message.getTopic();
-         final JsonValue payload = message.getPayloadAsJson().get();
+         final JsonValue payload = message.getPayload().get();
          LOGGER.info("message for topic {} with payload {} received", topic, payload);
       });
 
       /* Register for messages with topic *topicOfInterest* of *all* things and provide payload as byte array */
       final String allThings_rawMessageRegistration = "allThings_rawMessageRegistration";
-      thingIntegration.registerForMessage(allThings_rawMessageRegistration, "topicOfInterest", (message) -> {
+      thingIntegration.registerForMessage(allThings_rawMessageRegistration, "topicOfInterest", message -> {
          final String topic = message.getTopic();
-         final byte[] payload = message.getPayload().get();
-         LOGGER.info("message for topic {} with payload {} received", topic, Arrays.toString(payload));
+         final ByteBuffer payload = message.getPayload().get();
+         LOGGER.info("message for topic {} with payload {} received", topic, StandardCharsets.UTF_8.decode(payload).toString());
       });
 
       /* Register for messages with topic *some.topic* of *all* things and provide payload as String */
       final String allThings_stringMessageRegistration = "allThings_stringMessageRegistration";
-      thingIntegration.registerForMessage(allThings_stringMessageRegistration, "some.topic", (message) -> {
+      thingIntegration.registerForMessage(allThings_stringMessageRegistration, "some.topic", String.class, message -> {
          final String topic = message.getTopic();
-         final String payload = message.getPayloadAsString().get();
+         final String payload = message.getPayload().get();
          LOGGER.info("message for topic {} with payload {} received", topic, payload);
       });
 
       /* Register for *all* messages of a *specific* thing of and provide payload as JsonValue */
       final String myThing_jsonMessageRegistration = "myThing_jsonMessageRegistration";
-      myThing.registerForMessage(myThing_jsonMessageRegistration, "*", (message) -> {
+      myThing.registerForMessage(myThing_jsonMessageRegistration, "*", JsonValue.class, message -> {
          final String topic = message.getTopic();
-         final JsonValue payload = message.getPayloadAsJson().get();
+         final JsonValue payload = message.getPayload().get();
          LOGGER.info("message for topic {} with payload {} received", topic, payload);
       });
 
       /* Register for *all* messages with topic *some_message_topic* of a *specific* thing and provide payload as byte array */
       final String myThing_rawMessageRegistration = "myThing_rawMessageRegistration";
-      myThing.registerForMessage(myThing_rawMessageRegistration, "some_message_topic", (message) -> {
+      myThing.registerForMessage(myThing_rawMessageRegistration, "some_message_topic", message -> {
          final String topic = message.getTopic();
-         final byte[] payload = message.getPayload().get();
-         LOGGER.info("message for topic {} with payload {} received", topic, Arrays.toString(payload));
+         final ByteBuffer payload = message.getPayload().get();
+         LOGGER.info("message for topic {} with payload {} received", topic, StandardCharsets.UTF_8.decode(payload).toString());
       });
 
       /* Register for *all* messages of a *specific* thing and provide payload as String */
       final String myThing_stringMessageRegistration = "myThing_stringMessageRegistration";
-      myThing.registerForMessage(myThing_stringMessageRegistration, "*", (message) -> {
+      myThing.registerForMessage(myThing_stringMessageRegistration, "*", String.class, message -> {
          final String topic = message.getTopic();
-         final String payload = message.getPayloadAsString().get();
+         final String payload = message.getPayload().get();
          LOGGER.info("message for topic {} with payload {} received", topic, payload);
       });
    }
@@ -101,7 +102,7 @@ public final class RegisterForAndSendMessages extends ExamplesBase
          .to("com.bosch.building:sprinklerSystem") //
          .topic("monitoring/building/fireAlert") //
          .payload("Roof is on fire") //
-         .contentType("application/text") //
+         .contentType("text/plain") //
          .send();
 
       /* Send a message *from* a feature with the given topic and json payload */
@@ -109,7 +110,7 @@ public final class RegisterForAndSendMessages extends ExamplesBase
          .from("com.bosch.building.monitoring:fireDetectionDevice") //
          .featureId("smokeDetector") //
          .topic("fireAlert") //
-         .payload("{\"action\" : \"call fire department\"}") //
+         .payload(JsonFactory.readFrom("{\"action\" : \"call fire department\"}")) //
          .contentType("application/json") //
          .send();
 
