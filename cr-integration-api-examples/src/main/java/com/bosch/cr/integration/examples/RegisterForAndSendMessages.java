@@ -38,7 +38,7 @@ public final class RegisterForAndSendMessages extends ExamplesBase
          LOGGER.info("message for topic {} with payload {} received", topic, payload);
       });
 
-      /* Register for messages with topic *topicOfInterest* of *all* things and provide payload as byte array */
+      /* Register for messages with topic *topicOfInterest* of *all* things and provide payload as raw ByteBuffer */
       final String allThings_rawMessageRegistration = "allThings_rawMessageRegistration";
       thingIntegration.registerForMessage(allThings_rawMessageRegistration, "topicOfInterest", message -> {
          final String topic = message.getTopic();
@@ -62,7 +62,7 @@ public final class RegisterForAndSendMessages extends ExamplesBase
          LOGGER.info("message for topic {} with payload {} received", topic, payload);
       });
 
-      /* Register for *all* messages with topic *some_message_topic* of a *specific* thing and provide payload as byte array */
+      /* Register for *all* messages with topic *some_message_topic* of a *specific* thing and provide payload as raw ByteBuffer */
       final String myThing_rawMessageRegistration = "myThing_rawMessageRegistration";
       myThing.registerForMessage(myThing_rawMessageRegistration, "some_message_topic", message -> {
          final String topic = message.getTopic();
