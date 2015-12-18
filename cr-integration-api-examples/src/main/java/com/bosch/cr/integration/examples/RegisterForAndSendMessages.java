@@ -6,7 +6,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.bosch.cr.integration.ThingHandle;
+import com.bosch.cr.integration.things.ThingHandle;
 import com.bosch.cr.json.JsonFactory;
 import com.bosch.cr.json.JsonValue;
 
@@ -40,7 +40,7 @@ public final class RegisterForAndSendMessages extends ExamplesBase
 
       /* Register for messages with topic *topicOfInterest* of *all* things and provide payload as raw ByteBuffer */
       final String allThings_rawMessageRegistration = "allThings_rawMessageRegistration";
-      thingIntegration.registerForMessage(allThings_rawMessageRegistration, "topicOfInterest", message -> {
+      thingIntegration.registerForMessage(allThings_rawMessageRegistration, "topicOfInterest", ByteBuffer.class, message -> {
          final String topic = message.getTopic();
          final ByteBuffer payload = message.getPayload().get();
          LOGGER.info("message for topic {} with payload {} received", topic, StandardCharsets.UTF_8.decode(payload).toString());
@@ -64,7 +64,7 @@ public final class RegisterForAndSendMessages extends ExamplesBase
 
       /* Register for *all* messages with topic *some_message_topic* of a *specific* thing and provide payload as raw ByteBuffer */
       final String myThing_rawMessageRegistration = "myThing_rawMessageRegistration";
-      myThing.registerForMessage(myThing_rawMessageRegistration, "some_message_topic", message -> {
+      myThing.registerForMessage(myThing_rawMessageRegistration, "some_message_topic", ByteBuffer.class, message -> {
          final String topic = message.getTopic();
          final ByteBuffer payload = message.getPayload().get();
          LOGGER.info("message for topic {} with payload {} received", topic, StandardCharsets.UTF_8.decode(payload).toString());
@@ -127,7 +127,7 @@ public final class RegisterForAndSendMessages extends ExamplesBase
          .featureId("sendFromThisFeature") //
          .topic("someTopic") //
          .payload("someContent") //
-         .contentType("application/text") //
+         .contentType("text/plain") //
          .send();
    }
 }
