@@ -33,17 +33,16 @@ import com.bosch.cr.integration.authentication.AuthenticationConfiguration;
 import com.bosch.cr.integration.authentication.PublicKeyAuthenticationConfiguration;
 import com.bosch.cr.integration.configuration.ProxyConfiguration;
 import com.bosch.cr.integration.configuration.TrustStoreConfiguration;
-import com.bosch.cr.integration.model.Thing;
-import com.bosch.cr.integration.registration.ThingLifecycleEvent;
-import com.bosch.cr.integration.util.FieldSelector;
+import com.bosch.cr.integration.model.ThingLifecycleEvent;
+import com.bosch.cr.json.JsonFactory;
+import com.bosch.cr.json.JsonObject;
+import com.bosch.cr.model.things.Thing;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.client.ProxyServer;
 import com.ning.http.client.Response;
 import org.jboss.netty.util.internal.ThreadLocalRandom;
 
-import javax.json.Json;
-import javax.json.JsonObject;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
@@ -138,7 +137,7 @@ public class VehicleSimulator {
         System.out.println("Active things: " + activeThings);
 
         client.things().registerForLifecycleEvent("lifecycle", e -> {
-            if (e.getType() == ThingLifecycleEvent.Lifecycle.CREATED) {
+            if (e.getType() == ThingLifecycleEvent.Type.CREATED) {
                 activeThings.add(e.getThingId());
                 writeActiveThings(activeThings);
                 System.out.println("New thing " + e.getThingId() + " created -> active things: " + activeThings);
@@ -151,19 +150,20 @@ public class VehicleSimulator {
                 for (String thingId : activeThings) {
 
                     try {
-                        Thing thing = client.things().forId(thingId).retrieve(FieldSelector.of("thingId", "features/geolocation/properties/geoposition")).get(5, TimeUnit.SECONDS);
+                        Thing thing = client.things().forId(thingId).retrieve(JsonFactory.newFieldSelector("thingId", "features/geolocation/properties/geoposition")).get(5, TimeUnit.SECONDS);
 
-                        if (thing.getFeatures() == null || thing.getFeatures().getFeature("geolocation") == null) {
+                        if (!thing.getFeatures().isPresent() || !thing.getFeatures().get().getFeature("geolocation").isPresent()) {
                             System.out.println("Thing " + thingId + " has no Feature \"geolocation\"");
                             return;
                         }
 
-                        JsonObject geoposition = thing.getFeatures().getFeature("geolocation").orElseThrow(RuntimeException::new)
-                                .getProperties().getJsonObject("geoposition");
-                        JsonObject newGeoposition = Json.createObjectBuilder()
-                                .add("latitude", geoposition.getJsonNumber("latitude").doubleValue() + (random.nextDouble() - 0.5) / 250)
-                                .add("longitude", geoposition.getJsonNumber("longitude").doubleValue() + (random.nextDouble() - 0.5) / 250).build();
-
+                        JsonObject geolocation = thing.getFeatures().get().getFeature("geolocation").orElseThrow(RuntimeException::new)
+                                .getProperties().get();
+                        final double latitude = geolocation.getValue(JsonFactory.newPointer("geoposition/latitude")).get().asDouble();
+                        final double longitude = geolocation.getValue(JsonFactory.newPointer("geoposition/longitude")).get().asDouble();
+                        JsonObject newGeoposition = JsonFactory.newObjectBuilder()
+                                .set("latitude", latitude + (random.nextDouble() - 0.5) / 250)
+                                .set("longitude", longitude + (random.nextDouble() - 0.5) / 250).build();
                         changeProperty(thingId, "geolocation", "geoposition", newGeoposition);
 
                         System.out.print(".");
@@ -189,7 +189,7 @@ public class VehicleSimulator {
         System.out.println("Shutting down ...");
         thread.interrupt();
         Thread.sleep(5000);
-        client.destroy(5000, TimeUnit.MILLISECONDS);
+        client.destroy();
         System.out.println("Client destroyed");
     }
 
