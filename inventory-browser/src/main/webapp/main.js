@@ -85,7 +85,7 @@ $(document).ready(function () {
     // --- Click handler for refreshing list and map of things
     var refreshTable = function () {
 
-        $.getJSON("cr/1/search/things?fields=thingId,features/geolocation,features/orientation,features/xdk-sensors&option=limit(0,200)").done(function (data, textStatus) {
+        $.getJSON("cr/1/search/things?fields=thingId,features/geolocation,features/orientation,features/xdk-sensors&option=limit(0,200),sort(%2BthingId)").done(function (data, textStatus) {
 
             // --- clear table content and clear map
             $("#tableBody").empty();
