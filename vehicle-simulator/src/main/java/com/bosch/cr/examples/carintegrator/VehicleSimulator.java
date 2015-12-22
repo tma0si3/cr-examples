@@ -157,13 +157,11 @@ public class VehicleSimulator {
                             return;
                         }
 
-                        JsonObject geolocation = thing.getFeatures().get().getFeature("geolocation").orElseThrow(RuntimeException::new)
-                                .getProperties().get();
-                        final double latitude = geolocation.getValue(JsonFactory.newPointer("geoposition/latitude")).get().asDouble();
-                        final double longitude = geolocation.getValue(JsonFactory.newPointer("geoposition/longitude")).get().asDouble();
+                        JsonObject geoposition = thing.getFeatures().get().getFeature("geolocation").orElseThrow(RuntimeException::new)
+                                .getProperties().get().get(JsonFactory.newPointer("geoposition")).get().asObject();
                         JsonObject newGeoposition = JsonFactory.newObjectBuilder()
-                                .set("latitude", latitude + (random.nextDouble() - 0.5) / 250)
-                                .set("longitude", longitude + (random.nextDouble() - 0.5) / 250).build();
+                                .set("latitude", geoposition.get("latitude").get().asDouble() + (random.nextDouble() - 0.5) / 250)
+                                .set("longitude", geoposition.get("longitude").get().asDouble() + (random.nextDouble() - 0.5) / 250).build();
                         changeProperty(thingId, "geolocation", "geoposition", newGeoposition);
 
                         System.out.print(".");
