@@ -4,12 +4,12 @@ package com.bosch.cr.integration.examples;
 import java.net.URL;
 
 import com.bosch.cr.integration.IntegrationClient;
-import com.bosch.cr.integration.IntegrationClientImpl;
-import com.bosch.cr.integration.configuration.AuthenticationConfiguration;
-import com.bosch.cr.integration.configuration.IntegrationClientConfiguration;
-import com.bosch.cr.integration.configuration.ProxyConfiguration;
-import com.bosch.cr.integration.configuration.PublicKeyAuthenticationConfiguration;
-import com.bosch.cr.integration.configuration.TrustStoreConfiguration;
+import com.bosch.cr.integration.client.IntegrationClientImpl;
+import com.bosch.cr.integration.client.configuration.AuthenticationConfiguration;
+import com.bosch.cr.integration.client.configuration.IntegrationClientConfiguration;
+import com.bosch.cr.integration.client.configuration.ProxyConfiguration;
+import com.bosch.cr.integration.client.configuration.PublicKeyAuthenticationConfiguration;
+import com.bosch.cr.integration.client.configuration.TrustStoreConfiguration;
 import com.bosch.cr.integration.things.ThingHandle;
 import com.bosch.cr.integration.things.ThingIntegration;
 

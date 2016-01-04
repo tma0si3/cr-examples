@@ -24,16 +24,41 @@
 
 package com.bosch.cr.examples.carintegrator;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Properties;
+import java.util.Random;
+import java.util.TreeSet;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
+import org.jboss.netty.util.internal.ThreadLocalRandom;
 import com.bosch.cr.examples.carintegrator.util.CrAsymmetricalSignatureCalculator;
 import com.bosch.cr.examples.carintegrator.util.SignatureFactory;
 import com.bosch.cr.integration.IntegrationClient;
-import com.bosch.cr.integration.IntegrationClientConfiguration;
-import com.bosch.cr.integration.IntegrationClientImpl;
-import com.bosch.cr.integration.authentication.AuthenticationConfiguration;
-import com.bosch.cr.integration.authentication.PublicKeyAuthenticationConfiguration;
-import com.bosch.cr.integration.configuration.ProxyConfiguration;
-import com.bosch.cr.integration.configuration.TrustStoreConfiguration;
-import com.bosch.cr.integration.model.ThingLifecycleEvent;
+import com.bosch.cr.integration.client.IntegrationClientImpl;
+import com.bosch.cr.integration.client.configuration.AuthenticationConfiguration;
+import com.bosch.cr.integration.client.configuration.IntegrationClientConfiguration;
+import com.bosch.cr.integration.client.configuration.ProxyConfiguration;
+import com.bosch.cr.integration.client.configuration.PublicKeyAuthenticationConfiguration;
+import com.bosch.cr.integration.client.configuration.TrustStoreConfiguration;
+import com.bosch.cr.integration.things.ThingLifecycleEvent;
 import com.bosch.cr.json.JsonFactory;
 import com.bosch.cr.json.JsonObject;
 import com.bosch.cr.model.things.Thing;
@@ -41,21 +66,6 @@ import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.client.ProxyServer;
 import com.ning.http.client.Response;
-import org.jboss.netty.util.internal.ThreadLocalRandom;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import java.io.*;
-import java.net.URI;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.X509Certificate;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Example implementation of a "Gateway" that brings devices into your Solution.
