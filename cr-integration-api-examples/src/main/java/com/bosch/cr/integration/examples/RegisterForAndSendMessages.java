@@ -25,56 +25,57 @@ public final class RegisterForAndSendMessages extends ExamplesBase
 {
    private static final Logger LOGGER = LoggerFactory.getLogger(RegisterForAndSendMessages.class);
 
+   private static final String ALL_THINGS_JSON_MESSAGE = "allThings_jsonMessage";
+   private static final String ALL_THINGS_RAW_MESSAGE = "allThings_rawMessage";
+   private static final String ALL_THINGS_STRING_MESSAGE = "allThings_stringMessage";
+   private static final String MY_THING_JSON_MESSAGE = "myThing_jsonMessage";
+   private static final String MY_THING_RAW_MESSAGE = "myThing_rawMessage";
+   private static final String MY_THING_STRING_MESSAGE = "myThing_stringMessage";
+
    /**
     * Shows various possibilities to register handlers for {@code Message}s of interest.
     */
    public void registerForMessages()
    {
       /* Register for *all* messages of *all* things and provide payload as JsonValue */
-      final String allThings_jsonMessageRegistration = "allThings_jsonMessageRegistration";
-      thingIntegration.registerForMessage(allThings_jsonMessageRegistration, "*", JsonValue.class, message -> {
-         final String topic = message.getTopic();
-         final JsonValue payload = message.getPayload().get();
+      thingIntegration.registerForMessage(ALL_THINGS_JSON_MESSAGE, "*", JsonValue.class, message -> {
+         String topic = message.getTopic();
+         JsonValue payload = message.getPayload().get();
          LOGGER.info("message for topic {} with payload {} received", topic, payload);
       });
 
       /* Register for messages with topic *topicOfInterest* of *all* things and provide payload as raw ByteBuffer */
-      final String allThings_rawMessageRegistration = "allThings_rawMessageRegistration";
-      thingIntegration.registerForMessage(allThings_rawMessageRegistration, "topicOfInterest", ByteBuffer.class, message -> {
-         final String topic = message.getTopic();
-         final ByteBuffer payload = message.getPayload().get();
+      thingIntegration.registerForMessage(ALL_THINGS_RAW_MESSAGE, "topicOfInterest", message -> {
+         String topic = message.getTopic();
+         ByteBuffer payload = message.getRawPayload().get();
          LOGGER.info("message for topic {} with payload {} received", topic, StandardCharsets.UTF_8.decode(payload).toString());
       });
 
       /* Register for messages with topic *some.topic* of *all* things and provide payload as String */
-      final String allThings_stringMessageRegistration = "allThings_stringMessageRegistration";
-      thingIntegration.registerForMessage(allThings_stringMessageRegistration, "some.topic", String.class, message -> {
-         final String topic = message.getTopic();
-         final String payload = message.getPayload().get();
+      thingIntegration.registerForMessage(ALL_THINGS_STRING_MESSAGE, "some.topic", String.class, message -> {
+         String topic = message.getTopic();
+         String payload = message.getPayload().get();
          LOGGER.info("message for topic {} with payload {} received", topic, payload);
       });
 
       /* Register for *all* messages of a *specific* thing of and provide payload as JsonValue */
-      final String myThing_jsonMessageRegistration = "myThing_jsonMessageRegistration";
-      myThing.registerForMessage(myThing_jsonMessageRegistration, "*", JsonValue.class, message -> {
-         final String topic = message.getTopic();
-         final JsonValue payload = message.getPayload().get();
+      myThing.registerForMessage(MY_THING_JSON_MESSAGE, "*", JsonValue.class, message -> {
+         String topic = message.getTopic();
+         JsonValue payload = message.getPayload().get();
          LOGGER.info("message for topic {} with payload {} received", topic, payload);
       });
 
       /* Register for *all* messages with topic *some_message_topic* of a *specific* thing and provide payload as raw ByteBuffer */
-      final String myThing_rawMessageRegistration = "myThing_rawMessageRegistration";
-      myThing.registerForMessage(myThing_rawMessageRegistration, "some_message_topic", ByteBuffer.class, message -> {
-         final String topic = message.getTopic();
-         final ByteBuffer payload = message.getPayload().get();
+      myThing.registerForMessage(MY_THING_RAW_MESSAGE, "some_message_topic", message -> {
+         String topic = message.getTopic();
+         ByteBuffer payload = message.getPayload().get();
          LOGGER.info("message for topic {} with payload {} received", topic, StandardCharsets.UTF_8.decode(payload).toString());
       });
 
       /* Register for *all* messages of a *specific* thing and provide payload as String */
-      final String myThing_stringMessageRegistration = "myThing_stringMessageRegistration";
-      myThing.registerForMessage(myThing_stringMessageRegistration, "*", String.class, message -> {
-         final String topic = message.getTopic();
-         final String payload = message.getPayload().get();
+      myThing.registerForMessage(MY_THING_STRING_MESSAGE, "*", String.class, message -> {
+         String topic = message.getTopic();
+         String payload = message.getPayload().get();
          LOGGER.info("message for topic {} with payload {} received", topic, payload);
       });
    }
@@ -112,6 +113,15 @@ public final class RegisterForAndSendMessages extends ExamplesBase
          .topic("fireAlert") //
          .payload(JsonFactory.readFrom("{\"action\" : \"call fire department\"}")) //
          .contentType("application/json") //
+         .send();
+
+      /* Send a message *to* a feature with the given topic and raw payload */
+      thingIntegration.message() //
+         .from("com.bosch.building.monitoring:fireDetectionDevice") //
+         .featureId("smokeDetector") //
+         .topic("fireAlert") //
+         .payload(ByteBuffer.wrap("foo".getBytes(StandardCharsets.UTF_8))) //
+         .contentType("application/octet-stream") //
          .send();
 
       final ThingHandle thingHandle = thingIntegration.forId(":thingId");

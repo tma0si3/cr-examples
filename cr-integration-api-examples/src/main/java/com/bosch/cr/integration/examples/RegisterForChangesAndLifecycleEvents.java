@@ -20,20 +20,23 @@ public final class RegisterForChangesAndLifecycleEvents extends ExamplesBase
 {
    private static final Logger LOGGER = LoggerFactory.getLogger(RegisterForChangesAndLifecycleEvents.class);
 
+   private static final String ALL_THINGS_LIFECYCLE = "allThings_lifecycle";
+   private static final String MY_THING_LIFECYCLE = "myThing_lifecycle";
+   private static final String ALL_THINGS_ATTRIBUTE_CHANGE = "allThings_attributeChange";
+   private static final String ALL_THINGS_SPECIFIC_ATTRIBUTE_CHANGE = "allThings_specificAttributeChange";
+   private static final String MY_THING_ATTRIBUTE_CHANGE = "myThing_attributeChange";
+   private static final String MY_THING_SPECIFIC_ATTRIBUTE_CHANGE = "myThing_specificAttributeChange";
+
    /**
     * Register for {@code LifecycleEvent}s.
     */
    public void registerForLifecycleChanges()
    {
       /* Register for lifecycle events of *all* things */
-      final String allThings_lifecycleRegistration = "allThings_lifecycleRegistration";
-      thingIntegration.registerForLifecycleEvent(allThings_lifecycleRegistration,
-         lifecycle -> LOGGER.info("lifecycle received: {}", lifecycle));
+      thingIntegration.registerForLifecycleEvent(ALL_THINGS_LIFECYCLE, lifecycle -> LOGGER.info("lifecycle received: {}", lifecycle));
 
       /* Register for *all* lifecycle events of a *specific* thing */
-      final String myThing_lifecycleRegistration = "myThing_lifecycleRegistration";
-      myThing.registerForLifecycleEvent(myThing_lifecycleRegistration,
-         lifecycleEvent -> LOGGER.info("lifecycle received: {}", lifecycleEvent));
+      myThing.registerForLifecycleEvent(MY_THING_LIFECYCLE, lifecycleEvent -> LOGGER.info("lifecycle received: {}", lifecycleEvent));
    }
 
    /**
@@ -42,23 +45,17 @@ public final class RegisterForChangesAndLifecycleEvents extends ExamplesBase
    public void registerForAttributeChanges()
    {
       /* Register for *all* attribute changes of *all* things */
-      final String allThings_attributeChangeRegistration = "allThings_attributeChangeRegistration";
-      thingIntegration.registerForAttributeChange(allThings_attributeChangeRegistration,
-         change -> LOGGER.info("attributeChange received: {}", change));
+      thingIntegration.registerForAttributeChange(ALL_THINGS_ATTRIBUTE_CHANGE, change -> LOGGER.info("attributeChange received: {}", change));
 
       /* Register for *specific* attribute changes of *all* things */
-      final String allThings_specificAttributeChangeRegistration = "allThings_specificAttributeChangeRegistration";
-      thingIntegration.registerForAttributeChange(allThings_specificAttributeChangeRegistration,
+      thingIntegration.registerForAttributeChange(ALL_THINGS_SPECIFIC_ATTRIBUTE_CHANGE,
          JsonFactory.newPointer("address/city"), change -> LOGGER.info("attributeChange received: {}", change));
 
       /* Register for *all* attribute changes of a *specific* thing */
-      final String myThing_attributeChangeRegistration = "myThing_attributeChangeRegistration";
-      myThing.registerForAttributeChange(myThing_attributeChangeRegistration,
-         change -> LOGGER.info("attributeChange received: {}", change));
+      myThing.registerForAttributeChange(MY_THING_ATTRIBUTE_CHANGE, change -> LOGGER.info("attributeChange received: {}", change));
 
       /* Register for *specific* attribute changes of a *specific* thing */
-      final String myThing_specificAttributeChangeRegistration = "myThing_specificAttributeChangeRegistration";
-      myThing.registerForAttributeChange(myThing_specificAttributeChangeRegistration,
-         JsonFactory.newPointer("address/city"), change -> LOGGER.info("attributeChange received: {}", change));
+      myThing.registerForAttributeChange(MY_THING_SPECIFIC_ATTRIBUTE_CHANGE, JsonFactory.newPointer("address/city"),
+         change -> LOGGER.info("attributeChange received: {}", change));
    }
 }
