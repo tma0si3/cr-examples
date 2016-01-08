@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.bosch.cr.integration.examples.model.ExampleUser;
 import com.bosch.cr.integration.things.ThingHandle;
 import com.bosch.cr.json.JsonFactory;
 import com.bosch.cr.json.JsonValue;
@@ -18,8 +19,6 @@ import com.bosch.cr.json.JsonValue;
  * <p>
  * NOTE: Make sure to invoke {@code IntegrationClient.subscriptions().consume()} once after all message handlers are
  * registered to start receiving events from Central Registry.
- *
- * @since 2.0.0
  */
 public final class RegisterForAndSendMessages extends ExamplesBase
 {
@@ -31,6 +30,7 @@ public final class RegisterForAndSendMessages extends ExamplesBase
    private static final String MY_THING_JSON_MESSAGE = "myThing_jsonMessage";
    private static final String MY_THING_RAW_MESSAGE = "myThing_rawMessage";
    private static final String MY_THING_STRING_MESSAGE = "myThing_stringMessage";
+   private static final String CUSTOM_SERIALIZER_EXAMPLE_USER_MESSAGE = "customSerializer_exampleUserMessage";
 
    /**
     * Shows various possibilities to register handlers for {@code Message}s of interest.
@@ -78,6 +78,17 @@ public final class RegisterForAndSendMessages extends ExamplesBase
          String payload = message.getPayload().get();
          LOGGER.info("message for topic {} with payload {} received", topic, payload);
       });
+
+      /*
+       * Custom Message serializer usage:
+       */
+
+      /* Register for messages with topic *example.user.created* of *all* things and provide payload as custom type ExampleUser */
+      thingIntegration.registerForMessage(CUSTOM_SERIALIZER_EXAMPLE_USER_MESSAGE, "example.user.created", ExampleUser.class, message -> {
+         String topic = message.getTopic();
+         ExampleUser user = message.getPayload().get();
+         LOGGER.info("message for topic {} with payload {} received", topic, user);
+      });
    }
 
    /**
@@ -101,7 +112,7 @@ public final class RegisterForAndSendMessages extends ExamplesBase
       /* Send a message *to* a thing with the given topic and text payload */
       thingIntegration.message() //
          .to("com.bosch.building:sprinklerSystem") //
-         .topic("monitoring/building/fireAlert") //
+         .topic("monitoring.building.fireAlert") //
          .payload("Roof is on fire") //
          .contentType("text/plain") //
          .send();
@@ -138,6 +149,17 @@ public final class RegisterForAndSendMessages extends ExamplesBase
          .topic("someTopic") //
          .payload("someContent") //
          .contentType("text/plain") //
+         .send();
+
+      /*
+       * Custom Message serializer usage:
+       */
+
+      /* Send a message *from* a thing with the given topic and a custom payload type */
+      thingIntegration.message() //
+         .from(":userSender") //
+         .topic("here.is.karl") //
+         .payload(new ExampleUser("karl", "karl@bosch.com"))
          .send();
    }
 }

@@ -18,8 +18,6 @@ import com.bosch.cr.model.things.ThingsModelFactory;
 /**
  * This example shows how a {@code ThingIntegration} or {@code ThingHandle} can be used to perform
  * CRUD (Create, Read, Update, and Delete) operations on {@code Thing}(s).
- *
- * @since 2.0.0
  */
 public class ManageThings extends ExamplesBase
 {

@@ -13,8 +13,6 @@ import com.bosch.cr.json.JsonFactory;
  * <p>
  * NOTE: Make sure to invoke {@code IntegrationClient.subscriptions().consume()} once after all handlers are
  * registered to start receiving events from Central Registry.
- *
- * @since 2.0.0
  */
 public final class RegisterForChangesAndLifecycleEvents extends ExamplesBase
 {
