@@ -103,9 +103,21 @@ public class CentralRegistrySignatureAuthenticationTest
 
       final String proxyHost = props.getProperty("http.proxyHost");
       final String proxyPort = props.getProperty("http.proxyPort");
+      final String proxyPrincipal = props.getProperty("http.proxyPrincipal");
+      final String proxyPassword = props.getProperty("http.proxyPassword");
       if (proxyHost != null && proxyPort != null)
       {
-         builder.setProxyServer(new ProxyServer(ProxyServer.Protocol.HTTPS, proxyHost, Integer.valueOf(proxyPort)));
+         if (proxyPrincipal != null && proxyPassword != null)
+         {
+            // proxy with authentication
+            builder.setProxyServer(new ProxyServer(ProxyServer.Protocol.HTTPS, proxyHost, Integer.valueOf(proxyPort),
+               proxyPrincipal, proxyPassword));
+         }
+         else
+         {
+            // proxy w/o authentication
+            builder.setProxyServer(new ProxyServer(ProxyServer.Protocol.HTTPS, proxyHost, Integer.valueOf(proxyPort)));
+         }
       }
 
       asyncHttpClient = new AsyncHttpClient(builder.build());
