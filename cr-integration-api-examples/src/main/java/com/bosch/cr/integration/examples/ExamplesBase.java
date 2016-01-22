@@ -65,7 +65,10 @@ public abstract class ExamplesBase
       /* optionally configure a proxy server or a truststore */
       final ProxyConfiguration proxy = ProxyConfiguration.newBuilder()
          .proxyHost("some.proxy.server")
-         .proxyPort(1234).build();
+         .proxyPort(1234)
+         .proxyUsername("some.proxy.username")
+         .proxyPassword("some.proxy.password")
+         .build();
 
       final TrustStoreConfiguration trustStore = TrustStoreConfiguration.newBuilder()
          .location(TRUSTSTORE_LOCATION)
