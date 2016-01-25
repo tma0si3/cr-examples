@@ -7,3 +7,5 @@
 *.swp
 target/
 META-INF/
+/CRClient.jks
+/config.properties
