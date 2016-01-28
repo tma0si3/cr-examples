@@ -10,8 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bosch.cr.json.JsonFactory;
+import com.bosch.cr.model.acl.Permission;
 import com.bosch.cr.model.authorization.AuthorizationModelFactory;
-import com.bosch.cr.model.things.Permission;
 import com.bosch.cr.model.things.Thing;
 import com.bosch.cr.model.things.ThingsModelFactory;
 
@@ -38,11 +38,10 @@ public class ManageThings extends ExamplesBase
    {
       thingIntegration.create(myThingId)
          .thenCompose(createdThing -> myThing.putAttribute(JsonFactory.newPointer("address/city"), "Berlin"))
-         .thenCompose(changedSuccessfully -> myThing.retrieve())
-         .thenCompose(retrievedThing -> {
-            LOGGER.info("My thing as persisted on the Bosch IoT Central Registry: {}", retrievedThing);
-            return myThing.delete();
-         }).get(10, TimeUnit.SECONDS);
+         .thenCompose(changedSuccessfully -> myThing.retrieve()).thenCompose(retrievedThing -> {
+         LOGGER.info("My thing as persisted on the Bosch IoT Central Registry: {}", retrievedThing);
+         return myThing.delete();
+      }).get(10, TimeUnit.SECONDS);
    }
 
    /**
@@ -63,8 +62,7 @@ public class ManageThings extends ExamplesBase
          .setPermissions(AuthorizationModelFactory.newAuthSubject("userId"), ThingsModelFactory.allPermissions())
          .setPermissions(AuthorizationModelFactory.newAuthSubject("anotherUserId"), Permission.READ)
          .setFeatureProperty("featureId", JsonFactory.newPointer("propertyName"), JsonFactory.newValue("value"))
-         .setAttribute(JsonFactory.newPointer("attributeName"), JsonFactory.newValue("value"))
-         .build();
+         .setAttribute(JsonFactory.newPointer("attributeName"), JsonFactory.newValue("value")).build();
 
       thingIntegration.create(complexThing).whenComplete((thing, throwable) -> {
          if (throwable == null)
@@ -93,37 +91,34 @@ public class ManageThings extends ExamplesBase
    public void retrieveThings() throws InterruptedException, ExecutionException, TimeoutException
    {
       /* Retrieve a Single Thing*/
-      thingIntegration.forId(":complexThing")
-         .retrieve()
-         .thenAccept(thing -> LOGGER.info("Retrieved thing: {}", thing))
+      thingIntegration.forId(":complexThing").retrieve().thenAccept(thing -> LOGGER.info("Retrieved thing: {}", thing))
          .get(1, TimeUnit.SECONDS);
 
       /* Retrieve a List of Things */
-      thingIntegration
-         .retrieve(":myThing", ":complexThing")
-         .thenAccept(things -> {
-            if (things.size() == 0)
-            {
-               LOGGER.info("The requested things were not found, or you don't have sufficient permission to read them.");
-            }
-            else
-            {
-               LOGGER.info("Retrieved things: {}", Arrays.toString(things.toArray()));
-            }
+      thingIntegration.retrieve(":myThing", ":complexThing").thenAccept(things -> {
+         if (things.size() == 0)
+         {
+            LOGGER.info("The requested things were not found, or you don't have sufficient permission to read them.");
+         }
+         else
+         {
+            LOGGER.info("Retrieved things: {}", Arrays.toString(things.toArray()));
+         }
       }).get(1, TimeUnit.SECONDS);
 
       /* Retrieve a List of Things with field selectors */
-      thingIntegration
-         .retrieve(JsonFactory.newFieldSelector("attributes"), ":myThing", ":complexThing")
+      thingIntegration.retrieve(JsonFactory.newFieldSelector("attributes"), ":myThing", ":complexThing")
          .thenAccept(things -> {
             if (things.size() == 0)
             {
-               LOGGER.info("The requested things were not found, or you don't have sufficient permission to read them.");
+               LOGGER
+                  .info("The requested things were not found, or you don't have sufficient permission to read them.");
             }
             else
             {
-               things.stream().forEach(thing -> LOGGER.info("Thing {} has attributes {}.", thing, thing.getAttributes()));
+               things.stream()
+                  .forEach(thing -> LOGGER.info("Thing {} has attributes {}.", thing, thing.getAttributes()));
             }
-      }).get(1, TimeUnit.SECONDS);
+         }).get(1, TimeUnit.SECONDS);
    }
 }
