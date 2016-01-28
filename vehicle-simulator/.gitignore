@@ -2,6 +2,8 @@ target/
 .extract/
 .idea
 *.iml
+nb-configuration.xml
+nbactions.xml
 CRClient.jks
 CRClient_key.cer
 config*.properties
