@@ -60,7 +60,7 @@
 		{
 			"id": "4929d88b-21da-633f-e862-c169110cd05e",
 			"headers": "Content-Type: application/json\n",
-			"url": "{{craas.baseurl}}/cr/1/things/{{namespace}}:CRaaSCar/features/someFeature/outbox/messages/someMessageTopic",
+			"url": "{{craas.baseurl}}/cr/1/things/{{namespace}}:CRaaSCar/features/someFeature/outbox/messages/someMessageSubject",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "POST",
@@ -101,7 +101,7 @@
 		{
 			"id": "c2b82db7-e434-52eb-21c2-a42c9c31b038",
 			"headers": "",
-			"url": "{{craas.baseurl}}/cr/1/things/{{namespace}}:CRaaSCar/inbox/messages/randomMessageTopic",
+			"url": "{{craas.baseurl}}/cr/1/things/{{namespace}}:CRaaSCar/inbox/messages/randomMessageSubject",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "POST",
@@ -121,7 +121,7 @@
 		{
 			"id": "d063cee5-bdba-9ad7-8694-76315414b91c",
 			"headers": "",
-			"url": "{{craas.baseurl}}/cr/1/things/{{namespace}}:CRaaSCar/outbox/messages/randomMessageTopic",
+			"url": "{{craas.baseurl}}/cr/1/things/{{namespace}}:CRaaSCar/outbox/messages/randomMessageSubject",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "POST",
@@ -141,7 +141,7 @@
 		{
 			"id": "e3e8630a-88ff-b2d1-217e-0956902bb70b",
 			"headers": "Content-Type: application/json\n",
-			"url": "{{craas.baseurl}}/cr/1/things/{{namespace}}:CRaaSCar/features/someFeature/inbox/messages/someMessageTopic",
+			"url": "{{craas.baseurl}}/cr/1/things/{{namespace}}:CRaaSCar/features/someFeature/inbox/messages/someMessageSubject",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "POST",
