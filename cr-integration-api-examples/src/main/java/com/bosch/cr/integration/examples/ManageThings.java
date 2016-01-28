@@ -37,7 +37,7 @@ public class ManageThings extends ExamplesBase
    public void createReadUpdateDelete() throws InterruptedException, ExecutionException, TimeoutException
    {
       thingIntegration.create(myThingId)
-         .thenCompose(createdThing -> myThing.setAttribute(JsonFactory.newPointer("address/city"), "Berlin"))
+         .thenCompose(createdThing -> myThing.putAttribute(JsonFactory.newPointer("address/city"), "Berlin"))
          .thenCompose(changedSuccessfully -> myThing.retrieve())
          .thenCompose(retrievedThing -> {
             LOGGER.info("My thing as persisted on the Bosch IoT Central Registry: {}", retrievedThing);

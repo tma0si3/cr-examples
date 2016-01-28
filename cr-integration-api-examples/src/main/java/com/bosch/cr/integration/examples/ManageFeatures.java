@@ -49,14 +49,14 @@ public class ManageFeatures extends ExamplesBase
 
       final ThingHandle thingHandle = thingIntegration.forId(thingId);
 
-      thingHandle.registerForFeatureChange(
+      thingHandle.registerForFeatureChange("",
          featureChange -> LOGGER.info("{} Feature '{}'", featureChange.getAction(), featureChange.getFeature()));
 
-      thingHandle.setFeature(ThingsModelFactory.newFeature(FEATURE_ID)) //
+      thingHandle.putFeature(ThingsModelFactory.newFeature(FEATURE_ID)) //
          .thenCompose(aVoid -> thingHandle.forFeature(FEATURE_ID).retrieve()) //
          .thenCompose(feature -> {
             LOGGER.info("RETRIEVED Feature '{}'", feature);
-            return thingHandle.setFeature(ThingsModelFactory.newFeature(FEATURE_ID) //
+            return thingHandle.putFeature(ThingsModelFactory.newFeature(FEATURE_ID) //
                .setProperty(PROPERTY_JSON_POINTER, PROPERTY_JSON_VALUE));
          }).thenCompose(aVoid -> thingHandle.forFeature(FEATURE_ID).delete());
    }
@@ -79,11 +79,11 @@ public class ManageFeatures extends ExamplesBase
          featurePropertyChange -> LOGGER.info("{} Property '{}:{}'", featurePropertyChange.getAction(),
             featurePropertyChange.getPath(), featurePropertyChange.getValue()));
 
-      featureHandle.setProperty(PROPERTY_JSON_POINTER, PROPERTY_JSON_VALUE) //
+      featureHandle.putProperty(PROPERTY_JSON_POINTER, PROPERTY_JSON_VALUE) //
          .thenCompose(aVoid -> featureHandle.retrieve()) //
          .thenCompose(feature -> {
             LOGGER.info("RETRIEVED Property '{}'", feature.getProperty(PROPERTY_JSON_POINTER));
-            return featureHandle.setProperty(PROPERTY_JSON_POINTER, 0.9);
+            return featureHandle.putProperty(PROPERTY_JSON_POINTER, 0.9);
          }) //
          .thenCompose(aVoid -> featureHandle.deleteProperty(PROPERTY_JSON_POINTER)) //
          .get(TIMEOUT, SECONDS);
