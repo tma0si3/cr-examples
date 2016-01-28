@@ -41,7 +41,6 @@ import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.client.ProxyServer;
 import com.ning.http.client.Response;
-import org.jboss.netty.util.internal.ThreadLocalRandom;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -61,11 +60,12 @@ import java.util.concurrent.TimeoutException;
  * Example implementation of a "Gateway" that brings devices into your Solution.
  * This example simulates vehicle movements.
  */
-
 public class VehicleSimulator {
 
     private static String centralRegistryEndpointUrl;
     private static AsyncHttpClient asyncHttpClient;
+
+    private static final Random random = new Random();
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
@@ -116,7 +116,6 @@ public class VehicleSimulator {
 
         IntegrationClient client = IntegrationClientImpl.newInstance(configSettable.build());
 
-
         // ### WORKAROUND: prepare HttpClient to make REST calls the CR-Integration-Client does not support yet
         String apiToken = props.getProperty("apiToken");
         final SignatureFactory signatureFactory = SignatureFactory.newInstance(keystoreUri, keystorePassword, keyAlias, keyAliasPassword);
@@ -129,7 +128,6 @@ public class VehicleSimulator {
         asyncHttpClient = new AsyncHttpClient(builder.build());
         asyncHttpClient.setSignatureCalculator(new CrAsymmetricalSignatureCalculator(signatureFactory, clientId, apiToken));
 
-
         final TreeSet<String> activeThings = new TreeSet<>();
         activeThings.addAll(readActiveThings());
 
@@ -137,6 +135,7 @@ public class VehicleSimulator {
         System.out.println("Active things: " + activeThings);
 
         client.things().registerForLifecycleEvent("lifecycle", e -> {
+            System.out.println("Lifecycle event: " + e);
             if (e.getType() == ThingLifecycleEvent.Type.CREATED) {
                 activeThings.add(e.getThingId());
                 writeActiveThings(activeThings);
@@ -145,7 +144,6 @@ public class VehicleSimulator {
         });
 
         final Thread thread = new Thread(() -> {
-            final Random random = new ThreadLocalRandom();
             while (true) {
                 for (String thingId : activeThings) {
 
@@ -158,7 +156,7 @@ public class VehicleSimulator {
                         }
 
                         JsonObject geoposition = thing.getFeatures().get().getFeature("geolocation").orElseThrow(RuntimeException::new)
-                                .getProperties().get().get(JsonFactory.newPointer("geoposition")).get().asObject();
+                                .getProperties().get().getValue(JsonFactory.newPointer("geoposition")).get().asObject();
                         JsonObject newGeoposition = JsonFactory.newObjectBuilder()
                                 .set("latitude", geoposition.get("latitude").get().asDouble() + (random.nextDouble() - 0.5) / 250)
                                 .set("longitude", geoposition.get("longitude").get().asDouble() + (random.nextDouble() - 0.5) / 250).build();
@@ -173,11 +171,12 @@ public class VehicleSimulator {
                         System.out.println("Update thread interrupted");
                         return;
                     } catch (ExecutionException | TimeoutException e) {
-                        System.out.println("Retrieve thing " + thingId + " failed: " + e);
+                        System.out.println("Updating thing " + thingId + " failed: " + e);
                     }
                 }
             }
-        });
+        }
+        );
 
         thread.start();
 
