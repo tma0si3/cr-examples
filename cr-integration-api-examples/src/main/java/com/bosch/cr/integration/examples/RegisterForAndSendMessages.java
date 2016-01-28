@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.bosch.cr.integration.examples.model.ExampleUser;
+import com.bosch.cr.integration.things.FeatureHandle;
 import com.bosch.cr.integration.things.ThingHandle;
 import com.bosch.cr.json.JsonFactory;
 import com.bosch.cr.json.JsonValue;
@@ -142,10 +143,10 @@ public final class RegisterForAndSendMessages extends ExamplesBase
          .topic("someTopic") //
          .send();
 
-      /* Send a message *from* a feature (thing id already defined by the ThingHandle) with the given topic and text payload */
-      thingHandle.message() //
+      final FeatureHandle featureHandle = thingIntegration.forFeature(":thingId", "smokeDetector");
+      /* Send a message *from* a feature with the given topic and text payload */
+      featureHandle.message() //
          .from() //
-         .featureId("sendFromThisFeature") //
          .topic("someTopic") //
          .payload("someContent") //
          .contentType("text/plain") //
