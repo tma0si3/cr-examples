@@ -58,7 +58,8 @@ public class ManageFeatures extends ExamplesBase
             LOGGER.info("RETRIEVED Feature '{}'", feature);
             return thingHandle.putFeature(ThingsModelFactory.newFeature(FEATURE_ID) //
                .setProperty(PROPERTY_JSON_POINTER, PROPERTY_JSON_VALUE));
-         }).thenCompose(aVoid -> thingHandle.forFeature(FEATURE_ID).delete());
+         }).thenCompose(aVoid -> thingHandle.forFeature(FEATURE_ID).delete()) //
+         .get(TIMEOUT, SECONDS);
    }
 
    public void crudFeatureProperty() throws InterruptedException, ExecutionException, TimeoutException
