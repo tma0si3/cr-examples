@@ -17,13 +17,15 @@ mvn clean install
 Create or adjust file "config.properties"
 
 ```
-centralRegistryEndpointUrl=wss\://events.apps.bosch-iot-cloud.com
-clientId=###user solution id ###\:gateway
+centralRegistryEndpointUrl=https://cr.apps.bosch-iot-cloud.com
+centralRegistryMessagingUrl=wss\://events.apps.bosch-iot-cloud.com
+clientId=###your solution id ###\:gateway
+apiToken=###your api token ###
 keyAlias=CR
 keyStorePassword=### your key password ###
 keyAliasPassword=### your key alias password ###
-http.proxyHost=### your http proxy host, if you need one ###
-http.proxyPort=### your http proxy host, if you need one ###
+#http.proxyHost=### your http proxy host, if you need one ###
+#http.proxyPort=### your http proxy host, if you need one ###
 ```
 
 # Run it
