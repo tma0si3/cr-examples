@@ -7,9 +7,6 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.bosch.cr.integration.things.FeatureHandle;
 import com.bosch.cr.integration.things.ThingHandle;
 import com.bosch.cr.json.JsonFactory;
@@ -19,6 +16,8 @@ import com.bosch.cr.model.things.FeatureProperties;
 import com.bosch.cr.model.things.Features;
 import com.bosch.cr.model.things.Thing;
 import com.bosch.cr.model.things.ThingsModelFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This example shows how a {@link ThingHandle} and {@link FeatureHandle} can be used to perform CRUD (Create, Read,
@@ -49,7 +48,7 @@ public class ManageFeatures extends ExamplesBase
 
       final ThingHandle thingHandle = thingIntegration.forId(thingId);
 
-      thingHandle.registerForFeatureChange("",
+      thingHandle.registerForFeatureChanges("",
          featureChange -> LOGGER.info("{} Feature '{}'", featureChange.getAction(), featureChange.getFeature()));
 
       thingHandle.putFeature(ThingsModelFactory.newFeature(FEATURE_ID)) //
@@ -76,7 +75,7 @@ public class ManageFeatures extends ExamplesBase
 
       final FeatureHandle featureHandle = thingIntegration.forFeature(thingId, FEATURE_ID);
 
-      featureHandle.registerForPropertyChange("", PROPERTY_JSON_POINTER,
+      featureHandle.registerForPropertyChanges("", PROPERTY_JSON_POINTER,
          featurePropertyChange -> LOGGER.info("{} Property '{}:{}'", featurePropertyChange.getAction(),
             featurePropertyChange.getPath(), featurePropertyChange.getValue()));
 
@@ -104,7 +103,7 @@ public class ManageFeatures extends ExamplesBase
 
       final FeatureHandle featureHandle = thingIntegration.forFeature(thingId, FEATURE_ID);
 
-      featureHandle.registerForPropertyChange("", featurePropertyChange -> LOGGER.info("{} Properties '{}:{}'",
+      featureHandle.registerForPropertyChanges("", featurePropertyChange -> LOGGER.info("{} Properties '{}:{}'",
          featurePropertyChange.getAction(), featurePropertyChange.getPath(), featurePropertyChange.getValue()));
 
       featureHandle

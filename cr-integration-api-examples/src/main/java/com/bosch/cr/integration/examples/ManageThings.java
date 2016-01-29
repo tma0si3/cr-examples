@@ -6,14 +6,13 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.bosch.cr.json.JsonFactory;
 import com.bosch.cr.model.acl.Permission;
 import com.bosch.cr.model.authorization.AuthorizationModelFactory;
 import com.bosch.cr.model.things.Thing;
 import com.bosch.cr.model.things.ThingsModelFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This example shows how a {@code ThingIntegration} or {@code ThingHandle} can be used to perform
@@ -39,9 +38,9 @@ public class ManageThings extends ExamplesBase
       thingIntegration.create(myThingId)
          .thenCompose(createdThing -> myThing.putAttribute(JsonFactory.newPointer("address/city"), "Berlin"))
          .thenCompose(changedSuccessfully -> myThing.retrieve()).thenCompose(retrievedThing -> {
-         LOGGER.info("My thing as persisted on the Bosch IoT Central Registry: {}", retrievedThing);
-         return myThing.delete();
-      }).get(10, TimeUnit.SECONDS);
+            LOGGER.info("My thing as persisted on the Bosch IoT Central Registry: {}", retrievedThing);
+            return myThing.delete();
+         }).get(10, TimeUnit.SECONDS);
    }
 
    /**
