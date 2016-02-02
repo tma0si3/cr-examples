@@ -44,11 +44,13 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import org.jboss.netty.util.internal.ThreadLocalRandom;
+
 import com.bosch.cr.examples.carintegrator.util.CrAsymmetricalSignatureCalculator;
 import com.bosch.cr.examples.carintegrator.util.SignatureFactory;
 import com.bosch.cr.integration.IntegrationClient;
@@ -56,9 +58,10 @@ import com.bosch.cr.integration.client.IntegrationClientImpl;
 import com.bosch.cr.integration.client.configuration.AuthenticationConfiguration;
 import com.bosch.cr.integration.client.configuration.IntegrationClientConfiguration;
 import com.bosch.cr.integration.client.configuration.ProxyConfiguration;
+import com.bosch.cr.integration.client.configuration.ProxyConfiguration.Protocol;
 import com.bosch.cr.integration.client.configuration.PublicKeyAuthenticationConfiguration;
 import com.bosch.cr.integration.client.configuration.TrustStoreConfiguration;
-import com.bosch.cr.integration.things.ThingLifecycleEvent;
+import com.bosch.cr.integration.things.ChangeAction;
 import com.bosch.cr.json.JsonFactory;
 import com.bosch.cr.json.JsonObject;
 import com.bosch.cr.model.things.Thing;
@@ -121,6 +124,7 @@ public class VehicleSimulator {
                 .trustStoreConfiguration(trustStore);
         if (proxyHost != null && proxyPort != null) {
             configSettable = configSettable.proxyConfiguration(ProxyConfiguration.newBuilder()
+            		.proxyProtocol(Protocol.HTTP)
                     .proxyHost(proxyHost).proxyPort(Integer.parseInt(proxyPort)).build());
         }
 
@@ -146,11 +150,11 @@ public class VehicleSimulator {
         System.out.println("Started...");
         System.out.println("Active things: " + activeThings);
 
-        client.things().registerForLifecycleEvent("lifecycle", e -> {
-            if (e.getType() == ThingLifecycleEvent.Type.CREATED) {
-                activeThings.add(e.getThingId());
+        client.things().registerForThingChanges("lifecycle", change -> {
+			if (change.getAction() == ChangeAction.CREATED && change.isFull()) {
+                activeThings.add(change.getThingId());
                 writeActiveThings(activeThings);
-                System.out.println("New thing " + e.getThingId() + " created -> active things: " + activeThings);
+                System.out.println("New thing " + change.getThingId() + " created -> active things: " + activeThings);
             }
         });
 
