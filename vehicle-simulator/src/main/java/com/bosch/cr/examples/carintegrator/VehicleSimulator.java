@@ -24,16 +24,44 @@
 
 package com.bosch.cr.examples.carintegrator;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Properties;
+import java.util.Random;
+import java.util.TreeSet;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
+import org.jboss.netty.util.internal.ThreadLocalRandom;
+
 import com.bosch.cr.examples.carintegrator.util.CrAsymmetricalSignatureCalculator;
 import com.bosch.cr.examples.carintegrator.util.SignatureFactory;
 import com.bosch.cr.integration.IntegrationClient;
-import com.bosch.cr.integration.IntegrationClientConfiguration;
-import com.bosch.cr.integration.IntegrationClientImpl;
-import com.bosch.cr.integration.authentication.AuthenticationConfiguration;
-import com.bosch.cr.integration.authentication.PublicKeyAuthenticationConfiguration;
-import com.bosch.cr.integration.configuration.ProxyConfiguration;
-import com.bosch.cr.integration.configuration.TrustStoreConfiguration;
-import com.bosch.cr.integration.model.ThingLifecycleEvent;
+import com.bosch.cr.integration.client.IntegrationClientImpl;
+import com.bosch.cr.integration.client.configuration.AuthenticationConfiguration;
+import com.bosch.cr.integration.client.configuration.IntegrationClientConfiguration;
+import com.bosch.cr.integration.client.configuration.ProxyConfiguration;
+import com.bosch.cr.integration.client.configuration.ProxyConfiguration.Protocol;
+import com.bosch.cr.integration.client.configuration.PublicKeyAuthenticationConfiguration;
+import com.bosch.cr.integration.client.configuration.TrustStoreConfiguration;
+import com.bosch.cr.integration.things.ChangeAction;
 import com.bosch.cr.json.JsonFactory;
 import com.bosch.cr.json.JsonObject;
 import com.bosch.cr.model.things.Thing;
@@ -42,30 +70,15 @@ import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.client.ProxyServer;
 import com.ning.http.client.Response;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import java.io.*;
-import java.net.URI;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.X509Certificate;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
 /**
  * Example implementation of a "Gateway" that brings devices into your Solution.
  * This example simulates vehicle movements.
  */
+
 public class VehicleSimulator {
 
     private static String centralRegistryEndpointUrl;
     private static AsyncHttpClient asyncHttpClient;
-
-    private static final Random random = new Random();
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
@@ -111,10 +124,12 @@ public class VehicleSimulator {
                 .trustStoreConfiguration(trustStore);
         if (proxyHost != null && proxyPort != null) {
             configSettable = configSettable.proxyConfiguration(ProxyConfiguration.newBuilder()
+            		.proxyProtocol(Protocol.HTTP)
                     .proxyHost(proxyHost).proxyPort(Integer.parseInt(proxyPort)).build());
         }
 
         IntegrationClient client = IntegrationClientImpl.newInstance(configSettable.build());
+
 
         // ### WORKAROUND: prepare HttpClient to make REST calls the CR-Integration-Client does not support yet
         String apiToken = props.getProperty("apiToken");
@@ -128,22 +143,23 @@ public class VehicleSimulator {
         asyncHttpClient = new AsyncHttpClient(builder.build());
         asyncHttpClient.setSignatureCalculator(new CrAsymmetricalSignatureCalculator(signatureFactory, clientId, apiToken));
 
+
         final TreeSet<String> activeThings = new TreeSet<>();
         activeThings.addAll(readActiveThings());
 
         System.out.println("Started...");
         System.out.println("Active things: " + activeThings);
 
-        client.things().registerForLifecycleEvent("lifecycle", e -> {
-            System.out.println("Lifecycle event: " + e);
-            if (e.getType() == ThingLifecycleEvent.Type.CREATED) {
-                activeThings.add(e.getThingId());
+        client.things().registerForThingChanges("lifecycle", change -> {
+			if (change.getAction() == ChangeAction.CREATED && change.isFull()) {
+                activeThings.add(change.getThingId());
                 writeActiveThings(activeThings);
-                System.out.println("New thing " + e.getThingId() + " created -> active things: " + activeThings);
+                System.out.println("New thing " + change.getThingId() + " created -> active things: " + activeThings);
             }
         });
 
         final Thread thread = new Thread(() -> {
+            final Random random = new ThreadLocalRandom();
             while (true) {
                 for (String thingId : activeThings) {
 
@@ -155,11 +171,13 @@ public class VehicleSimulator {
                             return;
                         }
 
-                        JsonObject geoposition = thing.getFeatures().get().getFeature("geolocation").orElseThrow(RuntimeException::new)
-                                .getProperties().get().getValue(JsonFactory.newPointer("geoposition")).get().asObject();
+                        JsonObject geolocation = thing.getFeatures().get().getFeature("geolocation").orElseThrow(RuntimeException::new)
+                                .getProperties().get();
+                        final double latitude = geolocation.getValue(JsonFactory.newPointer("geoposition/latitude")).get().asDouble();
+                        final double longitude = geolocation.getValue(JsonFactory.newPointer("geoposition/longitude")).get().asDouble();
                         JsonObject newGeoposition = JsonFactory.newObjectBuilder()
-                                .set("latitude", geoposition.get("latitude").get().asDouble() + (random.nextDouble() - 0.5) / 250)
-                                .set("longitude", geoposition.get("longitude").get().asDouble() + (random.nextDouble() - 0.5) / 250).build();
+                                .set("latitude", latitude + (random.nextDouble() - 0.5) / 250)
+                                .set("longitude", longitude + (random.nextDouble() - 0.5) / 250).build();
                         changeProperty(thingId, "geolocation", "geoposition", newGeoposition);
 
                         System.out.print(".");
@@ -171,12 +189,11 @@ public class VehicleSimulator {
                         System.out.println("Update thread interrupted");
                         return;
                     } catch (ExecutionException | TimeoutException e) {
-                        System.out.println("Updating thing " + thingId + " failed: " + e);
+                        System.out.println("Retrieve thing " + thingId + " failed: " + e);
                     }
                 }
             }
-        }
-        );
+        });
 
         thread.start();
 

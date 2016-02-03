@@ -23,9 +23,6 @@ public class CrAsymmetricalSignatureCalculator implements SignatureCalculator
    private static final String HTTP_HEADER_X_CR_DATE = "x-cr-date";
    private static final String HTTP_HEADER_X_CR_API_TOKEN = "x-cr-api-token";
 
-   private static final String HTTP_METHOD_PUT = "PUT";
-   private static final String HTTP_METHOD_POST = "POST";
-
    private final SignatureFactory signatureFactory;
    private final String clientId;
    private final String apiToken;
@@ -45,17 +42,10 @@ public class CrAsymmetricalSignatureCalculator implements SignatureCalculator
       final String path = request.getUri().toRelativeUrl();
       final String date = OffsetDateTime.now().toString();
       final String host = request.getUri().getHost();
-      final String signatureData;
-      if (method.equals(HTTP_METHOD_POST) || method.equals(HTTP_METHOD_PUT))
-      {
-         final String body = request.getStringData();
-         signatureData = String.join(DELIMITER, method, host, path, body, date);
-      }
-      else
-      {
-         signatureData = String.join(DELIMITER, method, host, path, date);
-      }
+
+      final String signatureData = String.join(DELIMITER, method, host, path, date);
       final String signature = signatureFactory.sign(signatureData);
+
       requestBuilderBase.addHeader(HTTP_HEADER_HOST, host);
       requestBuilderBase.addHeader(HTTP_HEADER_X_CR_DATE, date);
       requestBuilderBase.addHeader(HTTP_HEADER_X_CR_API_TOKEN, apiToken);
