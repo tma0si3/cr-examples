@@ -33,21 +33,19 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.X509Certificate;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClientConfig;
+import org.asynchttpclient.ListenableFuture;
+import org.asynchttpclient.Realm;
+import org.asynchttpclient.Response;
+import org.asynchttpclient.proxy.ProxyServer;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClientConfig;
-import com.ning.http.client.ListenableFuture;
-import com.ning.http.client.ProxyServer;
-import com.ning.http.client.Response;
 
 /**
  * Unit test to show CRS Authentication.
@@ -98,8 +96,8 @@ public class CentralRegistrySignatureAuthenticationTest
       final SignatureFactory signatureFactory =
          SignatureFactory.newInstance(keystoreUri, keyStorePassword, keyAlias, keyAliasPassword);
 
-      final AsyncHttpClientConfig.Builder builder = new AsyncHttpClientConfig.Builder();
-      builder.setSSLContext(setupAcceptingSelfSignedCertificates());
+      final DefaultAsyncHttpClientConfig.Builder builder = new DefaultAsyncHttpClientConfig.Builder();
+      builder.setAcceptAnyCertificate(true); // WORKAROUND: Trust self-signed certificate of BICS until there is a trusted one.
 
       final String proxyHost = props.getProperty("http.proxyHost");
       final String proxyPort = props.getProperty("http.proxyPort");
@@ -107,48 +105,19 @@ public class CentralRegistrySignatureAuthenticationTest
       final String proxyPassword = props.getProperty("http.proxyPassword");
       if (proxyHost != null && proxyPort != null)
       {
+         final ProxyServer.Builder proxyBuilder = new ProxyServer.Builder(proxyHost, Integer.valueOf(proxyPort));
          if (proxyPrincipal != null && proxyPassword != null)
          {
             // proxy with authentication
-            builder.setProxyServer(new ProxyServer(ProxyServer.Protocol.HTTPS, proxyHost, Integer.valueOf(proxyPort),
-               proxyPrincipal, proxyPassword));
+            proxyBuilder.setRealm(new Realm.Builder(proxyPrincipal, proxyPassword).setScheme(Realm.AuthScheme.BASIC).setUsePreemptiveAuth(true));
          }
-         else
-         {
-            // proxy w/o authentication
-            builder.setProxyServer(new ProxyServer(ProxyServer.Protocol.HTTPS, proxyHost, Integer.valueOf(proxyPort)));
-         }
+         builder.setProxyServer(proxyBuilder);
       }
 
-      asyncHttpClient = new AsyncHttpClient(builder.build());
+      asyncHttpClient = new DefaultAsyncHttpClient(builder.build());
       asyncHttpClient.setSignatureCalculator(new CrAsymmetricalSignatureCalculator(signatureFactory, clientId, apiToken));
 
       thingId = "com.bosch.cr.example:myThing-" + UUID.randomUUID().toString();
-   }
-
-   /**
-    * WORKAROUND: Trust self-signed certificate of BICS until there is a trusted one.
-    */
-   private static SSLContext setupAcceptingSelfSignedCertificates() throws NoSuchAlgorithmException, KeyManagementException
-   {
-      // Create a trust manager that does not validate certificate chains
-      final TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager()
-      {
-         @Override
-         public X509Certificate[] getAcceptedIssuers()
-         {
-            return new X509Certificate[0];
-         }
-
-         @Override
-         public void checkClientTrusted(final X509Certificate[] certs, final String authType) {}
-
-         @Override
-         public void checkServerTrusted(final X509Certificate[] certs, final String authType) {}
-      } };
-      final SSLContext sc = SSLContext.getInstance("SSL");
-      sc.init(null, trustAllCerts, null);
-      return sc;
    }
 
    /**

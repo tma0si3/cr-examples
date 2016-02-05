@@ -24,11 +24,12 @@
 
 package com.bosch.cr.examples.carintegrator.util;
 
-import com.ning.http.client.Request;
-import com.ning.http.client.RequestBuilderBase;
-import com.ning.http.client.SignatureCalculator;
 
 import java.time.OffsetDateTime;
+
+import org.asynchttpclient.Request;
+import org.asynchttpclient.RequestBuilderBase;
+import org.asynchttpclient.SignatureCalculator;
 
 /**
  * Apache Ning SignatureCalculator which calculates the "CRS" asymmetrical signature for authenticating technical clients
@@ -36,7 +37,8 @@ import java.time.OffsetDateTime;
  *
  * @since 1.0.0
  */
-public class CrAsymmetricalSignatureCalculator implements SignatureCalculator {
+public class CrAsymmetricalSignatureCalculator implements SignatureCalculator
+{
     private static final String HTTP_HEADER_AUTHORIZATION = "Authorization";
     private static final String CRS_AUTH_PREFIX = "CRS ";
     private static final String DELIMITER = ";";
