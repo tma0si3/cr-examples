@@ -3,9 +3,9 @@ package com.bosch.cr.examples.rest;
 
 import java.time.OffsetDateTime;
 
-import com.ning.http.client.Request;
-import com.ning.http.client.RequestBuilderBase;
-import com.ning.http.client.SignatureCalculator;
+import org.asynchttpclient.Request;
+import org.asynchttpclient.RequestBuilderBase;
+import org.asynchttpclient.SignatureCalculator;
 
 /**
  * Apache Ning SignatureCalculator which calculates the "CRS" asymmetrical signature for authenticating technical clients

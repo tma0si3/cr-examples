@@ -31,9 +31,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,12 +42,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
-import org.jboss.netty.util.internal.ThreadLocalRandom;
-
 import com.bosch.cr.examples.carintegrator.util.CrAsymmetricalSignatureCalculator;
 import com.bosch.cr.examples.carintegrator.util.SignatureFactory;
 import com.bosch.cr.integration.IntegrationClient;
@@ -58,17 +49,19 @@ import com.bosch.cr.integration.client.IntegrationClientImpl;
 import com.bosch.cr.integration.client.configuration.AuthenticationConfiguration;
 import com.bosch.cr.integration.client.configuration.IntegrationClientConfiguration;
 import com.bosch.cr.integration.client.configuration.ProxyConfiguration;
-import com.bosch.cr.integration.client.configuration.ProxyConfiguration.Protocol;
 import com.bosch.cr.integration.client.configuration.PublicKeyAuthenticationConfiguration;
 import com.bosch.cr.integration.client.configuration.TrustStoreConfiguration;
 import com.bosch.cr.integration.things.ChangeAction;
 import com.bosch.cr.json.JsonFactory;
 import com.bosch.cr.json.JsonObject;
 import com.bosch.cr.model.things.Thing;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClientConfig;
-import com.ning.http.client.ProxyServer;
-import com.ning.http.client.Response;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClientConfig;
+import org.asynchttpclient.Response;
+import org.asynchttpclient.proxy.ProxyServer;
+
+import io.netty.util.internal.ThreadLocalRandom;
 
 /**
  * Example implementation of a "Gateway" that brings devices into your Solution.
@@ -124,7 +117,6 @@ public class VehicleSimulator {
                 .trustStoreConfiguration(trustStore);
         if (proxyHost != null && proxyPort != null) {
             configSettable = configSettable.proxyConfiguration(ProxyConfiguration.newBuilder()
-            		.proxyProtocol(Protocol.HTTP)
                     .proxyHost(proxyHost).proxyPort(Integer.parseInt(proxyPort)).build());
         }
 
@@ -134,13 +126,12 @@ public class VehicleSimulator {
         // ### WORKAROUND: prepare HttpClient to make REST calls the CR-Integration-Client does not support yet
         String apiToken = props.getProperty("apiToken");
         final SignatureFactory signatureFactory = SignatureFactory.newInstance(keystoreUri, keystorePassword, keyAlias, keyAliasPassword);
-        final AsyncHttpClientConfig.Builder builder = new AsyncHttpClientConfig.Builder();
-        builder.setSSLContext(setupAcceptingSelfSignedCertificates());
+        final DefaultAsyncHttpClientConfig.Builder builder = new DefaultAsyncHttpClientConfig.Builder();
+        builder.setAcceptAnyCertificate(true); // WORKAROUND: Trust self-signed certificate of BICS until there is a trusted one.
         if (proxyHost != null && proxyPort != null) {
-            builder.setProxyServer(new ProxyServer(ProxyServer.Protocol.HTTPS, proxyHost, Integer.valueOf(proxyPort)));
+            builder.setProxyServer(new ProxyServer.Builder(proxyHost, Integer.valueOf(proxyPort)));
         }
-        builder.setAllowPoolingConnections(true).setAllowPoolingSslConnections(true);
-        asyncHttpClient = new AsyncHttpClient(builder.build());
+        asyncHttpClient = new DefaultAsyncHttpClient(builder.build());
         asyncHttpClient.setSignatureCalculator(new CrAsymmetricalSignatureCalculator(signatureFactory, clientId, apiToken));
 
 
@@ -159,7 +150,7 @@ public class VehicleSimulator {
         });
 
         final Thread thread = new Thread(() -> {
-            final Random random = new ThreadLocalRandom();
+            final Random random = ThreadLocalRandom.current();
             while (true) {
                 for (String thingId : activeThings) {
 
@@ -248,35 +239,9 @@ public class VehicleSimulator {
             if (re.getStatusCode() < 200 || re.getStatusCode() >= 300) {
                 throw new RuntimeException("Updated failed; " + re.getStatusCode() + ": " + re.getResponseBody());
             }
-        } catch (IOException | ExecutionException ex) {
+        } catch (ExecutionException ex) {
             throw new RuntimeException(ex);
         }
     }
 
-    // ### WORKAROUND: Trust self-signed certificate of BICS until there is a trusted one.
-    private static SSLContext setupAcceptingSelfSignedCertificates() {
-        // Create a trust manager that does not validate certificate chains
-        final TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
-            @Override
-            public X509Certificate[] getAcceptedIssuers() {
-                return new X509Certificate[0];
-            }
-
-            @Override
-            public void checkClientTrusted(final X509Certificate[] certs, final String authType) {
-            }
-
-            @Override
-            public void checkServerTrusted(final X509Certificate[] certs, final String authType) {
-            }
-        }};
-        final SSLContext sc;
-        try {
-            sc = SSLContext.getInstance("SSL");
-            sc.init(null, trustAllCerts, null);
-            return sc;
-        } catch (NoSuchAlgorithmException | KeyManagementException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
 }

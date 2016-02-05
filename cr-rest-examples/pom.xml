@@ -12,7 +12,7 @@
 
    <properties>
       <jackson.version>2.5.4</jackson.version>
-      <ning.version>1.9.27</ning.version>
+      <async-http-client.version>2.0.0-RC8</async-http-client.version>
       <junit.version>4.12</junit.version>
    </properties>
 
@@ -37,9 +37,9 @@
 
       <!-- REST Client -->
       <dependency>
-         <groupId>com.ning</groupId>
+         <groupId>org.asynchttpclient</groupId>
          <artifactId>async-http-client</artifactId>
-         <version>${ning.version}</version>
+         <version>${async-http-client.version}</version>
       </dependency>
 
       <!-- Testing -->

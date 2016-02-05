@@ -25,14 +25,14 @@ public final class RegisterForChanges extends ExamplesBase
    private static final String MY_THING_SPECIFIC_ATTRIBUTE_CHANGE = "myThing_specificAttributeChanges";
 
    /**
-    * Register for {@code ThingLifecycleChange}s.
+    * Register for {@code ThingChange}s.
     */
-   public void registerForLifecycleChanges()
+   public void registerForThingChanges()
    {
-      /* Register for lifecycle events of *all* things */
+      /* Register for change events of *all* things */
       thingIntegration.registerForThingChanges(ALL_THINGS, change -> LOGGER.info("ThingChange received: {}", change));
 
-      /* Register for *all* lifecycle events of a *specific* thing */
+      /* Register for *all* change events of a *specific* thing */
       myThing.registerForThingChanges(MY_THING, change -> LOGGER.info("ThingChange received: {}", change));
    }
 
