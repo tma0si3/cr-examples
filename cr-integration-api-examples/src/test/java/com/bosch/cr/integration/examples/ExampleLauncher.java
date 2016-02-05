@@ -23,10 +23,9 @@ public class ExampleLauncher
       // e.printStackTrace();
       // }
 
-      // final RegisterForChangesAndLifecycleEvents registerForChangesAndLifecycleEvents =
-      // new RegisterForChangesAndLifecycleEvents();
-      // registerForChangesAndLifecycleEvents.registerForAttributeChanges();
-      // registerForChangesAndLifecycleEvents.registerForLifecycleChanges();
+//       final RegisterForChanges registerForChanges = new RegisterForChanges();
+//      registerForChanges.registerForAttributeChanges();
+//      registerForChanges.registerForThingChanges();
 
       // final RegisterForAndSendMessages registerForAndSendMessages = new RegisterForAndSendMessages();
       // registerForAndSendMessages.registerForMessages();

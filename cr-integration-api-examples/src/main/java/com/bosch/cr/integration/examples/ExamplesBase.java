@@ -64,7 +64,6 @@ public abstract class ExamplesBase
 
       /* optionally configure a proxy server or a truststore */
       final ProxyConfiguration proxy = ProxyConfiguration.newBuilder()
-         .proxyProtocol(ProxyConfiguration.Protocol.HTTP)
          .proxyHost("some.proxy.server")
          .proxyPort(1234)
          .proxyUsername("some.proxy.username")
