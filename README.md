@@ -2,25 +2,68 @@
 
 This repository contains examples for using the Bosch IoT Central Registry in the cloud.
 
-## Example "inventory-browser"
+## Perparation
+
+### Maven Repository
+
+In order to be able to run the examples (or to implement your own), you need the "Bosch IoT Central Registry Integration Client" (short: *CRIC*). 
+This is available via our public Maven repository. Add following Maven-Repository to your Maven `settings.xml`:
+
+```
+   ..
+   <repositories>
+      <repository>
+         <id>bosch-releases</id>
+         <url>https://maven.bosch-si.com/content/repositories/bosch-releases/</url>
+         <releases>
+            <enabled>true</enabled>
+            <updatePolicy>never</updatePolicy>
+         </releases>
+         <snapshots>
+            <enabled>false</enabled>
+            <updatePolicy>daily</updatePolicy>
+         </snapshots>
+      </repository>
+      ..
+   </repositories>
+   ..
+```
+
+### Maven Depedency
+
+After adding the public repository as described above, you can simply use the CRIC dependency to your `pom.xml`:
+
+```
+<dependency>
+   <groupId>com.bosch.cr</groupId>
+   <artifactId>cr-integration-client</artifactId>
+   <version>2.1.0</version>
+</dependency>
+```
+
+Afterwards, inspire yourself by looking at the Examples:
+
+## Examples
+
+### Example "inventory-browser"
 
 This example shows how to create a simple user interface to list things and their details and show the things on a map.
 
-## Example "postman-collection"
+### Example "postman-collection"
 
 This is a list of prepared REST call examples to demonstrate typical usages of the REST APIs.
 
 The provided files can be used in Google Chrome browser extension "Postman". This extension can be downloaded here: <https://www.getpostman.com/>
 
-## Example "cr-integration-api-examples"
+### Example "cr-integration-api-examples"
 
 This example shows how to use the CR-Integration Client for Java.
 
-## Example "things-rest-angular""
+### Example "things-rest-angular""
 
 Implements a simple web application with angular.js and bootstrap to show how to use the ThingsService Rest Api with JavaScript.
 
-### Configuration
+#### Configuration
 
 The application will be hosted in Cloud Foundry using staticfile as buildpack. Deployment is preconfigured in the manifest.yml
 
@@ -40,7 +83,7 @@ location /cr {
 }
 ```
 
-### Deployment
+#### Deployment
 
 To deploy the application to Cloud Foundry, we use staticfile as buildpack. Execute the following commands from a shell in the application root folder.
 
