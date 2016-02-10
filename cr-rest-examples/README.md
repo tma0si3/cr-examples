@@ -18,6 +18,8 @@ keyStorePassword=### your key password ###
 keyAliasPassword=### your key alias password ###
 http.proxyHost=### your http proxy host, if you need one ###
 http.proxyPort=### your http proxy host, if you need one ###
+#http.proxyPrincipal=### your http proxy principal (user), if you need one ###
+#http.proxyPassword=### your http proxy password, if you need one ###
 ```
 
 The `keystoreLocation` is a path relative to the path the test is run from.
