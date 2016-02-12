@@ -37,7 +37,7 @@ After adding the public repository as described above, you can simply use the CR
 <dependency>
    <groupId>com.bosch.cr</groupId>
    <artifactId>cr-integration-client</artifactId>
-   <version>2.1.2</version>
+   <version>2.1.4</version>
 </dependency>
 ```
 
