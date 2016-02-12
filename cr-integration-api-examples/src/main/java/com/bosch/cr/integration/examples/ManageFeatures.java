@@ -28,9 +28,13 @@ package com.bosch.cr.integration.examples;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.bosch.cr.integration.things.FeatureHandle;
 import com.bosch.cr.integration.things.ThingHandle;
@@ -41,8 +45,6 @@ import com.bosch.cr.model.things.FeatureProperties;
 import com.bosch.cr.model.things.Features;
 import com.bosch.cr.model.things.Thing;
 import com.bosch.cr.model.things.ThingsModelFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This example shows how a {@link ThingHandle} and {@link FeatureHandle} can be used to perform CRUD (Create, Read,
@@ -67,7 +69,17 @@ public class ManageFeatures extends ExamplesBase
       final String thingId = NAMESPACE + UUID.randomUUID().toString();
       final Thing thing = ThingsModelFactory.newThingBuilder() //
          .setId(thingId) //
+         .setFeature(ThingsModelFactory.newFeature("foo", ThingsModelFactory.newFeatureProperties(JsonFactory.newObjectBuilder().set("foo", 1).build())))
          .build();
+
+      thingIntegration.registerForFeatureChanges("allFeatureChanges", featureChange -> {
+         final String featureId = featureChange.getFeature().getId();
+         final JsonPointer path = featureChange.getPath();
+         final Optional<JsonValue> value = featureChange.getValue() //
+            .map(JsonValue::asObject) // "feature" is a JsonObject
+            .flatMap(jsonObj -> jsonObj.getValue(path));
+         LOGGER.info("FeatureChange for featureId {} received on path {} - value was: {}", featureId, path, value);
+      });
 
       thingIntegration.create(thing).get(TIMEOUT, SECONDS);
 

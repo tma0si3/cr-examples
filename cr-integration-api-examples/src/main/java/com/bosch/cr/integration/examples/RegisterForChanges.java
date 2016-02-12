@@ -26,9 +26,13 @@
  */
 package com.bosch.cr.integration.examples;
 
-import com.bosch.cr.json.JsonFactory;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.bosch.cr.json.JsonFactory;
+import com.bosch.cr.json.JsonValue;
 
 /**
  * This example shows the various possibilities that the {@code IntegrationClient} offers for registering
@@ -74,7 +78,12 @@ public final class RegisterForChanges extends ExamplesBase
          JsonFactory.newPointer("address/city"), change -> LOGGER.info("Change received: {}", change));
 
       /* Register for *all* attribute changes of a *specific* thing */
-      myThing.registerForAttributeChanges(MY_THING_ATTRIBUTE_CHANGE, change -> LOGGER.info("Change received: {}", change));
+      myThing.registerForAttributeChanges(MY_THING_ATTRIBUTE_CHANGE, change -> {
+         final Optional<JsonValue> value = change.getValue() //
+            .map(JsonValue::asObject) // "attributes" is a JsonObject
+            .flatMap(jsonObj -> jsonObj.getValue(change.getPath()));
+         LOGGER.info("Change received: {} - value was: {}", change, value);
+      });
 
       /* Register for *specific* attribute changes of a *specific* thing */
       myThing.registerForAttributeChanges(MY_THING_SPECIFIC_ATTRIBUTE_CHANGE, JsonFactory.newPointer("address/city"),
