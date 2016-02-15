@@ -7,14 +7,13 @@ As soon as the CR supports updating feature properties using the CR-Integration 
 
 # Build
 
-Use the following maven command to build the server:
 ```
 mvn clean install
 ```
 
 # Configure your Client Id and other settings
 
-Create or adjust file "config.properties"
+Create or adjust file "config.properties". _Please change the ids._
 
 ```
 centralRegistryEndpointUrl=https://cr.apps.bosch-iot-cloud.com
@@ -24,9 +23,10 @@ apiToken=###your api token ###
 keyAlias=CR
 keyStorePassword=### your key password ###
 keyAliasPassword=### your key alias password ###
-#http.proxyHost=### your http proxy host, if you need one ###
-#http.proxyPort=### your http proxy host, if you need one ###
+http.proxyHost=### your http proxy host, if you need one ###
+http.proxyPort=### your http proxy host, if you need one ###
 ```
+
 
 # Run it
 
@@ -37,4 +37,4 @@ mvn exec:java -Dexec.mainClass="com.bosch.cr.examples.carintegrator.VehicleSimul
 
 # Usage
 
-Look in the Inventory Browser and see your vehicle(s) move.
+Look in the [Inventory Browser](../inventory-browser) and see your vehicle(s) move.

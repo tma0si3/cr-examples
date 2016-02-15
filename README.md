@@ -4,7 +4,7 @@
 
 This repository contains examples for using the Bosch IoT Central Registry in the cloud.
 
-## Perparation
+## Preparation
 
 ### Maven Repository
 
