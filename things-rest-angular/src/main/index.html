@@ -81,6 +81,16 @@
     </nav>
 
     <div class="container" ng-controller="RestController">
+        <div class="input-group">
+            <span class="input-group-addon" id="basic-addon1">API Token</span>
+            <input type="text"
+                   class="form-control"
+                   placeholder="Your Solution's API Token"
+                   aria-describedby="basic-addon1"
+                   ng-model="token" ng-change="setApiToken(token)">
+        </div>
+
+        <hr/>
 
         <tabset>
             <tab heading="Things">

@@ -39,8 +39,6 @@
    <properties>
       <!-- The Cloud Foundry space to deploy to -->
       <cf.space></cf.space>
-      <!-- The Solution API Token to use in the example ui -->
-      <api.token></api.token>
    </properties>
 
    <build>

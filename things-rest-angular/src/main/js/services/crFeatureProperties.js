@@ -27,7 +27,7 @@
     var service = angular.module('crFeatureProperties', ['crCore', 'ngResource']);
 
     service.factory('Properties', function ($core, $resource) {
-        var url = 'cr/1/things/:thingId/features/:featureId/properties';
+        var url = '/cr/1/things/:thingId/features/:featureId/properties';
         var actions = {
             get: {
                 method: 'GET',
@@ -55,7 +55,7 @@
     });
 
     service.factory('Property', function ($core, $resource) {
-        var url = 'cr/1/things/:thingId/features/:featureId/properties/:jsonPointer';
+        var url = '/cr/1/things/:thingId/features/:featureId/properties/:jsonPointer';
         var actions = {
             get: {
                 method: 'GET',

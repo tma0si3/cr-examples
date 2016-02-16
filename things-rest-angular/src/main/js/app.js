@@ -30,6 +30,14 @@
     app.config(function($httpProvider) {
         $httpProvider.defaults.headers.post['Content-Type'] = 'application/json';
         $httpProvider.defaults.headers.put['Content-Type'] = 'application/json';
+        $httpProvider.interceptors.push(function($q, $core) {
+            return {
+                'request': function(config) {
+                    config.headers['x-cr-api-token'] = $core.configuration.getApiToken();
+                    return config;
+                }
+            };
+        });
     });
 
     app.controller('RestController', RestController);
