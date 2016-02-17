@@ -45,6 +45,13 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import io.netty.util.internal.ThreadLocalRandom;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClientConfig;
+import org.asynchttpclient.Response;
+import org.asynchttpclient.proxy.ProxyServer;
+
 import com.bosch.cr.examples.carintegrator.util.CrAsymmetricalSignatureCalculator;
 import com.bosch.cr.examples.carintegrator.util.SignatureFactory;
 import com.bosch.cr.integration.IntegrationClient;
@@ -58,193 +65,245 @@ import com.bosch.cr.integration.things.ChangeAction;
 import com.bosch.cr.json.JsonFactory;
 import com.bosch.cr.json.JsonObject;
 import com.bosch.cr.model.things.Thing;
-import org.asynchttpclient.AsyncHttpClient;
-import org.asynchttpclient.DefaultAsyncHttpClient;
-import org.asynchttpclient.DefaultAsyncHttpClientConfig;
-import org.asynchttpclient.Response;
-import org.asynchttpclient.proxy.ProxyServer;
-
-import io.netty.util.internal.ThreadLocalRandom;
 
 /**
  * Example implementation of a "Gateway" that brings devices into your Solution.
  * This example simulates vehicle movements.
  */
 
-public class VehicleSimulator {
+public class VehicleSimulator
+{
 
-    private static String centralRegistryEndpointUrl;
-    private static AsyncHttpClient asyncHttpClient;
+   private static String centralRegistryEndpointUrl;
+   private static AsyncHttpClient asyncHttpClient;
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+   public static void main(String[] args) throws IOException, InterruptedException
+   {
 
-        Properties props = new Properties(System.getProperties());
-        try {
-            if (new File("config.properties").exists()) {
-                props.load(new FileReader("config.properties"));
-            } else {
-                InputStream i = Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties");
-                props.load(i);
-                i.close();
+      Properties props = new Properties(System.getProperties());
+      try
+      {
+         if (new File("config.properties").exists())
+         {
+            props.load(new FileReader("config.properties"));
+         }
+         else
+         {
+            InputStream i = Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties");
+            props.load(i);
+            i.close();
+         }
+         System.out.println("Config: " + props);
+      }
+      catch (IOException ex)
+      {
+         throw new RuntimeException(ex);
+      }
+
+      centralRegistryEndpointUrl = props.getProperty("centralRegistryEndpointUrl");
+      String centralRegistryMessagingUrl = props.getProperty("centralRegistryMessagingUrl");
+
+      String clientId = props.getProperty("clientId");
+
+      URI keystoreUri = new File("CRClient.jks").toURI();
+      String keystorePassword = props.getProperty("keyStorePassword");
+      String keyAlias = props.getProperty("keyAlias");
+      String keyAliasPassword = props.getProperty("keyAliasPassword");
+
+      final String proxyHost = props.getProperty("http.proxyHost");
+      final String proxyPort = props.getProperty("http.proxyPort");
+
+      AuthenticationConfiguration authenticationConfiguration =
+         PublicKeyAuthenticationConfiguration.newBuilder().clientId(clientId).keyStoreLocation(keystoreUri.toURL())
+            .keyStorePassword(keystorePassword).alias(keyAlias).aliasPassword(keyAliasPassword).build();
+
+      TrustStoreConfiguration trustStore =
+         TrustStoreConfiguration.newBuilder().location(VehicleSimulator.class.getResource("/bosch-iot-cloud.jks"))
+            .password("jks").build();
+
+      IntegrationClientConfiguration.OptionalConfigSettable configSettable =
+         IntegrationClientConfiguration.newBuilder().authenticationConfiguration(authenticationConfiguration)
+            .centralRegistryEndpointUrl(centralRegistryMessagingUrl).trustStoreConfiguration(trustStore);
+      if (proxyHost != null && proxyPort != null)
+      {
+         configSettable = configSettable.proxyConfiguration(
+            ProxyConfiguration.newBuilder().proxyHost(proxyHost).proxyPort(Integer.parseInt(proxyPort)).build());
+      }
+
+      IntegrationClient client = IntegrationClientImpl.newInstance(configSettable.build());
+
+
+      // ### WORKAROUND: prepare HttpClient to make REST calls the CR-Integration-Client does not support yet
+      String apiToken = props.getProperty("apiToken");
+      final SignatureFactory signatureFactory =
+         SignatureFactory.newInstance(keystoreUri, keystorePassword, keyAlias, keyAliasPassword);
+      final DefaultAsyncHttpClientConfig.Builder builder = new DefaultAsyncHttpClientConfig.Builder();
+      builder.setAcceptAnyCertificate(
+         true); // WORKAROUND: Trust self-signed certificate of BICS until there is a trusted one.
+      if (proxyHost != null && proxyPort != null)
+      {
+         builder.setProxyServer(new ProxyServer.Builder(proxyHost, Integer.valueOf(proxyPort)));
+      }
+      asyncHttpClient = new DefaultAsyncHttpClient(builder.build());
+      asyncHttpClient
+         .setSignatureCalculator(new CrAsymmetricalSignatureCalculator(signatureFactory, clientId, apiToken));
+
+
+      final TreeSet<String> activeThings = new TreeSet<>();
+      activeThings.addAll(readActiveThings());
+
+      System.out.println("Started...");
+      System.out.println("Active things: " + activeThings);
+
+
+      client.things().registerForThingChanges("lifecycle", change -> {
+         if (change.getAction() == ChangeAction.CREATED && change.isFull())
+         {
+            activeThings.add(change.getThingId());
+            writeActiveThings(activeThings);
+            System.out.println("New thing " + change.getThingId() + " created -> active things: " + activeThings);
+         }
+      });
+
+      createSubscriptionAndStartReceiving(client);
+
+      final Thread thread = new Thread(() -> {
+         final Random random = ThreadLocalRandom.current();
+         while (true)
+         {
+            for (String thingId : activeThings)
+            {
+
+               try
+               {
+                  Thing thing = client.things().forId(thingId)
+                     .retrieve(JsonFactory.newFieldSelector("thingId", "features/geolocation/properties/geoposition"))
+                     .get(5, TimeUnit.SECONDS);
+
+                  if (!thing.getFeatures().isPresent() || !thing.getFeatures().get().getFeature("geolocation")
+                     .isPresent())
+                  {
+                     System.out.println("Thing " + thingId + " has no Feature \"geolocation\"");
+                     return;
+                  }
+
+                  JsonObject geolocation =
+                     thing.getFeatures().get().getFeature("geolocation").orElseThrow(RuntimeException::new)
+                        .getProperties().get();
+                  final double latitude =
+                     geolocation.getValue(JsonFactory.newPointer("geoposition/latitude")).get().asDouble();
+                  final double longitude =
+                     geolocation.getValue(JsonFactory.newPointer("geoposition/longitude")).get().asDouble();
+                  JsonObject newGeoposition =
+                     JsonFactory.newObjectBuilder().set("latitude", latitude + (random.nextDouble() - 0.5) / 250)
+                        .set("longitude", longitude + (random.nextDouble() - 0.5) / 250).build();
+                  changeProperty(thingId, "geolocation", "geoposition", newGeoposition);
+
+                  System.out.print(".");
+                  if (random.nextDouble() < 0.01)
+                  {
+                     System.out.println();
+                  }
+                  Thread.sleep(250);
+               }
+               catch (InterruptedException e)
+               {
+                  System.out.println("Update thread interrupted");
+                  return;
+               }
+               catch (ExecutionException | TimeoutException e)
+               {
+                  System.out.println("Retrieve thing " + thingId + " failed: " + e);
+               }
             }
-            System.out.println("Config: " + props);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
+         }
+      });
 
-        centralRegistryEndpointUrl = props.getProperty("centralRegistryEndpointUrl");
-        String centralRegistryMessagingUrl = props.getProperty("centralRegistryMessagingUrl");
+      thread.start();
 
-        String clientId = props.getProperty("clientId");
+      System.out.println("Press enter to terminate");
+      System.in.read();
 
-        URI keystoreUri = new File("CRClient.jks").toURI();
-        String keystorePassword = props.getProperty("keyStorePassword");
-        String keyAlias = props.getProperty("keyAlias");
-        String keyAliasPassword = props.getProperty("keyAliasPassword");
+      System.out.println("Shutting down ...");
+      thread.interrupt();
+      Thread.sleep(5000);
+      client.destroy();
+      System.out.println("Client destroyed");
+   }
 
-        final String proxyHost = props.getProperty("http.proxyHost");
-        final String proxyPort = props.getProperty("http.proxyPort");
+   private static Collection<String> readActiveThings()
+   {
+      Properties p = new Properties();
+      try
+      {
+         FileReader r = new FileReader("things.properties");
+         p.load(r);
+         r.close();
+         return Arrays.asList(p.getProperty("thingIds").split(","));
+      }
+      catch (FileNotFoundException ex)
+      {
+         return Collections.emptyList();
+      }
+      catch (IOException ex)
+      {
+         throw new RuntimeException(ex);
+      }
+   }
 
-        AuthenticationConfiguration authenticationConfiguration = PublicKeyAuthenticationConfiguration.newBuilder()
-                .clientId(clientId)
-                .keyStoreLocation(keystoreUri.toURL()).keyStorePassword(keystorePassword)
-                .alias(keyAlias).aliasPassword(keyAliasPassword).build();
+   private static void writeActiveThings(TreeSet<String> activeThings)
+   {
+      Properties p = new Properties();
+      p.setProperty("thingIds", String.join(",", activeThings));
+      try
+      {
+         FileWriter w = new FileWriter("things.properties");
+         p.store(w, "List of currently managed things by this gateway");
+         w.close();
+      }
+      catch (IOException ex)
+      {
+         throw new RuntimeException(ex);
+      }
+   }
 
-        TrustStoreConfiguration trustStore = TrustStoreConfiguration.newBuilder()
-                .location(VehicleSimulator.class.getResource("/bosch-iot-cloud.jks"))
-                .password("jks").build();
+   // ### WORKAROUND: change property using REST until CR-Integration-Client supports it
+   private static void changeProperty(String thingId, String feature, String property, JsonObject value)
+      throws InterruptedException
+   {
+      final String thingJsonString = value.toString();
+      final String path = "/cr/1/things/" + thingId + "/features/" + feature + "/properties/" + property;
 
-        IntegrationClientConfiguration.OptionalConfigSettable configSettable = IntegrationClientConfiguration.newBuilder()
-                .authenticationConfiguration(authenticationConfiguration)
-                .centralRegistryEndpointUrl(centralRegistryMessagingUrl)
-                .trustStoreConfiguration(trustStore);
-        if (proxyHost != null && proxyPort != null) {
-            configSettable = configSettable.proxyConfiguration(ProxyConfiguration.newBuilder()
-                    .proxyHost(proxyHost).proxyPort(Integer.parseInt(proxyPort)).build());
-        }
+      Future<Response> f =
+         asyncHttpClient.preparePut(centralRegistryEndpointUrl + path).addHeader("Content-Type", "application-json")
+            .setBody(thingJsonString).execute();
 
-        IntegrationClient client = IntegrationClientImpl.newInstance(configSettable.build());
+      try
+      {
+         Response re = f.get();
+         if (re.getStatusCode() < 200 || re.getStatusCode() >= 300)
+         {
+            throw new RuntimeException("Updated failed; " + re.getStatusCode() + ": " + re.getResponseBody());
+         }
+      }
+      catch (ExecutionException ex)
+      {
+         throw new RuntimeException(ex);
+      }
+   }
 
+   protected static void createSubscriptionAndStartReceiving(final IntegrationClient integrationClient)
+   {
+      try
+      {
+         integrationClient.subscriptions().create().get(10, TimeUnit.SECONDS);
+         integrationClient.subscriptions().consume().get(10, TimeUnit.SECONDS);
+      }
+      catch (InterruptedException | ExecutionException | TimeoutException e)
+      {
+         System.out.println("Failed to create subscription for CRIC: " + e);
+      }
+   }
 
-        // ### WORKAROUND: prepare HttpClient to make REST calls the CR-Integration-Client does not support yet
-        String apiToken = props.getProperty("apiToken");
-        final SignatureFactory signatureFactory = SignatureFactory.newInstance(keystoreUri, keystorePassword, keyAlias, keyAliasPassword);
-        final DefaultAsyncHttpClientConfig.Builder builder = new DefaultAsyncHttpClientConfig.Builder();
-        builder.setAcceptAnyCertificate(true); // WORKAROUND: Trust self-signed certificate of BICS until there is a trusted one.
-        if (proxyHost != null && proxyPort != null) {
-            builder.setProxyServer(new ProxyServer.Builder(proxyHost, Integer.valueOf(proxyPort)));
-        }
-        asyncHttpClient = new DefaultAsyncHttpClient(builder.build());
-        asyncHttpClient.setSignatureCalculator(new CrAsymmetricalSignatureCalculator(signatureFactory, clientId, apiToken));
-
-
-        final TreeSet<String> activeThings = new TreeSet<>();
-        activeThings.addAll(readActiveThings());
-
-        System.out.println("Started...");
-        System.out.println("Active things: " + activeThings);
-
-        client.things().registerForThingChanges("lifecycle", change -> {
-			if (change.getAction() == ChangeAction.CREATED && change.isFull()) {
-                activeThings.add(change.getThingId());
-                writeActiveThings(activeThings);
-                System.out.println("New thing " + change.getThingId() + " created -> active things: " + activeThings);
-            }
-        });
-
-        final Thread thread = new Thread(() -> {
-            final Random random = ThreadLocalRandom.current();
-            while (true) {
-                for (String thingId : activeThings) {
-
-                    try {
-                        Thing thing = client.things().forId(thingId).retrieve(JsonFactory.newFieldSelector("thingId", "features/geolocation/properties/geoposition")).get(5, TimeUnit.SECONDS);
-
-                        if (!thing.getFeatures().isPresent() || !thing.getFeatures().get().getFeature("geolocation").isPresent()) {
-                            System.out.println("Thing " + thingId + " has no Feature \"geolocation\"");
-                            return;
-                        }
-
-                        JsonObject geolocation = thing.getFeatures().get().getFeature("geolocation").orElseThrow(RuntimeException::new)
-                                .getProperties().get();
-                        final double latitude = geolocation.getValue(JsonFactory.newPointer("geoposition/latitude")).get().asDouble();
-                        final double longitude = geolocation.getValue(JsonFactory.newPointer("geoposition/longitude")).get().asDouble();
-                        JsonObject newGeoposition = JsonFactory.newObjectBuilder()
-                                .set("latitude", latitude + (random.nextDouble() - 0.5) / 250)
-                                .set("longitude", longitude + (random.nextDouble() - 0.5) / 250).build();
-                        changeProperty(thingId, "geolocation", "geoposition", newGeoposition);
-
-                        System.out.print(".");
-                        if (random.nextDouble() < 0.01) {
-                            System.out.println();
-                        }
-                        Thread.sleep(250);
-                    } catch (InterruptedException e) {
-                        System.out.println("Update thread interrupted");
-                        return;
-                    } catch (ExecutionException | TimeoutException e) {
-                        System.out.println("Retrieve thing " + thingId + " failed: " + e);
-                    }
-                }
-            }
-        });
-
-        thread.start();
-
-        System.out.println("Press enter to terminate");
-        System.in.read();
-
-        System.out.println("Shutting down ...");
-        thread.interrupt();
-        Thread.sleep(5000);
-        client.destroy();
-        System.out.println("Client destroyed");
-    }
-
-    private static Collection<String> readActiveThings() {
-        Properties p = new Properties();
-        try {
-            FileReader r = new FileReader("things.properties");
-            p.load(r);
-            r.close();
-            return Arrays.asList(p.getProperty("thingIds").split(","));
-        } catch (FileNotFoundException ex) {
-            return Collections.emptyList();
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    private static void writeActiveThings(TreeSet<String> activeThings) {
-        Properties p = new Properties();
-        p.setProperty("thingIds", String.join(",", activeThings));
-        try {
-            FileWriter w = new FileWriter("things.properties");
-            p.store(w, "List of currently managed things by this gateway");
-            w.close();
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    // ### WORKAROUND: change property using REST until CR-Integration-Client supports it
-    private static void changeProperty(String thingId, String feature, String property, JsonObject value) throws InterruptedException {
-        final String thingJsonString = value.toString();
-        final String path = "/cr/1/things/" + thingId + "/features/" + feature + "/properties/" + property;
-
-        Future<Response> f = asyncHttpClient.preparePut(centralRegistryEndpointUrl + path)
-                .addHeader("Content-Type", "application-json")
-                .setBody(thingJsonString)
-                .execute();
-
-        try {
-            Response re = f.get();
-            if (re.getStatusCode() < 200 || re.getStatusCode() >= 300) {
-                throw new RuntimeException("Updated failed; " + re.getStatusCode() + ": " + re.getResponseBody());
-            }
-        } catch (ExecutionException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
 
 }

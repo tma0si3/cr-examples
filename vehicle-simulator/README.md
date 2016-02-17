@@ -11,9 +11,23 @@ As soon as the CR supports updating feature properties using the CR-Integration 
 mvn clean install
 ```
 
+# Create a Solution with a private/public key
+
+http://m2m.bosch-si.com/dokuwiki/doku.php?id=002_getting_started:cr_02_booking-cr-service.txt
+
+# Create a User
+
+https://things.apps.bosch-iot-cloud.com/
+Save the User Id for further usage.
+
+# Add CRClient.jks
+
+Add the CRClient.jks to your project root folder.
+If you didn't have such a file go back to #Create a Solution with a private/public key.
+
 # Configure your Client Id and other settings
 
-Create or adjust file "config.properties". _Please change the ids._
+Create file "config.properties" in your project root folder. _Please change the ids._
 
 ```
 centralRegistryEndpointUrl=https://cr.apps.bosch-iot-cloud.com
@@ -35,9 +49,39 @@ Use the following command to run the example.
 mvn exec:java -Dexec.mainClass="com.bosch.cr.examples.carintegrator.VehicleSimulator"
 ```
 
+# Create Thing
+
+Create a Thing with the inventory-browser acl and your solution id acl and your geolocation.
+
+{
+	"acl": {
+		"###your user id###": {
+			"READ": true,
+			"WRITE": true,
+			"ADMINISTRATE": true
+		},
+		"###your solution id ###:gateway": {
+			"READ": true,
+			"WRITE": true,
+			"ADMINISTRATE": true
+		}
+	},
+	"features": {
+		"geolocation": {
+			"properties": {
+				"geoposition": {
+					"latitude": 47.68353,
+					"longitude": 9.388532
+				}
+			}
+		}
+	}
+}
+
 # Usage
 
-Look in the [Inventory Browser](../inventory-browser) and see your vehicle(s) move.
+Login to the [Inventory Browser](../inventory-browser) with your created User and see your vehicle(s) move.
+http://demos.apps.bosch-iot-cloud.com/inventory-browser/
 
 # License
 
