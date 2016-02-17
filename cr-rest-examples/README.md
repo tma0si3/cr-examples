@@ -36,4 +36,4 @@ mvn test
 
 ## License
 
-The examples are made available under the terms of BSD 3-Clause License. See individual files for details.
+See the cr-examples top level README.md file for license details.
