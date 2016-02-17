@@ -36,6 +36,4 @@ To deploy the application to Cloud Foundry, execute the following commands:
 
 ## License
 
-The examples are made available under the terms of BSD 3-Clause License. See individual files for details.
-
-As an exception the file iframeResizer.contentWindow.min.js is made available under the terms of the MIT License.
+See the cr-examples top level README.md file for license details.

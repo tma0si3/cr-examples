@@ -136,3 +136,7 @@ propertyPath: features/geolocation/properties/geoposition
 # More example Things
 
 See [testdata.json](testdata.json) for more example things to create.
+
+# License
+
+See the cr-examples top level README.md file for license details.

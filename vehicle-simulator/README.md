@@ -38,3 +38,7 @@ mvn exec:java -Dexec.mainClass="com.bosch.cr.examples.carintegrator.VehicleSimul
 # Usage
 
 Look in the [Inventory Browser](../inventory-browser) and see your vehicle(s) move.
+
+# License
+
+See the cr-examples top level README.md file for license details.
