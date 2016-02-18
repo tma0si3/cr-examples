@@ -48,17 +48,20 @@ public class ExampleLauncher
       // e.printStackTrace();
       // }
 
-//       final RegisterForChanges registerForChanges = new RegisterForChanges();
-//      registerForChanges.registerForAttributeChanges();
-//      registerForChanges.registerForThingChanges();
+      // final RegisterForChanges registerForChanges = new RegisterForChanges();
+      // registerForChanges.registerForAttributeChanges();
+      // registerForChanges.registerForThingChanges();
 
       // final RegisterForAndSendMessages registerForAndSendMessages = new RegisterForAndSendMessages();
       // registerForAndSendMessages.registerForMessages();
       // registerForAndSendMessages.sendMessages();
 
-      final ManageFeatures manageFeatures = new ManageFeatures();
-//      manageFeatures.crudFeature();
-//      manageFeatures.crudFeatureProperty();
-      manageFeatures.crudFeatureProperties();
+      // final ManageFeatures manageFeatures = new ManageFeatures();
+      // manageFeatures.crudFeature();
+      // manageFeatures.crudFeatureProperty();
+      // manageFeatures.crudFeatureProperties();
+
+      final RegisterForClaimMessages registerForClaimMessages = RegisterForClaimMessages.newInstance();
+      registerForClaimMessages.registerForClaimMessagesToSingleThing();
    }
 }
