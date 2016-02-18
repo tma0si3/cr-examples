@@ -18,6 +18,7 @@ import com.bosch.cr.json.JsonFactory;
 import com.bosch.cr.model.acl.AccessControlListModelFactory;
 import com.bosch.cr.model.authorization.AuthorizationContext;
 import com.bosch.cr.model.authorization.AuthorizationModelFactory;
+import com.bosch.cr.model.common.HttpStatusCode;
 import com.bosch.cr.model.things.Thing;
 import com.bosch.cr.model.things.ThingsModelFactory;
 
@@ -110,8 +111,10 @@ public final class RegisterForClaimMessages extends ExamplesBase
          final AuthorizationContext authorizationContext = optionalAuthorizationContext.get();
          simpleCrRestClient.grantPermissionsFor(thingId, authorizationContext).thenAccept(response -> {
             message.reply() //
+               .statusCode(HttpStatusCode.OK) //
                .timestamp(OffsetDateTime.now()) //
                .payload(JsonFactory.newObjectBuilder().set("success", true).build()) //
+               .contentType("application/json") //
                .send();
             LOGGER.info("Thing '{}' claimed from authorization subject '{}'", thingId,
                authorizationContext.getFirstAuthorizationSubject().get());
@@ -120,6 +123,7 @@ public final class RegisterForClaimMessages extends ExamplesBase
       else
       {
          message.reply() //
+            .statusCode(HttpStatusCode.BAD_REQUEST) //
             .timestamp(OffsetDateTime.now()) //
             .payload("Error: no authorization context present!") //
             .contentType("text/plain") //
