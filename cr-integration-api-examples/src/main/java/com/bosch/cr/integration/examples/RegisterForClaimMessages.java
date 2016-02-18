@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.bosch.cr.integration.examples.rest.SimpleCrRestClient;
 import com.bosch.cr.integration.messages.RepliableMessage;
 import com.bosch.cr.integration.things.ThingHandle;
+import com.bosch.cr.json.JsonFactory;
 import com.bosch.cr.model.acl.AccessControlListModelFactory;
 import com.bosch.cr.model.authorization.AuthorizationContext;
 import com.bosch.cr.model.authorization.AuthorizationModelFactory;
@@ -110,8 +111,7 @@ public final class RegisterForClaimMessages extends ExamplesBase
          simpleCrRestClient.grantPermissionsFor(thingId, authorizationContext).thenAccept(response -> {
             message.reply() //
                .timestamp(OffsetDateTime.now()) //
-               .payload("Success!") //
-               .contentType("text/plain") //
+               .payload(JsonFactory.newObjectBuilder().set("success", true).build()) //
                .send();
             LOGGER.info("Thing '{}' claimed from authorization subject '{}'", thingId,
                authorizationContext.getFirstAuthorizationSubject().get());
