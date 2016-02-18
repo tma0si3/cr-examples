@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bosch.cr.integration.examples.rest.SimpleCrRestClient;
-import com.bosch.cr.integration.messages.ReplyableMessage;
+import com.bosch.cr.integration.messages.RepliableMessage;
 import com.bosch.cr.integration.things.ThingHandle;
 import com.bosch.cr.model.acl.AccessControlListModelFactory;
 import com.bosch.cr.model.authorization.AuthorizationContext;
@@ -99,7 +99,7 @@ public final class RegisterForClaimMessages extends ExamplesBase
       return thingIntegration.create(thing).thenApply(created -> thingIntegration.forId(thingId));
    }
 
-   private void handleMessage(final ReplyableMessage<ByteBuffer, Object> message)
+   private void handleMessage(final RepliableMessage<ByteBuffer, Object> message)
    {
       final Optional<AuthorizationContext> optionalAuthorizationContext = message.getAuthorizationContext();
       if (optionalAuthorizationContext.isPresent())
