@@ -17,34 +17,33 @@ http://m2m.bosch-si.com/dokuwiki/doku.php?id=002_getting_started:cr_02_booking-c
 
 # Create a User
 
-https://things.apps.bosch-iot-cloud.com/
-Save the User Id for further usage.
+Register your user on [things.apps.bosch-iot-cloud.com](https://things.apps.bosch-iot-cloud.com) and save the id for further usage.
 
 # Add CRClient.jks
 
-Add the CRClient.jks to your project root folder.
+Add the CRClient.jks to your project root folder.  
 If you didn't have such a file go back to #Create a Solution with a private/public key.
 
 # Configure your Client Id and other settings
 
 Create file "config.properties" in your project root folder. _Please change the ids._
 
-```
-centralRegistryEndpointUrl=https://cr.apps.bosch-iot-cloud.com
-centralRegistryMessagingUrl=wss\://events.apps.bosch-iot-cloud.com
-clientId=###your solution id ###\:gateway
-apiToken=###your api token ###
-keyAlias=CR
-keyStorePassword=### your key password ###
-keyAliasPassword=### your key alias password ###
-http.proxyHost=### your http proxy host, if you need one ###
-http.proxyPort=### your http proxy host, if you need one ###
-```
+
+```centralRegistryEndpointUrl=https://cr.apps.bosch-iot-cloud.com```  
+```centralRegistryMessagingUrl=wss://events.apps.bosch-iot-cloud.com```  
+```clientId=###your solution id ###:gateway```  
+```apiToken=###your api token ###```  
+```keyAlias=CR```  
+```keyStorePassword=### your key password ###```  
+```keyAliasPassword=### your key alias password ###```  
+```http.proxyHost=### your http proxy host, if you need one ###```  
+```http.proxyPort=### your http proxy host, if you need one ###```
 
 
 # Run it
 
 Use the following command to run the example.
+
 ```
 mvn exec:java -Dexec.mainClass="com.bosch.cr.examples.carintegrator.VehicleSimulator"
 ```
@@ -53,30 +52,32 @@ mvn exec:java -Dexec.mainClass="com.bosch.cr.examples.carintegrator.VehicleSimul
 
 Create a Thing with the inventory-browser acl and your solution id acl and your geolocation.
 
+```
 {
-	"acl": {
-		"###your user id###": {
-			"READ": true,
-			"WRITE": true,
-			"ADMINISTRATE": true
-		},
-		"###your solution id ###:gateway": {
-			"READ": true,
-			"WRITE": true,
-			"ADMINISTRATE": true
-		}
-	},
-	"features": {
-		"geolocation": {
-			"properties": {
-				"geoposition": {
-					"latitude": 47.68353,
-					"longitude": 9.388532
-				}
-			}
-		}
-	}
+   "acl": {
+      "###your user id###": {
+         "READ": true,
+         "WRITE": true,
+         "ADMINISTRATE": true
+      },
+      "###your solution id ###:gateway": {
+         "READ": true,
+         "WRITE": true,
+         "ADMINISTRATE": true
+      }
+   },
+   "features": {
+      "geolocation": {
+         "properties": {
+            "geoposition": {
+               "latitude": 47.68353,
+               "longitude": 9.388532
+            }
+         }
+      }
+   }
 }
+```
 
 # Usage
 
