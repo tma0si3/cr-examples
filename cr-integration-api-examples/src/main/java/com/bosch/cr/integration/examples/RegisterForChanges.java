@@ -59,7 +59,7 @@ public final class RegisterForChanges extends ExamplesBase
    public void registerForThingChanges()
    {
       /* Register for change events of *all* things */
-      thingIntegration.registerForThingChanges(ALL_THINGS, change -> LOGGER.info("ThingChange received: {}", change));
+      client.things().registerForThingChanges(ALL_THINGS, change -> LOGGER.info("ThingChange received: {}", change));
 
       /* Register for *all* change events of a *specific* thing */
       myThing.registerForThingChanges(MY_THING, change -> LOGGER.info("ThingChange received: {}", change));
@@ -71,10 +71,10 @@ public final class RegisterForChanges extends ExamplesBase
    public void registerForAttributeChanges()
    {
       /* Register for *all* attribute changes of *all* things */
-      thingIntegration.registerForAttributeChanges(ALL_THINGS_ATTRIBUTE_CHANGE, change -> LOGGER.info("Change received: {}", change));
+      client.things().registerForAttributeChanges(ALL_THINGS_ATTRIBUTE_CHANGE, change -> LOGGER.info("Change received: {}", change));
 
       /* Register for *specific* attribute changes of *all* things */
-      thingIntegration.registerForAttributeChanges(ALL_THINGS_SPECIFIC_ATTRIBUTE_CHANGE,
+      client.things().registerForAttributeChanges(ALL_THINGS_SPECIFIC_ATTRIBUTE_CHANGE,
          JsonFactory.newPointer("address/city"), change -> LOGGER.info("Change received: {}", change));
 
       /* Register for *all* attribute changes of a *specific* thing */

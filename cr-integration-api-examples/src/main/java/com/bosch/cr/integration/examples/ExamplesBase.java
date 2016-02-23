@@ -63,11 +63,9 @@ public abstract class ExamplesBase
 {
    private static final Logger LOGGER = LoggerFactory.getLogger(ExamplesBase.class);
 
-   public static final String BOSCH_IOT_CENTRAL_REGISTRY_HTTP_ENDPOINT_URL = "https://cr.apps.bosch-iot-cloud.com";
    public static final String BOSCH_IOT_CENTRAL_REGISTRY_WS_ENDPOINT_URL = "wss://events.apps.bosch-iot-cloud.com";
 
    public static final String SOLUTION_ID = "<your-solution-id>";
-   public static final String API_TOKEN = "<your-api-token>";
    public static final String CLIENT_ID = SOLUTION_ID + ":" + UUID.randomUUID().toString();
 
    public static final URL KEYSTORE_LOCATION = ExamplesBase.class.getResource("/CRClient.jks");
@@ -77,8 +75,7 @@ public abstract class ExamplesBase
    public static final String ALIAS = "CR";
    public static final String ALIAS_PASSWORD = "crPass";
 
-   protected final IntegrationClient integrationClient;
-   protected final ThingIntegration thingIntegration;
+   protected final IntegrationClient client;
    protected final String myThingId;
    protected final ThingHandle myThing;
 
@@ -119,23 +116,22 @@ public abstract class ExamplesBase
 
       LOGGER.info("Creating CR Integration Client for ClientID: {}", CLIENT_ID);
 
-      this.integrationClient = IntegrationClientImpl.newInstance(integrationClientConfiguration);
+      this.client = IntegrationClientImpl.newInstance(integrationClientConfiguration);
 
       try
       {
          // create a subscription for this client, this step can be skipped if a subscription was created via REST
-         this.integrationClient.subscriptions().create()
+         this.client.subscriptions().create()
             // and start consuming events that were triggered by the subscription
-            .thenRun(() -> this.integrationClient.subscriptions().consume()).get(10, TimeUnit.SECONDS);
+            .thenRun(() -> this.client.subscriptions().consume()).get(10, TimeUnit.SECONDS);
       }
       catch (InterruptedException | ExecutionException | TimeoutException e)
       {
          throw new IllegalStateException("Error creating CR Client.", e);
       }
 
-      this.thingIntegration = integrationClient.things();
       this.myThingId = ":myThing";
-      this.myThing = thingIntegration.forId(myThingId);
+      this.myThing = client.things().forId(myThingId);
    }
 
    /**
@@ -192,6 +188,6 @@ public abstract class ExamplesBase
     */
    public void terminate()
    {
-      integrationClient.destroy();
+      client.destroy();
    }
 }

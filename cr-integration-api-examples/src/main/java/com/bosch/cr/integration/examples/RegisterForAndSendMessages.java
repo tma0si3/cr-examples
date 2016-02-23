@@ -65,14 +65,14 @@ public final class RegisterForAndSendMessages extends ExamplesBase
    public void registerForMessages()
    {
       /* Register for *all* messages of *all* things and provide payload as JsonValue */
-      thingIntegration.registerForMessage(ALL_THINGS_JSON_MESSAGE, "*", JsonValue.class, message -> {
+      client.things().registerForMessage(ALL_THINGS_JSON_MESSAGE, "*", JsonValue.class, message -> {
          String subject = message.getSubject();
          JsonValue payload = message.getPayload().get();
          LOGGER.info("message for subject {} with payload {} received", subject, payload);
       });
 
       /* Register for messages with subject *subjectOfInterest* of *all* things and provide payload as raw ByteBuffer */
-      thingIntegration.registerForMessage(ALL_THINGS_RAW_MESSAGE, "subjectOfInterest", message -> {
+      client.things().registerForMessage(ALL_THINGS_RAW_MESSAGE, "subjectOfInterest", message -> {
          String subject = message.getSubject();
          ByteBuffer payload = message.getRawPayload().get();
          LOGGER.info("message for subject {} with payload {} received", subject,
@@ -80,7 +80,7 @@ public final class RegisterForAndSendMessages extends ExamplesBase
       });
 
       /* Register for messages with subject *some.subject* of *all* things and provide payload as String */
-      thingIntegration.registerForMessage(ALL_THINGS_STRING_MESSAGE, "some.subject", String.class, message -> {
+      client.things().registerForMessage(ALL_THINGS_STRING_MESSAGE, "some.subject", String.class, message -> {
          String subject = message.getSubject();
          String payload = message.getPayload().get();
          LOGGER.info("message for subject {} with payload {} received", subject, payload);
@@ -113,7 +113,7 @@ public final class RegisterForAndSendMessages extends ExamplesBase
        */
 
       /* Register for messages with subject *example.user.created* of *all* things and provide payload as custom type ExampleUser */
-      thingIntegration
+      client.things()
          .registerForMessage(CUSTOM_SERIALIZER_EXAMPLE_USER_MESSAGE, "example.user.created", ExampleUser.class,
             message -> {
                String subject = message.getSubject();
@@ -128,20 +128,20 @@ public final class RegisterForAndSendMessages extends ExamplesBase
    public void sendMessages()
    {
       /* Send a message *from* a thing with the given subject but without any payload */
-      thingIntegration.message() //
+      client.things().message() //
          .from(":sendFromThisThing") //
          .subject("some.arbitrary.subject") //
          .send();
 
       /* Send a message *from* a feature with the given subject but without any payload */
-      thingIntegration.message() //
+      client.things().message() //
          .from(":thingId") //
          .featureId("sendFromThisFeature") //
          .subject("justWantToLetYouKnow") //
          .send();
 
       /* Send a message *to* a thing with the given subject and text payload */
-      thingIntegration.message() //
+      client.things().message() //
          .to("com.bosch.building:sprinklerSystem") //
          .subject("monitoring.building.fireAlert") //
          .payload("Roof is on fire") //
@@ -149,7 +149,7 @@ public final class RegisterForAndSendMessages extends ExamplesBase
          .send();
 
       /* Send a message *from* a feature with the given subject and json payload */
-      thingIntegration.message() //
+      client.things().message() //
          .from("com.bosch.building.monitoring:fireDetectionDevice") //
          .featureId("smokeDetector") //
          .subject("fireAlert") //
@@ -158,7 +158,7 @@ public final class RegisterForAndSendMessages extends ExamplesBase
          .send();
 
       /* Send a message *to* a feature with the given subject and raw payload */
-      thingIntegration.message() //
+      client.things().message() //
          .from("com.bosch.building.monitoring:fireDetectionDevice") //
          .featureId("smokeDetector") //
          .subject("fireAlert") //
@@ -166,14 +166,14 @@ public final class RegisterForAndSendMessages extends ExamplesBase
          .contentType("application/octet-stream") //
          .send();
 
-      final ThingHandle thingHandle = thingIntegration.forId(":thingId");
+      final ThingHandle thingHandle = client.things().forId(":thingId");
       /* Send a message *to* a thing (id already defined by the ThingHandle) with the given subject but without any payload */
       thingHandle.message() //
          .to() //
          .subject("somesubject") //
          .send();
 
-      final FeatureHandle featureHandle = thingIntegration.forFeature(":thingId", "smokeDetector");
+      final FeatureHandle featureHandle = client.things().forFeature(":thingId", "smokeDetector");
       /* Send a message *from* a feature with the given subject and text payload */
       featureHandle.message() //
          .from() //
@@ -187,7 +187,7 @@ public final class RegisterForAndSendMessages extends ExamplesBase
        */
 
       /* Send a message *from* a thing with the given subject and a custom payload type */
-      thingIntegration.message() //
+      client.things().message() //
          .from(":userSender") //
          .subject("here.is.karl") //
          .payload(new ExampleUser("karl", "karl@bosch.com")).send();

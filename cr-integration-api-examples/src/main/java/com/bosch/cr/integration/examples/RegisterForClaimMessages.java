@@ -56,7 +56,7 @@ public final class RegisterForClaimMessages extends ExamplesBase
    {
       prepareClaimableThing() //
          .thenAccept(thingHandle -> {
-            thingIntegration.registerForClaimMessage(registrationIdAllClaimMessages, this::handleMessage);
+            client.things().registerForClaimMessage(registrationIdAllClaimMessages, this::handleMessage);
             LOGGER.info("Thing '{}' ready to be claimed", thingHandle.getThingId());
          });
    }
@@ -86,7 +86,7 @@ public final class RegisterForClaimMessages extends ExamplesBase
             AccessControlListModelFactory.allPermissions()) //
          .build();
 
-      return thingIntegration.create(thing).thenApply(created -> thingIntegration.forId(thingId));
+      return client.things().create(thing).thenApply(created -> client.things().forId(thingId));
    }
 
    private void handleMessage(final RepliableMessage<ByteBuffer, Object> message)
@@ -100,9 +100,9 @@ public final class RegisterForClaimMessages extends ExamplesBase
          final AclEntry aclEntry = AccessControlListModelFactory.newAclEntry(authorizationSubject,
             AccessControlListModelFactory.allPermissions());
 
-         thingIntegration.forId(thingId) //
+         client.things().forId(thingId) //
             .retrieve() //
-            .thenCompose(thing -> thingIntegration.update(thing.setAclEntry(aclEntry))) //
+            .thenCompose(thing -> client.things().update(thing.setAclEntry(aclEntry))) //
             .whenComplete((aVoid, throwable) -> {
                if (null != throwable)
                {

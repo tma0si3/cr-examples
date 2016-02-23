@@ -64,7 +64,7 @@ public class ManageThings extends ExamplesBase
     */
    public void createReadUpdateDelete() throws InterruptedException, ExecutionException, TimeoutException
    {
-      thingIntegration.create(myThingId)
+      client.things().create(myThingId)
          .thenCompose(createdThing -> myThing.putAttribute(JsonFactory.newPointer("address/city"), "Berlin"))
          .thenCompose(changedSuccessfully -> myThing.retrieve()).thenCompose(retrievedThing -> {
             LOGGER.info("My thing as persisted on the Bosch IoT Central Registry: {}", retrievedThing);
@@ -91,7 +91,7 @@ public class ManageThings extends ExamplesBase
          .setFeatureProperty("featureId", JsonFactory.newPointer("propertyName"), JsonFactory.newValue("value"))
          .setAttribute(JsonFactory.newPointer("attributeName"), JsonFactory.newValue("value")).build();
 
-      thingIntegration.create(complexThing).whenComplete((thing, throwable) -> {
+      client.things().create(complexThing).whenComplete((thing, throwable) -> {
          if (throwable == null)
          {
             LOGGER.info("Thing created: {}", thing);
@@ -117,11 +117,11 @@ public class ManageThings extends ExamplesBase
    public void retrieveThings() throws InterruptedException, ExecutionException, TimeoutException
    {
       /* Retrieve a Single Thing*/
-      thingIntegration.forId(":complexThing").retrieve().thenAccept(thing -> LOGGER.info("Retrieved thing: {}", thing))
+      client.things().forId(":complexThing").retrieve().thenAccept(thing -> LOGGER.info("Retrieved thing: {}", thing))
          .get(1, TimeUnit.SECONDS);
 
       /* Retrieve a List of Things */
-      thingIntegration.retrieve(":myThing", ":complexThing").thenAccept(things -> {
+      client.things().retrieve(":myThing", ":complexThing").thenAccept(things -> {
          if (things.size() == 0)
          {
             LOGGER.info("The requested things were not found, or you don't have sufficient permission to read them.");
@@ -133,7 +133,7 @@ public class ManageThings extends ExamplesBase
       }).get(1, TimeUnit.SECONDS);
 
       /* Retrieve a List of Things with field selectors */
-      thingIntegration.retrieve(JsonFactory.newFieldSelector("attributes"), ":myThing", ":complexThing")
+      client.things().retrieve(JsonFactory.newFieldSelector("attributes"), ":myThing", ":complexThing")
          .thenAccept(things -> {
             if (things.size() == 0)
             {
@@ -158,10 +158,10 @@ public class ManageThings extends ExamplesBase
          .setAttribute(attributeJsonPointer, attributeJsonValue) //
          .build();
 
-      thingIntegration.forId(thingId).registerForThingChanges("",
+      client.things().forId(thingId).registerForThingChanges("",
          change -> LOGGER.info("Received Event: {} -> {}", change.getAction(), change.getValue()));
 
-      thingIntegration.create(thing) //
+      client.things().create(thing) //
          .thenCompose(created -> {
             final Feature feature = ThingsModelFactory.newFeature("myFeature");
             final Thing updated = created.toBuilder() //
@@ -169,7 +169,7 @@ public class ManageThings extends ExamplesBase
                .setFeature(feature) //
                .build();
 
-            return thingIntegration.update(updated);
+            return client.things().update(updated);
          }) //
          .whenComplete((aVoid, throwable) -> {
             if (null != throwable)

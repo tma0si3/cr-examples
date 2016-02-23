@@ -72,7 +72,7 @@ public class ManageFeatures extends ExamplesBase
          .setFeature(ThingsModelFactory.newFeature("foo", ThingsModelFactory.newFeatureProperties(JsonFactory.newObjectBuilder().set("foo", 1).build())))
          .build();
 
-      thingIntegration.registerForFeatureChanges("allFeatureChanges", featureChange -> {
+      client.things().registerForFeatureChanges("allFeatureChanges", featureChange -> {
          final String featureId = featureChange.getFeature().getId();
          final JsonPointer path = featureChange.getPath();
          final Optional<JsonValue> value = featureChange.getValue() //
@@ -81,9 +81,9 @@ public class ManageFeatures extends ExamplesBase
          LOGGER.info("FeatureChange for featureId {} received on path {} - value was: {}", featureId, path, value);
       });
 
-      thingIntegration.create(thing).get(TIMEOUT, SECONDS);
+      client.things().create(thing).get(TIMEOUT, SECONDS);
 
-      final ThingHandle thingHandle = thingIntegration.forId(thingId);
+      final ThingHandle thingHandle = client.things().forId(thingId);
 
       thingHandle.registerForFeatureChanges("",
          featureChange -> LOGGER.info("{} Feature '{}'", featureChange.getAction(), featureChange.getFeature()));
@@ -108,12 +108,22 @@ public class ManageFeatures extends ExamplesBase
          .setFeature(ThingsModelFactory.newFeature(FEATURE_ID)) //
          .build();
 
-      thingIntegration.create(thing).get(TIMEOUT, SECONDS);
+      client.things().create(thing).get(TIMEOUT, SECONDS);
 
-      final FeatureHandle featureHandle = thingIntegration.forFeature(thingId, FEATURE_ID);
+      final FeatureHandle featureHandle = client.things().forFeature(thingId, FEATURE_ID);
 
-      featureHandle.registerForPropertyChanges("", PROPERTY_JSON_POINTER,
-         featurePropertyChange -> LOGGER.info("{} Property '{}:{}'", featurePropertyChange.getAction(),
+      client.things().registerForFeaturePropertyChanges("", FEATURE_ID, featurePropertyChange ->
+         LOGGER.info("Integration handler: {} Property '{}:{}'", featurePropertyChange.getAction(),
+            featurePropertyChange.getPath(), featurePropertyChange.getValue())
+      );
+
+      client.things().registerForFeaturePropertyChanges("", FEATURE_ID, PROPERTY_JSON_POINTER, featurePropertyChange ->
+         LOGGER.info("Integration handler for property {}: {} Property '{}:{}'", PROPERTY_JSON_POINTER,
+            featurePropertyChange.getAction(), featurePropertyChange.getPath(), featurePropertyChange.getValue())
+      );
+
+      featureHandle.registerForPropertyChanges("", PROPERTY_JSON_POINTER, featurePropertyChange ->
+         LOGGER.info("Feature handler: {} Property '{}:{}'", featurePropertyChange.getAction(),
             featurePropertyChange.getPath(), featurePropertyChange.getValue()));
 
       featureHandle.putProperty(PROPERTY_JSON_POINTER, PROPERTY_JSON_VALUE) //
@@ -136,9 +146,9 @@ public class ManageFeatures extends ExamplesBase
          .setFeature(ThingsModelFactory.newFeature(FEATURE_ID)) //
          .build();
 
-      thingIntegration.create(thing).get(TIMEOUT, SECONDS);
+      client.things().create(thing).get(TIMEOUT, SECONDS);
 
-      final FeatureHandle featureHandle = thingIntegration.forFeature(thingId, FEATURE_ID);
+      final FeatureHandle featureHandle = client.things().forFeature(thingId, FEATURE_ID);
 
       featureHandle.registerForPropertyChanges("", featurePropertyChange -> LOGGER.info("{} Properties '{}:{}'",
          featurePropertyChange.getAction(), featurePropertyChange.getPath(), featurePropertyChange.getValue()));
