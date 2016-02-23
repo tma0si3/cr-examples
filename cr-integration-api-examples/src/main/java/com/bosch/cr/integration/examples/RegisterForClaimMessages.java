@@ -1,7 +1,6 @@
 /* Copyright (c) 2011-2015 Bosch Software Innovations GmbH, Germany. All rights reserved. */
 package com.bosch.cr.integration.examples;
 
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.time.OffsetDateTime;
 import java.util.Optional;
@@ -11,13 +10,14 @@ import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bosch.cr.integration.examples.rest.SimpleCrRestClient;
 import com.bosch.cr.integration.messages.RepliableMessage;
 import com.bosch.cr.integration.things.ThingHandle;
 import com.bosch.cr.json.JsonFactory;
 import com.bosch.cr.model.acl.AccessControlListModelFactory;
+import com.bosch.cr.model.acl.AclEntry;
 import com.bosch.cr.model.authorization.AuthorizationContext;
 import com.bosch.cr.model.authorization.AuthorizationModelFactory;
+import com.bosch.cr.model.authorization.AuthorizationSubject;
 import com.bosch.cr.model.common.HttpStatusCode;
 import com.bosch.cr.model.things.Thing;
 import com.bosch.cr.model.things.ThingsModelFactory;
@@ -35,22 +35,10 @@ public final class RegisterForClaimMessages extends ExamplesBase
    private final String registrationIdAllClaimMessages;
    private final String registrationIdClaimMessagesForThing;
 
-   private SimpleCrRestClient simpleCrRestClient;
-
    private RegisterForClaimMessages()
    {
       registrationIdAllClaimMessages = UUID.randomUUID().toString();
       registrationIdClaimMessagesForThing = UUID.randomUUID().toString();
-
-      try
-      {
-         simpleCrRestClient = SimpleCrRestClient.of(BOSCH_IOT_CENTRAL_REGISTRY_HTTP_ENDPOINT_URL, CLIENT_ID, API_TOKEN,
-            KEYSTORE_LOCATION.toURI(), KEYSTORE_PASSWORD, ALIAS, ALIAS_PASSWORD);
-      }
-      catch (final URISyntaxException e)
-      {
-         LOGGER.error("Error creating REST Client: {}", e);
-      }
    }
 
    public static RegisterForClaimMessages newInstance()
@@ -106,26 +94,44 @@ public final class RegisterForClaimMessages extends ExamplesBase
       final Optional<AuthorizationContext> optionalAuthorizationContext = message.getAuthorizationContext();
       if (optionalAuthorizationContext.isPresent())
       {
-         // Workaround, as it is currently not possible to manage ACL with the CR Integration Client
          final String thingId = message.getThingId();
          final AuthorizationContext authorizationContext = optionalAuthorizationContext.get();
-         simpleCrRestClient.grantPermissionsFor(thingId, authorizationContext).thenAccept(response -> {
-            message.reply() //
-               .statusCode(HttpStatusCode.OK) //
-               .timestamp(OffsetDateTime.now()) //
-               .payload(JsonFactory.newObjectBuilder().set("success", true).build()) //
-               .contentType("application/json") //
-               .send();
-            LOGGER.info("Thing '{}' claimed from authorization subject '{}'", thingId,
-               authorizationContext.getFirstAuthorizationSubject().get());
-         });
+         final AuthorizationSubject authorizationSubject = authorizationContext.getFirstAuthorizationSubject().get();
+         final AclEntry aclEntry = AccessControlListModelFactory.newAclEntry(authorizationSubject,
+            AccessControlListModelFactory.allPermissions());
+
+         thingIntegration.forId(thingId) //
+            .retrieve() //
+            .thenCompose(thing -> thingIntegration.update(thing.setAclEntry(aclEntry))) //
+            .whenComplete((aVoid, throwable) -> {
+               if (null != throwable)
+               {
+                  message.reply() //
+                     .statusCode(HttpStatusCode.BAD_GATEWAY) //
+                     .timestamp(OffsetDateTime.now()) //
+                     .payload("Error: Claiming failed. Please try again later.") //
+                     .contentType("text/plain") //
+                     .send();
+                  LOGGER.info("Update failed: '{}'", throwable.getMessage());
+               }
+               else
+               {
+                  message.reply() //
+                     .statusCode(HttpStatusCode.OK) //
+                     .timestamp(OffsetDateTime.now()) //
+                     .payload(JsonFactory.newObjectBuilder().set("success", true).build()) //
+                     .contentType("application/json") //
+                     .send();
+                  LOGGER.info("Thing '{}' claimed from authorization subject '{}'", thingId, authorizationSubject);
+               }
+            });
       }
       else
       {
          message.reply() //
             .statusCode(HttpStatusCode.BAD_REQUEST) //
             .timestamp(OffsetDateTime.now()) //
-            .payload("Error: no authorization context present!") //
+            .payload("Error: no authorization context present.") //
             .contentType("text/plain") //
             .send();
       }

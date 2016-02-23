@@ -35,18 +35,18 @@ public class ExampleLauncher
 {
    public static void main(final String... args) throws InterruptedException, ExecutionException, TimeoutException
    {
-      final ManageThings manageThings = new ManageThings();
-      try
-      {
-         // manageThings.createReadUpdateDelete();
-         // manageThings.createAComplexThing();
-         // manageThings.retrieveThings();
-         manageThings.updateThing();
-      }
-      catch (InterruptedException | ExecutionException | TimeoutException e)
-      {
-         e.printStackTrace();
-      }
+//      final ManageThings manageThings = new ManageThings();
+//      try
+//      {
+//         // manageThings.createReadUpdateDelete();
+//         // manageThings.createAComplexThing();
+//         // manageThings.retrieveThings();
+//         manageThings.updateThing();
+//      }
+//      catch (InterruptedException | ExecutionException | TimeoutException e)
+//      {
+//         e.printStackTrace();
+//      }
 
       // final RegisterForChanges registerForChanges = new RegisterForChanges();
       // registerForChanges.registerForAttributeChanges();
@@ -61,7 +61,7 @@ public class ExampleLauncher
       // manageFeatures.crudFeatureProperty();
       // manageFeatures.crudFeatureProperties();
 
-      // final RegisterForClaimMessages registerForClaimMessages = RegisterForClaimMessages.newInstance();
-      // registerForClaimMessages.registerForClaimMessagesToSingleThing();
+       final RegisterForClaimMessages registerForClaimMessages = RegisterForClaimMessages.newInstance();
+       registerForClaimMessages.registerForClaimMessagesToSingleThing();
    }
 }
