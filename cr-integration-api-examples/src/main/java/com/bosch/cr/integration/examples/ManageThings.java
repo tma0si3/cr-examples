@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bosch.cr.json.JsonFactory;
+import com.bosch.cr.json.JsonFieldSelector;
 import com.bosch.cr.json.JsonPointer;
 import com.bosch.cr.json.JsonValue;
 import com.bosch.cr.model.acl.Permission;
@@ -133,7 +134,7 @@ public class ManageThings extends ExamplesBase
       }).get(1, TimeUnit.SECONDS);
 
       /* Retrieve a List of Things with field selectors */
-      client.things().retrieve(JsonFactory.newFieldSelector("attributes"), ":myThing", ":complexThing")
+      client.things().retrieve(JsonFieldSelector.newInstance("attributes"), ":myThing", ":complexThing")
          .thenAccept(things -> {
             if (things.size() == 0)
             {

@@ -71,14 +71,14 @@ public final class RegisterForChanges extends ExamplesBase
    public void registerForAttributeChanges()
    {
       /* Register for *all* attribute changes of *all* things */
-      client.things().registerForAttributeChanges(ALL_THINGS_ATTRIBUTE_CHANGE, change -> LOGGER.info("Change received: {}", change));
+      client.things().registerForAttributesChanges(ALL_THINGS_ATTRIBUTE_CHANGE, change -> LOGGER.info("Change received: {}", change));
 
       /* Register for *specific* attribute changes of *all* things */
       client.things().registerForAttributeChanges(ALL_THINGS_SPECIFIC_ATTRIBUTE_CHANGE,
          JsonFactory.newPointer("address/city"), change -> LOGGER.info("Change received: {}", change));
 
       /* Register for *all* attribute changes of a *specific* thing */
-      myThing.registerForAttributeChanges(MY_THING_ATTRIBUTE_CHANGE, change -> {
+      myThing.registerForAttributesChanges(MY_THING_ATTRIBUTE_CHANGE, change -> {
          final Optional<JsonValue> value = change.getValue() //
             .map(JsonValue::asObject) // "attributes" is a JsonObject
             .flatMap(jsonObj -> jsonObj.getValue(change.getPath()));
