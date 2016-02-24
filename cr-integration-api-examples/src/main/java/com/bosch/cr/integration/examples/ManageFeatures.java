@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bosch.cr.integration.things.FeatureHandle;
 import com.bosch.cr.integration.things.ThingHandle;
+import com.bosch.cr.integration.things.ThingIntegration;
 import com.bosch.cr.json.JsonFactory;
 import com.bosch.cr.json.JsonPointer;
 import com.bosch.cr.json.JsonValue;
@@ -59,6 +60,7 @@ public class ManageFeatures extends ExamplesBase
 
    private static final String NAMESPACE = "com.bosch.cr.integration.examples.ManageFeatures:";
    private static final String FEATURE_ID = "smokeDetector";
+   private static final String FEATURE_ID2 = "elevator";
    private static final JsonPointer PROPERTY_JSON_POINTER = JsonFactory.newPointer("density");
    private static final JsonValue PROPERTY_JSON_VALUE = JsonFactory.newValue(0.7);
 
@@ -167,4 +169,29 @@ public class ManageFeatures extends ExamplesBase
          .get(TIMEOUT, SECONDS);
    }
 
+   public void deleteFeatures() throws InterruptedException, ExecutionException, TimeoutException
+   {
+      LOGGER.info("Starting: {}()", Thread.currentThread().getStackTrace()[1].getMethodName());
+
+      final String thingId = NAMESPACE + UUID.randomUUID().toString();
+
+      final Thing thing = ThingsModelFactory.newThingBuilder() //
+         .setId(thingId) //
+         .setFeature(ThingsModelFactory.newFeature(FEATURE_ID)) //
+         .setFeature(ThingsModelFactory.newFeature(FEATURE_ID2)) //
+         .build();
+
+      final ThingIntegration thingIntegration = client.things();
+
+      thingIntegration.create(thing).get(TIMEOUT, SECONDS);
+
+      final ThingHandle thingHandle = thingIntegration.forId(thingId);
+
+      thingHandle.registerForFeaturesChanges("", featuresChange -> LOGGER
+         .info("{} Features '{}:{}'", featuresChange.getAction(), featuresChange.getPath(),
+            featuresChange.getValue()));
+
+      thingHandle.deleteFeatures().thenCompose(aVoid -> thingHandle.retrieve()).thenAccept(
+         thing1 -> LOGGER.info("Features have been deleted: {}", thing1.getFeatures()));
+   }
 }
