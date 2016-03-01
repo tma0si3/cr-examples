@@ -24,9 +24,10 @@
 # EMPLOYEES, REPRESENTATIVES AND ORGANS.
 ---
 applications:
-- name: craas-things-example
+- name: things-rest-angular
   memory: 16M
   disk_quota: 16M
   buildpack: https://github.com/cloudfoundry/staticfile-buildpack.git
-  host: craas-things-example${cf.space}
+  domain: internal.bosch-iot-cloud.com
+  host: things-rest-angular
   path: /dist

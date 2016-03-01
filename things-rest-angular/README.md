@@ -1,39 +1,30 @@
 # Things REST Angular
 
-Implements a simple web application with angular.js and bootstrap to show how to use the ThingsService Rest Api with JavaScript.
+Implements a simple web application with angular.js and bootstrap to show how to use the Bosch IoT Things REST API with JavaScript.
 
-## Configuration
+The application can be deployed easily in CloudFoundry via the provided manifest. 
 
-The application will be hosted in Cloud Foundry using staticfile as buildpack. Deployment is preconfigured in the manifest.yml
-
-```
----
-applications:
-- name: craas-things-example
-  memory: 16M
-  disk_quota: 16M
-  buildpack: https://github.com/cloudfoundry/staticfile-buildpack.git
-  host: craas-things-example${cf.space}
-  path: /dist
-```
-
-To avoid CORS(Cross-Origin resource sharing) issues, the nginx configuration will use an internal proxy to redirect the rest calls to the ThingsService. Inside the application, the api could therefore be called from /cr.
+To avoid CORS(Cross-Origin resource sharing) issues, the nginx configuration will use reverse proxy to redirect rest calls.
 
 ```
 location /cr {
-	proxy_pass https://craas-things${cf.space}.apps.bosch-iot-cloud.com/cr/1;
+	proxy_pass https://cr.apps.bosch-iot-cloud.com/cr;
 }
 ```
 
 ## Deployment
 
-To deploy the application to Cloud Foundry, do the following.
+To deploy the application to CloudFoundry, do the following.
 
-* Build the project with maven to set the properties ```cf.space``` and ```api.token```.
+* Build the project with maven ```mvn clean package```.
     
 * Execute the following commands from a shell in the target folder.
-    * ```cf login``` to configure your cloud foundry login
+    * ```cf login``` to configure your CloudFoundry login
     * ```cf push``` to deploy the application
+    
+## Demo
+
+Give it a try [here](https://cr.apps.bosch-iot-cloud.com/example-ui/)
 
 ## License
 
