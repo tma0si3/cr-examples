@@ -24,7 +24,7 @@ To deploy the application to CloudFoundry, do the following.
     
 ## Demo
 
-Give it a try [here](https://cr.apps.bosch-iot-cloud.com/example-ui/)
+Give it a try [here](https://demos.apps.bosch-iot-cloud.com/things-rest-angular/)
 
 ## License
 
