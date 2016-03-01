@@ -1,7 +1,7 @@
-# Track my Phone
+# Bosch IoT Things - Track my Phone
 
-Implements a simple web application to integrate a device with the CR's REST API in JavaScript.
-The application listenes for geolocation and orientation events of the device and pushes the received data into the CR.
+Implements a simple web application to integrate a device with the Bosch IoT Things REST API in JavaScript.
+The application listens for geolocation and orientation events of the device and pushes the received data into Bosch IoT Things.
 
 ## Configuration
 
@@ -22,7 +22,7 @@ To avoid CORS(Cross-Origin resource sharing) issues, the nginx configuration wil
 
 ```
 location /cr {
-	proxy_pass https://cr.apps.bosch-iot-cloud.com/cr/1;
+	proxy_pass https://things.apps.bosch-iot-cloud.com/cr/1;
 }
 ```
 

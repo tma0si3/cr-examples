@@ -1,4 +1,4 @@
-# Things REST Angular
+# Bosch IoT Things - Things REST Angular (Example UI)
 
 Implements a simple web application with angular.js and bootstrap to show how to use the Bosch IoT Things REST API with JavaScript.
 

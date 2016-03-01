@@ -1,9 +1,9 @@
-# Bosch IoT Central Registry - Example Vehicle Simulator
+# Bosch IoT Things - Example Vehicle Simulator
 
-This example shows how to integrate devices information using Java with the CR.
+This example shows how to integrate devices information using Java with Bosch IoT Things.
 
 **Notice:** Currently this demo uses the REST API for the updating the properties of Features of Things.
-As soon as the CR supports updating feature properties using the CR-Integration Client for Java this can be changed.
+As soon as Bosch IoT Things supports updating feature properties using the CR Integration Client for Java this can be changed.
 
 # Build
 
@@ -29,7 +29,7 @@ If you didn't have such a file go back to #Create a Solution with a private/publ
 Create file "config.properties" in your project root folder. _Please change the ids._
 
 
-```centralRegistryEndpointUrl=https://cr.apps.bosch-iot-cloud.com```  
+```centralRegistryEndpointUrl=https://things.apps.bosch-iot-cloud.com```  
 ```centralRegistryMessagingUrl=wss://events.apps.bosch-iot-cloud.com```  
 ```clientId=###your solution id ###:gateway```  
 ```apiToken=###your api token ###```  

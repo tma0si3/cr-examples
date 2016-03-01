@@ -1,4 +1,4 @@
-# Central Registry Postman Collection
+# Bosch IoT Things - Postman Collection
 
 ## License
 

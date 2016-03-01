@@ -1,6 +1,6 @@
-# Central Registry REST examples
+# Bosch IoT Things - REST examples
 
-This example shows in a simple test how to connect to the CR with the Central Registry Signature (CRS) Authentication.
+This example shows in a simple test how to connect to Bosch IoT Things with the Central Registry Signature (CRS) Authentication.
 The CRS Authentication allows clients to connect with a signature instead of basic auth.
 You can find more information on the different authentication processes at our [wiki](http://m2m.bosch-si.com/dokuwiki/doku.php?id=005_dev_guide:004_rest_api:011_authenticate_as_a_client).
 
@@ -9,7 +9,7 @@ You can find more information on the different authentication processes at our [
 Create or adjust file "config.properties"
 
 ```
-centralRegistryEndpointUrl=https\://cr.apps.bosch-iot-cloud.com
+centralRegistryEndpointUrl=https\://things.apps.bosch-iot-cloud.com
 clientId=### user solution id ###\:restcli
 apiToken=### user solution API Token ###
 keystoreLocation=CRClient.jks

@@ -1,4 +1,4 @@
-# Bosch IoT Central Registry - Example Inventory Browser
+# Bosch IoT Things - Example Inventory Browser
 
 This example shows how to create a simple user interface to list things and their details and show the things on a map.
 
@@ -9,8 +9,8 @@ This example shows how to create a simple user interface to list things and thei
 Create or adjust file "src/main/resources/config.properties"
 
 ```
-centralRegistryTargetHost=https://cr.apps.bosch-iot-cloud.com
-centralRegistryApiToken=### your CR Solution API Token ###
+centralRegistryTargetHost=https://things.apps.bosch-iot-cloud.com
+centralRegistryApiToken=### your Bosch IoT Things Solution API Token ###
 http.proxyHost=### your http proxy host, if you need one ###
 http.proxyPort=### your http proxy port, if you need one ###
 ```
@@ -33,7 +33,7 @@ java -jar target/inventory-browser.jar
 
 ## Show Dashboard
 
-Browse to the Bosch IoT Central Registry Dashboard: <https://cr.apps.bosch-iot-cloud.com/>
+Browse to the Bosch IoT Things Dashboard: <https://things.apps.bosch-iot-cloud.com/>
 
 ## Create a Solution
 
@@ -49,7 +49,7 @@ Browse to the example web app: <http://localhost:8080/inventory-browser/>
 
 ## Create Empty Thing
 
-In REST Documentation (Swagger): <https://cr.apps.bosch-iot-cloud.com/doc/>
+In REST Documentation (Swagger): <https://things.apps.bosch-iot-cloud.com/doc/>
 use "Things - POST /things"
 
 thing:
