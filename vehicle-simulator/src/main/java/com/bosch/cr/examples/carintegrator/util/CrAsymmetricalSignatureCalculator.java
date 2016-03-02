@@ -58,7 +58,7 @@ public class CrAsymmetricalSignatureCalculator implements SignatureCalculator
     private final String apiToken;
 
     public CrAsymmetricalSignatureCalculator(final SignatureFactory signatureFactory, final String clientId,
-                                             final String apiToken) {
+       final String apiToken) {
         this.signatureFactory = signatureFactory;
         this.clientId = clientId;
         this.apiToken = apiToken;
@@ -73,7 +73,7 @@ public class CrAsymmetricalSignatureCalculator implements SignatureCalculator
         final String signatureData;
         if (method.equals(HTTP_METHOD_POST) || method.equals(HTTP_METHOD_PUT)) {
             final String body = request.getStringData();
-            signatureData = String.join(DELIMITER, method, host, path, body, date);
+            signatureData = String.join(DELIMITER, method, host, path, date);
         } else {
             signatureData = String.join(DELIMITER, method, host, path, date);
         }
@@ -82,6 +82,6 @@ public class CrAsymmetricalSignatureCalculator implements SignatureCalculator
         requestBuilderBase.addHeader(HTTP_HEADER_X_CR_DATE, date);
         requestBuilderBase.addHeader(HTTP_HEADER_X_CR_API_TOKEN, apiToken);
         requestBuilderBase.addHeader(HTTP_HEADER_AUTHORIZATION,
-                CRS_AUTH_PREFIX + clientId + DELIMITER + SignatureFactory.SIGNATURE_ALGORITHM + DELIMITER + signature);
+           CRS_AUTH_PREFIX + clientId + DELIMITER + SignatureFactory.SIGNATURE_ALGORITHM + DELIMITER + signature);
     }
 }

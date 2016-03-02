@@ -3,24 +3,24 @@
  *                                              Version 1.0, January 2016
  *
  * Copyright 2016 Bosch Software Innovations GmbH ("Bosch SI"). All rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the 
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
  * following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
  * disclaimer.
- * 
+ *
  * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
  * following disclaimer in the documentation and/or other materials provided with the distribution.
- * 
+ *
  * BOSCH SI PROVIDES THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE RISK AS TO
- * THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF 
- * ALL NECESSARY SERVICING, REPAIR OR CORRECTION. THIS SHALL NOT APPLY TO MATERIAL DEFECTS AND DEFECTS OF TITLE WHICH 
+ * THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF
+ * ALL NECESSARY SERVICING, REPAIR OR CORRECTION. THIS SHALL NOT APPLY TO MATERIAL DEFECTS AND DEFECTS OF TITLE WHICH
  * BOSCH SI HAS FRAUDULENTLY CONCEALED. APART FROM THE CASES STIPULATED ABOVE, BOSCH SI SHALL BE LIABLE WITHOUT
  * LIMITATION FOR INTENT OR GROSS NEGLIGENCE, FOR INJURIES TO LIFE, BODY OR HEALTH AND ACCORDING TO THE PROVISIONS OF
  * THE GERMAN PRODUCT LIABILITY ACT (PRODUKTHAFTUNGSGESETZ). THE SCOPE OF A GUARANTEE GRANTED BY BOSCH SI SHALL REMAIN
- * UNAFFECTED BY LIMITATIONS OF LIABILITY. IN ALL OTHER CASES, LIABILITY OF BOSCH SI IS EXCLUDED. THESE LIMITATIONS OF 
+ * UNAFFECTED BY LIMITATIONS OF LIABILITY. IN ALL OTHER CASES, LIABILITY OF BOSCH SI IS EXCLUDED. THESE LIMITATIONS OF
  * LIABILITY ALSO APPLY IN REGARD TO THE FAULT OF VICARIOUS AGENTS OF BOSCH SI AND THE PERSONAL LIABILITY OF BOSCH SI'S
  * EMPLOYEES, REPRESENTATIVES AND ORGANS.
  */
@@ -30,20 +30,24 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.bosch.cr.integration.IntegrationClient;
 import com.bosch.cr.integration.client.IntegrationClientImpl;
 import com.bosch.cr.integration.client.configuration.AuthenticationConfiguration;
 import com.bosch.cr.integration.client.configuration.IntegrationClientConfiguration;
 import com.bosch.cr.integration.client.configuration.MessageSerializerConfiguration;
-import com.bosch.cr.integration.client.configuration.ProxyConfiguration;
 import com.bosch.cr.integration.client.configuration.PublicKeyAuthenticationConfiguration;
 import com.bosch.cr.integration.client.configuration.TrustStoreConfiguration;
 import com.bosch.cr.integration.client.messages.MessageSerializerRegistry;
@@ -58,19 +62,21 @@ import com.bosch.cr.integration.things.ThingIntegration;
  */
 public abstract class ExamplesBase
 {
+   private static final Logger LOGGER = LoggerFactory.getLogger(ExamplesBase.class);
+
+   public static final String BOSCH_IOT_CENTRAL_REGISTRY_WS_ENDPOINT_URL = "wss://events.apps.bosch-iot-cloud.com";
+
+   public static final String SOLUTION_ID = "<your-solution-id>";
+   public static final String CLIENT_ID = SOLUTION_ID + ":" + UUID.randomUUID().toString();
+
+   public static final URL KEYSTORE_LOCATION = ExamplesBase.class.getResource("/CRClient.jks");
    public static final String KEYSTORE_PASSWORD = "solutionPass";
+   public static final URL TRUSTSTORE_LOCATION = ExamplesBase.class.getResource("/bosch-iot-cloud.jks");
+   public static final String TRUSTSTORE_PASSWORD = "jks";
    public static final String ALIAS = "CR";
    public static final String ALIAS_PASSWORD = "crPass";
 
-   public static final String SOLUTION_ID = "<your-solution-id>";
-
-   public static final String BOSCH_IOT_CENTRAL_REGISTRY_ENDPOINT_URL = "wss://events.apps.bosch-iot-cloud.com/";
-   public static final URL KEYSTORE_LOCATION = ExamplesBase.class.getResource("/CRClient.jks");
-   public static final URL TRUSTSTORE_LOCATION = ExamplesBase.class.getResource("/bosch-iot-cloud.jks");
-   public static final String TRUSTSTORE_PASSWORD = "jks";
-
-   protected final IntegrationClient integrationClient;
-   protected final ThingIntegration thingIntegration;
+   protected final IntegrationClient client;
    protected final String myThingId;
    protected final ThingHandle myThing;
 
@@ -79,60 +85,54 @@ public abstract class ExamplesBase
     */
    public ExamplesBase()
    {
-      final AuthenticationConfiguration authenticationConfiguration = PublicKeyAuthenticationConfiguration.newBuilder()
-         .clientId(SOLUTION_ID + ":example-client")
-         .keyStoreLocation(KEYSTORE_LOCATION)
-         .keyStorePassword(KEYSTORE_PASSWORD)
-         .alias(ALIAS)
-         .aliasPassword(ALIAS_PASSWORD)
-         .build();
+      final AuthenticationConfiguration authenticationConfiguration =
+         PublicKeyAuthenticationConfiguration.newBuilder().clientId(CLIENT_ID) //
+            .keyStoreLocation(KEYSTORE_LOCATION) //
+            .keyStorePassword(KEYSTORE_PASSWORD) //
+            .alias(ALIAS) //
+            .aliasPassword(ALIAS_PASSWORD) //
+            .build();
 
       /* optionally configure a proxy server or a truststore */
-      final ProxyConfiguration proxy = ProxyConfiguration.newBuilder()
-         .proxyHost("some.proxy.server")
-         .proxyPort(1234)
-         .proxyUsername("some.proxy.username")
-         .proxyPassword("some.proxy.password")
-         .build();
+      // final ProxyConfiguration proxy = ProxyConfiguration.newBuilder()
+      // .proxyHost("some.proxy.server")
+      // .proxyPort(1234)
+      // .proxyUsername("some.proxy.username")
+      // .proxyPassword("some.proxy.password")
+      // .build();
 
-      final TrustStoreConfiguration trustStore = TrustStoreConfiguration.newBuilder()
-         .location(TRUSTSTORE_LOCATION)
-         .password(TRUSTSTORE_PASSWORD)
-         .build();
+      final TrustStoreConfiguration trustStore =
+         TrustStoreConfiguration.newBuilder().location(TRUSTSTORE_LOCATION).password(TRUSTSTORE_PASSWORD).build();
 
       final MessageSerializerConfiguration serializerConfiguration = MessageSerializerConfiguration.newInstance();
       setupCustomMessageSerializer(serializerConfiguration);
 
       /* provide required configuration (authentication configuration and CR URI),
          optional configuration (proxy, truststore etc.) can be added when needed */
-      final IntegrationClientConfiguration integrationClientConfiguration = IntegrationClientConfiguration.newBuilder()
-         .authenticationConfiguration(authenticationConfiguration)
-         .centralRegistryEndpointUrl(BOSCH_IOT_CENTRAL_REGISTRY_ENDPOINT_URL)
-         //.proxyConfiguration(proxy)
-         .trustStoreConfiguration(trustStore)
-         .serializerConfiguration(serializerConfiguration)
-         .build();
+      final IntegrationClientConfiguration integrationClientConfiguration =
+         IntegrationClientConfiguration.newBuilder().authenticationConfiguration(authenticationConfiguration)
+            .centralRegistryEndpointUrl(BOSCH_IOT_CENTRAL_REGISTRY_WS_ENDPOINT_URL)
+            // .proxyConfiguration(proxy)
+            .trustStoreConfiguration(trustStore).serializerConfiguration(serializerConfiguration).build();
 
-      this.integrationClient = IntegrationClientImpl.newInstance(integrationClientConfiguration);
+      LOGGER.info("Creating CR Integration Client for ClientID: {}", CLIENT_ID);
+
+      this.client = IntegrationClientImpl.newInstance(integrationClientConfiguration);
 
       try
       {
          // create a subscription for this client, this step can be skipped if a subscription was created via REST
-         this.integrationClient.subscriptions()
-            .create()
+         this.client.subscriptions().create()
             // and start consuming events that were triggered by the subscription
-            .thenRun(() -> this.integrationClient.subscriptions().consume()).get(10, TimeUnit.SECONDS);
-
-         this.integrationClient.subscriptions().consume().get(10, TimeUnit.SECONDS);
+            .thenRun(() -> this.client.subscriptions().consume()).get(10, TimeUnit.SECONDS);
       }
       catch (InterruptedException | ExecutionException | TimeoutException e)
       {
          throw new IllegalStateException("Error creating CR Client.", e);
       }
 
-      this.thingIntegration = integrationClient.things();
       this.myThingId = ":myThing";
-      this.myThing = thingIntegration.forId(myThingId);
+      this.myThing = client.things().forId(myThingId);
    }
 
    /**
@@ -148,37 +148,36 @@ public abstract class ExamplesBase
       {
          jaxbContext = JAXBContext.newInstance(ExampleUser.class);
       }
-      catch (JAXBException e)
+      catch (final JAXBException e)
       {
          throw new RuntimeException("Could not setup JAXBContext", e);
       }
 
       final MessageSerializerRegistry serializerRegistry = serializerConfiguration.getMessageSerializerRegistry();
 
-      serializerRegistry.registerMessageSerializer(
-         MessageSerializers.of(ExampleUser.USER_CUSTOM_CONTENT_TYPE, ExampleUser.class, "*", //
+      serializerRegistry
+         .registerMessageSerializer(MessageSerializers.of(ExampleUser.USER_CUSTOM_CONTENT_TYPE, ExampleUser.class, "*", //
             (exampleUser, charset) -> {
                try
                {
-                  Marshaller marshaller = jaxbContext.createMarshaller();
+                  final Marshaller marshaller = jaxbContext.createMarshaller();
                   marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-                  ByteArrayOutputStream os = new ByteArrayOutputStream();
+                  final ByteArrayOutputStream os = new ByteArrayOutputStream();
                   marshaller.marshal(exampleUser, os);
                   return ByteBuffer.wrap(os.toByteArray());
                }
-               catch (JAXBException e)
+               catch (final JAXBException e)
                {
                   throw new RuntimeException("Could not serialize", e);
                }
-            },
-            (byteBuffer, charset) -> {
+            } , (byteBuffer, charset) -> {
                try
                {
-                  Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-                  ByteArrayInputStream is = new ByteArrayInputStream(byteBuffer.array());
+                  final Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+                  final ByteArrayInputStream is = new ByteArrayInputStream(byteBuffer.array());
                   return (ExampleUser) jaxbUnmarshaller.unmarshal(is);
                }
-               catch (JAXBException e)
+               catch (final JAXBException e)
                {
                   throw new RuntimeException("Could not deserialize", e);
                }
@@ -190,6 +189,6 @@ public abstract class ExamplesBase
     */
    public void terminate()
    {
-      integrationClient.destroy();
+      client.destroy();
    }
 }

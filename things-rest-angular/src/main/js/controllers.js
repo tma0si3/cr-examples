@@ -25,13 +25,17 @@
  * EMPLOYEES, REPRESENTATIVES AND ORGANS.
  */
 'use strict';
-function RestController($scope, Things, Thing, Attributes, Attribute, Acl, AclEntry, Features, Feature, Properties, Property) {
+function RestController($scope, $core, Things, Thing, Attributes, Attribute, Acl, AclEntry, Features, Feature, Properties, Property) {
     var RESPONSE_TYPE = {SUCCESS: 'success', ERROR: 'error', WARNING: 'warning'};
     var PERMISSIONS = ["READ", "WRITE", "ADMINISTRATE"];
 
     $scope.responses = [];
     $scope.thingToCreate = new Thing();
     $scope.thingToModify = new Thing();
+
+    $scope.setApiToken = function (token) {
+        $core.configuration.setApiToken(token);
+    };
 
     $scope.getThings = function (thingIds, fields) {
         if (thingIds === '') {
@@ -476,7 +480,8 @@ function RestController($scope, Things, Thing, Attributes, Attribute, Acl, AclEn
 
     function logError(functionName, httpResponse)
     {
-        logResponse(RESPONSE_TYPE.ERROR, functionName, httpResponse.status, httpResponse.statusText);
+        var message = httpResponse.data.message || httpResponse.statusText;
+        logResponse(RESPONSE_TYPE.ERROR, functionName, httpResponse.status, message);
     }
 
     function ensureValueIsDefined(stringValue, stringName)

@@ -1,14 +1,14 @@
-# Examples for the Bosch IoT Central Registry cloud service
+# Examples for the Bosch IoT Things cloud service
 
 [![Join the chat at https://gitter.im/bsinno/cr-examples](https://badges.gitter.im/bsinno/cr-examples.svg)](https://gitter.im/bsinno/cr-examples?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-This repository contains examples for using the Bosch IoT Central Registry in the cloud.
+This repository contains examples for using the Bosch IoT Things in the cloud.
 
 ## Preparation
 
 ### Maven Repository
 
-In order to be able to run the examples (or to implement your own), you need the "Bosch IoT Central Registry Integration Client" (short: *CRIC*). 
+In order to be able to run the examples (or to implement your own), you need the "Bosch IoT Central Registry Integration Client" (short: *CRIC*).
 This is available via our public Maven repository. Add following Maven-Repository to your Maven `settings.xml`:
 
 ```

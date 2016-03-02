@@ -38,13 +38,6 @@
    <packaging>pom</packaging>
    <name>IoT Central Registry :: Examples :: Things REST Angular</name>
 
-   <properties>
-      <!-- The Cloud Foundry space to deploy to -->
-      <cf.space></cf.space>
-      <!-- The Solution API Token to use in the example ui -->
-      <api.token></api.token>
-   </properties>
-
    <build>
       <resources>
          <resource>
@@ -71,7 +64,7 @@
                         </resource>
                         <resource>
                            <directory>/</directory>
-                           <filtering>true</filtering>
+                           <filtering>false</filtering>
                            <include>**/*.conf</include>
                         </resource>
                      </resources>
@@ -88,7 +81,7 @@
                      <resources>
                         <resource>
                            <directory>/</directory>
-                           <filtering>true</filtering>
+                           <filtering>false</filtering>
                            <include>**/*.yml</include>
                         </resource>
                      </resources>

@@ -28,6 +28,8 @@
 (function () {
     var service = angular.module('crCore', []);
 
+    var apiToken = null;
+
     function statusInterceptor(response) {
         var resource = response.resource;
         resource.$status = response.status;
@@ -37,6 +39,14 @@
 
     service.factory('$core', function () {
         return {
+            configuration: {
+                getApiToken: function () {
+                    return apiToken;
+                },
+                setApiToken: function (token) {
+                    apiToken = token;
+                }
+            },
             interceptors: {
                 statusInterceptor: statusInterceptor
             }
