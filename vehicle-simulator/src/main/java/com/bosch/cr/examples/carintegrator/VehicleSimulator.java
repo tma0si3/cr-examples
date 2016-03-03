@@ -41,19 +41,11 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import io.netty.util.internal.ThreadLocalRandom;
-import org.asynchttpclient.AsyncHttpClient;
-import org.asynchttpclient.DefaultAsyncHttpClient;
-import org.asynchttpclient.DefaultAsyncHttpClientConfig;
-import org.asynchttpclient.Response;
-import org.asynchttpclient.proxy.ProxyServer;
 
-import com.bosch.cr.examples.carintegrator.util.CrAsymmetricalSignatureCalculator;
-import com.bosch.cr.examples.carintegrator.util.SignatureFactory;
 import com.bosch.cr.integration.IntegrationClient;
 import com.bosch.cr.integration.client.IntegrationClientImpl;
 import com.bosch.cr.integration.client.configuration.AuthenticationConfiguration;
@@ -73,9 +65,6 @@ import com.bosch.cr.model.things.Thing;
 
 public class VehicleSimulator
 {
-
-   private static String centralRegistryEndpointUrl;
-   private static AsyncHttpClient asyncHttpClient;
 
    public static void main(String[] args) throws IOException, InterruptedException
    {
@@ -100,7 +89,6 @@ public class VehicleSimulator
          throw new RuntimeException(ex);
       }
 
-      centralRegistryEndpointUrl = props.getProperty("centralRegistryEndpointUrl");
       String centralRegistryMessagingUrl = props.getProperty("centralRegistryMessagingUrl");
 
       String clientId = props.getProperty("clientId");
@@ -110,8 +98,8 @@ public class VehicleSimulator
       String keyAlias = props.getProperty("keyAlias");
       String keyAliasPassword = props.getProperty("keyAliasPassword");
 
-      final String proxyHost = props.getProperty("http.proxyHost");
-      final String proxyPort = props.getProperty("http.proxyPort");
+      String proxyHost = props.getProperty("http.proxyHost");
+      String proxyPort = props.getProperty("http.proxyPort");
 
       AuthenticationConfiguration authenticationConfiguration =
          PublicKeyAuthenticationConfiguration.newBuilder().clientId(clientId).keyStoreLocation(keystoreUri.toURL())
@@ -133,23 +121,7 @@ public class VehicleSimulator
       IntegrationClient client = IntegrationClientImpl.newInstance(configSettable.build());
 
 
-      // ### WORKAROUND: prepare HttpClient to make REST calls the CR-Integration-Client does not support yet
-      String apiToken = props.getProperty("apiToken");
-      final SignatureFactory signatureFactory =
-         SignatureFactory.newInstance(keystoreUri, keystorePassword, keyAlias, keyAliasPassword);
-      final DefaultAsyncHttpClientConfig.Builder builder = new DefaultAsyncHttpClientConfig.Builder();
-      builder.setAcceptAnyCertificate(
-         true); // WORKAROUND: Trust self-signed certificate of BICS until there is a trusted one.
-      if (proxyHost != null && proxyPort != null)
-      {
-         builder.setProxyServer(new ProxyServer.Builder(proxyHost, Integer.valueOf(proxyPort)));
-      }
-      asyncHttpClient = new DefaultAsyncHttpClient(builder.build());
-      asyncHttpClient
-         .setSignatureCalculator(new CrAsymmetricalSignatureCalculator(signatureFactory, clientId, apiToken));
-
-
-      final TreeSet<String> activeThings = new TreeSet<>();
+      TreeSet<String> activeThings = new TreeSet<>();
       activeThings.addAll(readActiveThings());
 
       System.out.println("Started...");
@@ -167,8 +139,8 @@ public class VehicleSimulator
 
       createSubscriptionAndStartReceiving(client);
 
-      final Thread thread = new Thread(() -> {
-         final Random random = ThreadLocalRandom.current();
+      Thread thread = new Thread(() -> {
+         Random random = ThreadLocalRandom.current();
          while (true)
          {
             for (String thingId : activeThings)
@@ -190,14 +162,15 @@ public class VehicleSimulator
                   JsonObject geolocation =
                      thing.getFeatures().get().getFeature("geolocation").orElseThrow(RuntimeException::new)
                         .getProperties().get();
-                  final double latitude =
+                  double latitude =
                      geolocation.getValue(JsonFactory.newPointer("geoposition/latitude")).get().asDouble();
-                  final double longitude =
+                  double longitude =
                      geolocation.getValue(JsonFactory.newPointer("geoposition/longitude")).get().asDouble();
                   JsonObject newGeoposition =
                      JsonFactory.newObjectBuilder().set("latitude", latitude + (random.nextDouble() - 0.5) / 250)
                         .set("longitude", longitude + (random.nextDouble() - 0.5) / 250).build();
-                  changeProperty(thingId, "geolocation", "geoposition", newGeoposition);
+
+                  client.things().forFeature(thingId, "geolocation").putProperty("geoposition", newGeoposition);
 
                   System.out.print(".");
                   if (random.nextDouble() < 0.01)
@@ -267,32 +240,7 @@ public class VehicleSimulator
       }
    }
 
-   // ### WORKAROUND: change property using REST until CR-Integration-Client supports it
-   private static void changeProperty(String thingId, String feature, String property, JsonObject value)
-      throws InterruptedException
-   {
-      final String thingJsonString = value.toString();
-      final String path = "/cr/1/things/" + thingId + "/features/" + feature + "/properties/" + property;
-
-      Future<Response> f =
-         asyncHttpClient.preparePut(centralRegistryEndpointUrl + path).addHeader("Content-Type", "application-json")
-            .setBody(thingJsonString).execute();
-
-      try
-      {
-         Response re = f.get();
-         if (re.getStatusCode() < 200 || re.getStatusCode() >= 300)
-         {
-            throw new RuntimeException("Updated failed; " + re.getStatusCode() + ": " + re.getResponseBody());
-         }
-      }
-      catch (ExecutionException ex)
-      {
-         throw new RuntimeException(ex);
-      }
-   }
-
-   protected static void createSubscriptionAndStartReceiving(final IntegrationClient integrationClient)
+   protected static void createSubscriptionAndStartReceiving(IntegrationClient integrationClient)
    {
       try
       {
