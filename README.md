@@ -61,9 +61,17 @@ The provided files can be used in Google Chrome browser extension "Postman". Thi
 
 This example shows how to use the CR-Integration Client for Java.
 
-### Example "things-rest-angular""
+### Example "things-rest-angular"
 
 Implements a simple web application with angular.js and bootstrap to show how to use the Bosch IoT Things REST API with JavaScript.
+
+### Example "track-my-phone"
+
+Implements a simple web application to integrate a device with the Bosch IoT Things REST API in JavaScript.
+
+### Example "vehicle-simulator"
+
+This example shows how to simulate the integration of device information using the  with Bosch IoT Things Java Client.
 
 ## License
 
