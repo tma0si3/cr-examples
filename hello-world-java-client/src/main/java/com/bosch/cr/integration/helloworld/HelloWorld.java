@@ -116,7 +116,7 @@ public class HelloWorld
     */
    public HelloWorld()
    {
-      /* build an authentication configuration */
+      /* Build an authentication configuration */
       final AuthenticationConfiguration authenticationConfiguration = PublicKeyAuthenticationConfiguration.newBuilder().clientId(CLIENT_ID) //
          .keyStoreLocation(KEYSTORE_LOCATION) //
          .keyStorePassword(KEYSTORE_PASSWORD) //
@@ -124,13 +124,21 @@ public class HelloWorld
          .aliasPassword(ALIAS_PASSWORD) //
          .build();
 
-      /* configure a truststore that contains trusted certificates */
+      /* optionally configure a proxy server */
+      // final ProxyConfiguration proxy = ProxyConfiguration.newBuilder()
+      // .proxyHost("some.proxy.server")
+      // .proxyPort(1234)
+      // .proxyUsername("some.proxy.username")
+      // .proxyPassword("some.proxy.password")
+      // .build();
+
+      /* Configure a truststore that contains trusted certificates */
       final TrustStoreConfiguration trustStore =
          TrustStoreConfiguration.newBuilder().location(TRUSTSTORE_LOCATION).password(TRUSTSTORE_PASSWORD).build();
 
       /**
-       * provide required configuration (authentication configuration and CR URI),
-       * optional configuration (proxy, truststore etc.) can be added when needed
+       * Provide required configuration (authentication configuration and CR URI),
+       * optional proxy configuration can be added when needed
        */
       final IntegrationClientConfiguration integrationClientConfiguration = IntegrationClientConfiguration.newBuilder()
          .authenticationConfiguration(authenticationConfiguration)
