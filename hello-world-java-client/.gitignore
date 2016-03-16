@@ -4,3 +4,4 @@ target/
 *.iml
 config*.properties
 **/config*.properties
+**/CRClient.jks
