@@ -76,33 +76,6 @@ public class HelloWorld
 
 
    /**
-    * See tutorial here for step by step instructions.
-    */
-   public static void main(final String... args) throws InterruptedException, ExecutionException, TimeoutException
-   {
-      // Instantiate the Java Client
-      HelloWorld helloWorld = new HelloWorld();
-
-      // Step 1: Create an empty Thing and get Thing ID
-      String thingId = helloWorld.createEmptyThing();
-
-      // Step 2: Loop to update the attributes of the Thing
-      /*
-      for (int i = 0; i <= 200; i++)
-      {
-         helloWorld.updateThing(thingId);
-         Thread.sleep(2000);
-      }
-      */
-
-      // Step 3: Update the ACL with your User ID to see your thing in the Demo Web UI
-      // helloWorld.updateACL(thingId);
-
-      // This step must always be concluded to terminate the Java client.
-      helloWorld.terminate();
-   }
-
-   /**
     * Client instantiation
     */
    public HelloWorld()
@@ -137,6 +110,43 @@ public class HelloWorld
 
       /* Create a new thing integration object to start interacting with the Central Registry */
       thingIntegration = integrationClient.things();
+   }
+
+   /**
+    * See <a href="https://imbvl4vm328.bosch-si.com/cr/doku.php?id=005_dev_guide:tutorial:000_hello_world">Hello World Tutorial</a>.
+    */
+   public static void main(final String... args) throws InterruptedException, ExecutionException, TimeoutException
+   {
+      /**
+       * Instantiate the Java Client
+       */
+      HelloWorld helloWorld = new HelloWorld();
+
+      /**
+       * Create an empty Thing and get Thing ID
+       */
+      String thingId = helloWorld.createEmptyThing();
+
+      /**
+       * Loop to update the attributes of the Thing
+       */
+      /*
+      for (int i = 0; i <= 200; i++)
+      {
+         helloWorld.updateThing(thingId);
+         Thread.sleep(2000);
+      }
+      */
+
+      /**
+       * Update the ACL with your User ID to see your thing in the Demo Web UI
+       */
+      // helloWorld.updateACL(thingId);
+
+      /**
+       * This step must always be concluded to terminate the Java client.
+       */
+      helloWorld.terminate();
    }
 
    /**
