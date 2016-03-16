@@ -87,15 +87,16 @@ public class HelloWorld
       String thingId = helloWorld.createEmptyThing();
 
       // Step 2: Update the ACL with your User ID
-      // Before this Step you have to add your User ID in the HelloWorld Class
-      helloWorld.updateACL(thingId);
+      // helloWorld.updateACL(thingId);
 
       // Step 3: Loop to update the attributes of the Thing
+      /*
       for (int i = 0; i <= 200; i++)
       {
          helloWorld.updateThing(thingId);
          Thread.sleep(2000);
       }
+      */
 
       // This step must always be concluded to terminate the Java client.
       helloWorld.terminate();
