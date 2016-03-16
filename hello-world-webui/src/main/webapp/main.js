@@ -38,14 +38,13 @@ $(document).ready(function () {
         var elem = document.getElementById('input');
         var input = document.getElementById('submit');
         thingId = document.getElementById('input').value;
-        if (thingId == null || thingId == "")
-        {
+        if (thingId == null || thingId == "") {
             alert("Please insert valid ThingID!");
             return;
         }
         $('#thingID').html(thingId.toString());
-        elem.style.display='none';
-        input.style.display='none';
+        elem.style.display = 'none';
+        input.style.display = 'none';
         refreshDetails();
     };
 
