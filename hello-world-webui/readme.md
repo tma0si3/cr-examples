@@ -25,7 +25,7 @@ mvn clean install
 
 Use the following command to run the server.
 ```
-java -jar target/hello-world-ui.jar
+java -jar target/hello-world-webui.jar
 ```
 
 ## Usage
@@ -44,7 +44,7 @@ Use the dashboard to create a demo user.
 
 ### Show Hello World UI
 
-Browse to the example web app: <http://localhost:8080/hello-world-ui/>
+Browse to the example web app: <http://localhost:8080/hello-world-webui/>
 
 ### Create Thing over REST
 
@@ -88,7 +88,7 @@ x-cr-api-token: "your-api-token"
 
 ### Show Hello World UI
 
-Browse to the example web app: <http://localhost:8080/hello-world-ui/>
+Browse to the example web app: <http://localhost:8080/hello-world-webui/>
 Insert your ThingId and press Submit. 
 
 

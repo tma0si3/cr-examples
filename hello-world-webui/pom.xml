@@ -73,7 +73,7 @@
                   </goals>
                   <phase>package</phase>
                   <configuration>
-                     <finalName>hello-world-ui.jar</finalName>
+                     <finalName>hello-world-webui.jar</finalName>
                   </configuration>
                </execution>
             </executions>
