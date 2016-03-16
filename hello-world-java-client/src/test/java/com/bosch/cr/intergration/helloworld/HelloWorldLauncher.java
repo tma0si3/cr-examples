@@ -26,35 +26,36 @@ package com.bosch.cr.intergration.helloworld;
  * EMPLOYEES, REPRESENTATIVES AND ORGANS.
  */
 
-import com.bosch.cr.integration.helloworld.HelloWorld;
-
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
-public class HelloWorldLauncher {
+import com.bosch.cr.integration.helloworld.HelloWorld;
 
-    public static void main(final String... args) throws InterruptedException, ExecutionException, TimeoutException
-    {
-        // After Step 1 was successfully add the Thing ID here
-        final String thingId = "<your-thingId>";
+public class HelloWorldLauncher
+{
 
-        // Instantiate the Java Client
-        HelloWorld helloWorld = new HelloWorld();
+   public static void main(final String... args) throws InterruptedException, ExecutionException, TimeoutException
+   {
+      // After Step 1 was successfully add the Thing ID here
+      final String thingId = "<your-thingId>";
 
-        // Step 1: Create an empty Thing and get Thing ID
-        helloWorld.createEmptyThing();
+      // Instantiate the Java Client
+      HelloWorld helloWorld = new HelloWorld();
 
-        // Step 2: Update the ACL with your User ID
-        // Before this Step you have to add your User ID in the HelloWorld Class
-        // helloWorld.updateACL(thingId);
+      // Step 1: Create an empty Thing and get Thing ID
+      helloWorld.createEmptyThing();
 
-        // Step 3: Loop to update the attributes of the Thing
+      // Step 2: Update the ACL with your User ID
+      // Before this Step you have to add your User ID in the HelloWorld Class
+      // helloWorld.updateACL(thingId);
+
+      // Step 3: Loop to update the attributes of the Thing
         /* for (int i = 0; i <= 200; i++) {
              helloWorld.updateThing(thingId);
                 Thread.sleep(2000);
         }*/
 
-        // This step must always be concluded to terminate the Java client.
-        helloWorld.terminate();
-    }
+      // This step must always be concluded to terminate the Java client.
+      helloWorld.terminate();
+   }
 }
