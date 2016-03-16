@@ -74,6 +74,42 @@ public class HelloWorld
    final IntegrationClient integrationClient;
    final ThingIntegration thingIntegration;
 
+   /**
+    * Create and update a thing with the java client.
+    */
+   public static void main(final String... args) throws InterruptedException, ExecutionException, TimeoutException
+   {
+      /**
+       * Instantiate the Java Client
+       */
+      HelloWorld helloWorld = new HelloWorld();
+
+      /**
+       * Create an empty Thing and get Thing ID
+       */
+      String thingId = helloWorld.createEmptyThing();
+
+      /**
+       * Loop to update the attributes of the Thing
+       */
+      /*
+      for (int i = 0; i <= 200; i++)
+      {
+         helloWorld.updateThing(thingId);
+         Thread.sleep(2000);
+      }
+      */
+
+      /**
+       * Update the ACL with your User ID to see your thing in the Demo Web UI
+       */
+      // helloWorld.updateACL(thingId);
+
+      /**
+       * This step must always be concluded to terminate the Java client.
+       */
+      helloWorld.terminate();
+   }
 
    /**
     * Client instantiation
@@ -113,43 +149,6 @@ public class HelloWorld
    }
 
    /**
-    * See <a href="https://imbvl4vm328.bosch-si.com/cr/doku.php?id=005_dev_guide:tutorial:000_hello_world">Hello World Tutorial</a>.
-    */
-   public static void main(final String... args) throws InterruptedException, ExecutionException, TimeoutException
-   {
-      /**
-       * Instantiate the Java Client
-       */
-      HelloWorld helloWorld = new HelloWorld();
-
-      /**
-       * Create an empty Thing and get Thing ID
-       */
-      String thingId = helloWorld.createEmptyThing();
-
-      /**
-       * Loop to update the attributes of the Thing
-       */
-      /*
-      for (int i = 0; i <= 200; i++)
-      {
-         helloWorld.updateThing(thingId);
-         Thread.sleep(2000);
-      }
-      */
-
-      /**
-       * Update the ACL with your User ID to see your thing in the Demo Web UI
-       */
-      // helloWorld.updateACL(thingId);
-
-      /**
-       * This step must always be concluded to terminate the Java client.
-       */
-      helloWorld.terminate();
-   }
-
-   /**
     * Create an empty Thing
     *
     * @return thing id
@@ -184,7 +183,7 @@ public class HelloWorld
          Attributes attributes = AttributesModelFactory.newAttributesBuilder().set("Counter", i++).build();
          thing = thing.setAttributes(attributes);
          thingIntegration.update(thing).get(2, TimeUnit.SECONDS);
-         LOGGER.info("Thing with ID '{}' updated!", thingHandle.getThingId());
+         LOGGER.info("Thing with ID '{}' updated with Counter={}!", thingHandle.getThingId(), i);
       }
       catch (InterruptedException | ExecutionException | TimeoutException e)
       {
