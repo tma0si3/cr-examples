@@ -51,7 +51,6 @@ import com.bosch.cr.model.things.Thing;
 
 public class HelloWorld
 {
-
    // Things Service in Cloud
    public static final String BOSCH_IOT_CENTRAL_REGISTRY_WS_ENDPOINT_URL = "wss://events.apps.bosch-iot-cloud.com";
    // Insert your Solution ID here
@@ -59,24 +58,55 @@ public class HelloWorld
    public static final String CLIENT_ID = SOLUTION_ID;
    // Insert your User ID here
    public static final String USER_ID = "<your-user-id>";
+   // Insert your keystore passwords here
    public static final URL KEYSTORE_LOCATION = HelloWorld.class.getResource("/CRClient.jks");
-   public static final String KEYSTORE_PASSWORD = "solutionPass";
+   public static final String KEYSTORE_PASSWORD = "<your-keystore-password>";
+   public static final String ALIAS = "CR";
+   public static final String ALIAS_PASSWORD = "<your-alias-password>";
+   // At the moment necessary for accepting bosch self signed certificates
    public static final URL TRUSTSTORE_LOCATION = HelloWorld.class.getResource("/bosch-iot-cloud.jks");
    public static final String TRUSTSTORE_PASSWORD = "jks";
-   public static final String ALIAS = "CR";
-   public static final String ALIAS_PASSWORD = "crPass";
+   // Logger
    private static final Logger LOGGER = LoggerFactory.getLogger(HelloWorld.class);
+
    public static int i = 0;
 
    final IntegrationClient integrationClient;
    final ThingIntegration thingIntegration;
+
+
+   /**
+    * See tutorial here for step by step instructions.
+    */
+   public static void main(final String... args) throws InterruptedException, ExecutionException, TimeoutException
+   {
+      // Instantiate the Java Client
+      HelloWorld helloWorld = new HelloWorld();
+
+      // Step 1: Create an empty Thing and get Thing ID
+      String thingId = helloWorld.createEmptyThing();
+
+      // Step 2: Update the ACL with your User ID
+      // Before this Step you have to add your User ID in the HelloWorld Class
+      helloWorld.updateACL(thingId);
+
+      // Step 3: Loop to update the attributes of the Thing
+      for (int i = 0; i <= 200; i++)
+      {
+         helloWorld.updateThing(thingId);
+         Thread.sleep(2000);
+      }
+
+      // This step must always be concluded to terminate the Java client.
+      helloWorld.terminate();
+   }
 
    /**
     * Client instantiation
     */
    public HelloWorld()
    {
-        /* build an authentication configuration */
+      /* build an authentication configuration */
       final AuthenticationConfiguration authenticationConfiguration = PublicKeyAuthenticationConfiguration.newBuilder().clientId(CLIENT_ID) //
          .keyStoreLocation(KEYSTORE_LOCATION) //
          .keyStorePassword(KEYSTORE_PASSWORD) //
@@ -84,12 +114,14 @@ public class HelloWorld
          .aliasPassword(ALIAS_PASSWORD) //
          .build();
 
-        /* configure a truststore that contains trusted certificates */
+      /* configure a truststore that contains trusted certificates */
       final TrustStoreConfiguration trustStore =
          TrustStoreConfiguration.newBuilder().location(TRUSTSTORE_LOCATION).password(TRUSTSTORE_PASSWORD).build();
 
-         /* provide required configuration (authentication configuration and CR URI),
-         optional configuration (proxy, truststore etc.) can be added when needed */
+      /**
+       * provide required configuration (authentication configuration and CR URI),
+       * optional configuration (proxy, truststore etc.) can be added when needed
+       */
       final IntegrationClientConfiguration integrationClientConfiguration = IntegrationClientConfiguration.newBuilder()
          .authenticationConfiguration(authenticationConfiguration)
          .centralRegistryEndpointUrl(BOSCH_IOT_CENTRAL_REGISTRY_WS_ENDPOINT_URL)
@@ -99,26 +131,85 @@ public class HelloWorld
 
       LOGGER.info("Creating CR Integration Client for ClientID: {}", CLIENT_ID);
 
-        /* Create a new integration client object to start interacting with the Central Registry */
+      /* Create a new integration client object to start interacting with the Central Registry */
       integrationClient = IntegrationClientImpl.newInstance(integrationClientConfiguration);
 
-        /* Create a new thing integration object to start interacting with the Central Registry */
+      /* Create a new thing integration object to start interacting with the Central Registry */
       thingIntegration = integrationClient.things();
    }
 
    /**
     * Create an empty Thing
+    *
+    * @return thing id
     */
-   public void createEmptyThing()
+   public String createEmptyThing()
    {
+      String thingId = null;
       try
       {
-         thingIntegration.create().thenAccept(thing -> LOGGER.info("Thing with following ID created: {}", thing)).get(2, TimeUnit.SECONDS);
+         thingId = thingIntegration.create().thenCompose(thing -> {
+            LOGGER.info("Thing with ID '{}' created.", thing);
+            return integrationClient.things().forId(thing.getId().get()).retrieve();
+         }).get(2, TimeUnit.SECONDS).getId().get();
       }
       catch (InterruptedException | ExecutionException | TimeoutException e)
       {
          e.printStackTrace();
       }
+      return thingId;
+   }
+
+   /**
+    * Update Attributes of a specified Thing
+    */
+   public void updateThing(String thingID)
+   {
+      Thing thing;
+      ThingHandle thingHandle = thingIntegration.forId(thingID);
+      try
+      {
+         thing = thingHandle.retrieve().get(2, TimeUnit.SECONDS);
+         Attributes attributes = AttributesModelFactory.newAttributesBuilder().set("Counter", i++).build();
+         thing = thing.setAttributes(attributes);
+         thingIntegration.update(thing).get(2, TimeUnit.SECONDS);
+         LOGGER.info("Thing with ID '{}' updated!", thingHandle.getThingId());
+      }
+      catch (InterruptedException | ExecutionException | TimeoutException e)
+      {
+         e.printStackTrace();
+      }
+   }
+
+   /**
+    * Update the ACL of a specified Thing
+    */
+   public void updateACL(String thingID)
+   {
+      Thing thing;
+      final AclEntry acl;
+      ThingHandle thingHandle = thingIntegration.forId(thingID);
+      try
+      {
+         thing = thingHandle.retrieve().get(2, TimeUnit.SECONDS);
+         acl = AclEntry.newInstance(AuthorizationModelFactory.newAuthSubject(USER_ID), Permission.READ, Permission.WRITE, Permission.ADMINISTRATE);
+         thing = thing.setAclEntry(acl);
+         thingIntegration.update(thing).get(2, TimeUnit.SECONDS);
+         LOGGER.info("Thing with ID '{}' updated (ACL entry)!", thingHandle.getThingId());
+      }
+      catch (InterruptedException | ExecutionException | TimeoutException e)
+      {
+         e.printStackTrace();
+      }
+   }
+
+   /**
+    * Destroys the client and waits for its graceful shutdown.
+    */
+   public void terminate()
+   {
+      /* Gracefully shutdown the integrationClient */
+      integrationClient.destroy();
    }
 
    /**
@@ -145,61 +236,9 @@ public class HelloWorld
       ThingHandle thingHandle = thingIntegration.forId(thingID);
       try
       {
-
          thing = thingHandle.retrieve().get(2, TimeUnit.SECONDS);
-
          LOGGER.info("Thing with ID found: {}", thingHandle.getThingId());
          LOGGER.info("Thing Attributes: {}", thing.getAttributes());
-
-      }
-      catch (InterruptedException | ExecutionException | TimeoutException e)
-      {
-         e.printStackTrace();
-      }
-   }
-
-   /**
-    * Update Attributes of a specified Thing
-    */
-   public void updateThing(String thingID)
-   {
-      Thing thing;
-      ThingHandle thingHandle = thingIntegration.forId(thingID);
-      try
-      {
-
-         thing = thingHandle.retrieve().get(2, TimeUnit.SECONDS);
-
-         Attributes attributes = AttributesModelFactory.newAttributesBuilder().set("Counter", i++).build();
-         thing = thing.setAttributes(attributes);
-
-         thingIntegration.update(thing).get(2, TimeUnit.SECONDS);
-
-         LOGGER.info("Thing with ID: {} updated!", thingHandle.getThingId());
-
-      }
-      catch (InterruptedException | ExecutionException | TimeoutException e)
-      {
-         e.printStackTrace();
-      }
-   }
-
-   /**
-    * Update the ACL of a specified Thing
-    */
-   public void updateACL(String thingID)
-   {
-      Thing thing;
-      final AclEntry acl;
-      ThingHandle thingHandle = thingIntegration.forId(thingID);
-      try
-      {
-
-         thing = thingHandle.retrieve().get(2, TimeUnit.SECONDS);
-         acl = AclEntry.newInstance(AuthorizationModelFactory.newAuthSubject(USER_ID), Permission.READ, Permission.WRITE, Permission.ADMINISTRATE);
-         thing = thing.setAclEntry(acl);
-
-         thingIntegration.update(thing).get(2, TimeUnit.SECONDS);
       }
       catch (InterruptedException | ExecutionException | TimeoutException e)
       {
@@ -215,23 +254,11 @@ public class HelloWorld
       try
       {
          thingIntegration.delete(thingID).get(2, TimeUnit.SECONDS);
-
          LOGGER.info("Thing with ID deleted: {}", thingID);
-
       }
       catch (InterruptedException | ExecutionException | TimeoutException e)
       {
          e.printStackTrace();
       }
-
-   }
-
-   /**
-    * Destroys the client and waits for its graceful shutdown.
-    */
-   public void terminate()
-   {
-        /* Gracefully shutdown the integrationClient */
-      integrationClient.destroy();
    }
 }
