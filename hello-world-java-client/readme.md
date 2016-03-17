@@ -7,7 +7,7 @@ For detailed instructions see: <a href="https://m2m.bosch-si.com/cr/doku.php?id=
 Set your IDs and keystore passwords in the file "src/main/java/.../HelloWorld.java"
 ```
 public static final String SOLUTION_ID = <your-solution-id>;
-public static  final String USER_ID = "<your-user-id>";
+public static final String USER_ID = "<your-user-id>";
 public static final String KEYSTORE_PASSWORD = "<your-keystore-password>";
 public static final String ALIAS_PASSWORD = "<your-alias-password>";
 ```
