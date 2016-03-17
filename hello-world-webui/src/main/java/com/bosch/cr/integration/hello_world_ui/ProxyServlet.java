@@ -44,8 +44,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.AuthenticationException;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
@@ -54,6 +56,7 @@ import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
@@ -171,6 +174,13 @@ public class ProxyServlet extends HttpServlet
             if (props.getProperty("http.proxyHost") != null)
             {
                httpClientBuilder.setProxy(new HttpHost(props.getProperty("http.proxyHost"), Integer.parseInt(props.getProperty("http.proxyPort"))));
+            }
+
+            if (props.getProperty("http.proxyUser") != null)
+            {
+               CredentialsProvider credsProvider = new BasicCredentialsProvider();
+               credsProvider.setCredentials(new AuthScope(targetHost), new UsernamePasswordCredentials(props.getProperty("http.proxyUser"), props.getProperty("http.proxyPwd")));
+               httpClientBuilder.setDefaultCredentialsProvider(credsProvider);
             }
 
             httpClient = httpClientBuilder.build();
