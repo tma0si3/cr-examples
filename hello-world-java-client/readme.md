@@ -13,7 +13,7 @@ public static final String ALIAS_PASSWORD = "<your-alias-password>";
 ```
 
 ## Usage
-Run "src/main/java/.../HelloWorld.java" to create and update the attributes of the specified thing.
+Run "src/main/java/.../HelloWorld.java" to create and update a thing.
 
 ## License
 See the cr-examples top level README.md file for license details.
