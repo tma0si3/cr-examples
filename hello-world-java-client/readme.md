@@ -4,7 +4,7 @@ This example shows how to create and use the Java Integration Client for managin
 For detailed instructions see: <a href="https://m2m.bosch-si.com/cr/doku.php?id=005_dev_guide:tutorial:000_hello_world">here</a>
 
 ## Configure your Solution ID and UserID  
-Set your passwords and IDs in the file "src/main/java/.../HelloWorld.java"
+Set your IDs and keystore passwords in the file "src/main/java/.../HelloWorld.java"
 ```
 public static final String SOLUTION_ID = <your-solution-id>;
 public static  final String USER_ID = "<your-user-id>";
