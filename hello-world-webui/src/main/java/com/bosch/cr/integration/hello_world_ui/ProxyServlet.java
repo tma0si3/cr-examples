@@ -100,7 +100,7 @@ public class ProxyServlet extends HttpServlet
       {
          throw new RuntimeException(ex);
       }
-      targetHost = HttpHost.create(props.getProperty("centralRegistryTargetHost", "https://cr.apps.bosch-iot-cloud.com"));
+      targetHost = HttpHost.create(props.getProperty("thingsTargetHost", "https://cr.apps.bosch-iot-cloud.com"));
    }
 
    @Override
@@ -132,8 +132,8 @@ public class ProxyServlet extends HttpServlet
             targetReq.addHeader(new BasicScheme().authenticate(creds, targetReq, null));
          }
 
-         targetReq.addHeader("x-cr-api-token", props.getProperty("centralRegistryApiToken"));
-         targetReq.addHeader("x-craas-solution-api-token", props.getProperty("centralRegistryApiToken"));
+         targetReq.addHeader("x-cr-api-token", props.getProperty("thingsApiToken"));
+         targetReq.addHeader("x-craas-solution-api-token", props.getProperty("thingsApiToken"));
          CloseableHttpResponse targetResp = c.execute(targetHost, targetReq);
 
          System.out.println("Request: " + targetHost + targetUrl + ", user " + user + " -> " + (System.currentTimeMillis() - time) + " msec: "
@@ -179,7 +179,8 @@ public class ProxyServlet extends HttpServlet
             if (props.getProperty("http.proxyUser") != null)
             {
                CredentialsProvider credsProvider = new BasicCredentialsProvider();
-               credsProvider.setCredentials(new AuthScope(targetHost), new UsernamePasswordCredentials(props.getProperty("http.proxyUser"), props.getProperty("http.proxyPwd")));
+               credsProvider.setCredentials(new AuthScope(targetHost),
+                  new UsernamePasswordCredentials(props.getProperty("http.proxyUser"), props.getProperty("http.proxyPwd")));
                httpClientBuilder.setDefaultCredentialsProvider(credsProvider);
             }
 

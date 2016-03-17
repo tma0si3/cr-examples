@@ -1,4 +1,4 @@
-# Bosch IoT Things - Hello World Example
+# Bosch IoT Things - Hello World UI
 
 This example shows how to create a simple user interface to list your first Hello World Thing.
 For detailed instructions see: <a href="https://m2m.bosch-si.com/cr/doku.php?id=005_dev_guide:tutorial:001_hello_world">here</a>
@@ -8,8 +8,8 @@ For detailed instructions see: <a href="https://m2m.bosch-si.com/cr/doku.php?id=
 Create or adjust file "src/main/resources/config.properties"
 
 ```
-centralRegistryTargetHost=https://things.apps.bosch-iot-cloud.com
-centralRegistryApiToken=### your Bosch IoT Things Solution API Token ###
+thingsTargetHost=https://things.apps.bosch-iot-cloud.com
+thingsApiToken=### your Bosch IoT Things Solution API Token ###
 http.proxyHost=### your http proxy host, if you need one ###
 http.proxyPort=### your http proxy port, if you need one ###
 http.proxyUser=### your http proxy user, if you need one ###
