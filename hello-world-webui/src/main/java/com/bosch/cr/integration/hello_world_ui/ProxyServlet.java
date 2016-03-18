@@ -132,8 +132,7 @@ public class ProxyServlet extends HttpServlet
             targetReq.addHeader(new BasicScheme().authenticate(creds, targetReq, null));
          }
 
-         targetReq.addHeader("x-cr-api-token", props.getProperty("thingsApiToken"));
-         targetReq.addHeader("x-craas-solution-api-token", props.getProperty("thingsApiToken"));
+         targetReq.addHeader("x-cr-api-token", req.getHeader("x-cr-api-token"));
          CloseableHttpResponse targetResp = c.execute(targetHost, targetReq);
 
          System.out.println("Request: " + targetHost + targetUrl + ", user " + user + " -> " + (System.currentTimeMillis() - time) + " msec: "
@@ -141,7 +140,6 @@ public class ProxyServlet extends HttpServlet
 
          resp.setStatus(targetResp.getStatusLine().getStatusCode());
          targetResp.getEntity().writeTo(resp.getOutputStream());
-
       }
       catch (IOException | AuthenticationException ex)
       {
@@ -149,6 +147,9 @@ public class ProxyServlet extends HttpServlet
       }
    }
 
+   /**
+    * Create http client
+    */
    private synchronized CloseableHttpClient getHttpClient()
    {
       if (httpClient == null)

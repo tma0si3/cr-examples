@@ -29,27 +29,26 @@
 
 $(document).ready(function () {
 
-    // --- Variable for ThingID
     var thingId;
+    var apiToken;
 
     // --- Get ThingID from input
     var getThingId = function () {
-
-        var elem = document.getElementById('input');
-        var input = document.getElementById('submit');
-        thingId = document.getElementById('input').value;
-        if (thingId == null || thingId == "") {
-            alert("Please insert valid ThingID!");
-            return;
-        }
+        thingId = document.getElementById('thingId').value;
+        apiToken = document.getElementById('apiToken').value;
         $('#thingID').html(thingId.toString());
-        elem.style.display = 'none';
-        input.style.display = 'none';
+        $("#failure").hide();
         refreshDetails();
     };
 
     var refreshDetails = function () {
-
+        // Set solution api token for this request
+        $.ajaxSetup({
+            headers: {
+                'x-cr-api-token': apiToken
+            }
+        });
+        // Get thing
         $.getJSON("cr/1/things/" + thingId).done(function (thing, textStatus) {
 
             // --- clear table content and remember thingId

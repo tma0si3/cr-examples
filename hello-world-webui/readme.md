@@ -3,13 +3,12 @@
 This example shows how to create a simple user interface to list your first Hello World Thing.
 For detailed instructions see: <a href="https://m2m.bosch-si.com/cr/doku.php?id=005_dev_guide:tutorial:001_hello_world">here</a>
 
-## Configure your API Token and other settings
+## Configure your proxy host if needed
 
 Create or adjust file "src/main/resources/config.properties"
 
 ```
 thingsTargetHost=https://things.apps.bosch-iot-cloud.com
-thingsApiToken=### your Bosch IoT Things Solution API Token ###
 http.proxyHost=### your http proxy host, if you need one ###
 http.proxyPort=### your http proxy port, if you need one ###
 http.proxyUser=### your http proxy user, if you need one ###
@@ -91,7 +90,7 @@ x-cr-api-token: "your-api-token"
 ### Show Hello World UI
 
 Browse to the example web app: <http://localhost:8080/hello-world-webui/>
-Insert your ThingId and press Submit. 
+Insert your Thing ID and Solution API Token and press Submit. 
 
 ### Update Hello World Thing with the Java Client
 
