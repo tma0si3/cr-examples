@@ -81,26 +81,31 @@ public class ProxyServlet extends HttpServlet
    public void init(ServletConfig config) throws ServletException
    {
       super.init(config);
-      try
+      props = new Properties(System.getProperties());
+      if (new File("config.properties").exists())
       {
-         props = new Properties(System.getProperties());
-         if (new File("config.properties").exists())
+         try (FileReader reader = new FileReader("config.properties"))
          {
-            props.load(new FileReader("config.properties"));
+            props.load(reader);
          }
-         else
+         catch (IOException e)
          {
-            InputStream i = Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties");
-            props.load(i);
-            i.close();
+            throw new RuntimeException(e);
          }
-         System.out.println("Config: " + props);
       }
-      catch (IOException ex)
+      else
       {
-         throw new RuntimeException(ex);
+         try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties"))
+         {
+            props.load(is);
+         }
+         catch (IOException e)
+         {
+            throw new RuntimeException(e);
+         }
       }
-      targetHost = HttpHost.create(props.getProperty("thingsTargetHost", "https://cr.apps.bosch-iot-cloud.com"));
+      System.out.println("Config: " + props);
+      targetHost = HttpHost.create(props.getProperty("thingsTargetHost", "https://things.apps.bosch-iot-cloud.com"));
    }
 
    @Override
