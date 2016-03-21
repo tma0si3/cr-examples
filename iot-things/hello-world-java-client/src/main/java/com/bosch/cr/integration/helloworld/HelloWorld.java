@@ -39,7 +39,6 @@ import com.bosch.cr.integration.client.configuration.AuthenticationConfiguration
 import com.bosch.cr.integration.client.configuration.IntegrationClientConfiguration;
 import com.bosch.cr.integration.client.configuration.PublicKeyAuthenticationConfiguration;
 import com.bosch.cr.integration.client.configuration.TrustStoreConfiguration;
-import com.bosch.cr.integration.things.ThingHandle;
 import com.bosch.cr.integration.things.ThingIntegration;
 import com.bosch.cr.json.JsonFactory;
 import com.bosch.cr.model.acl.AclEntry;
@@ -197,7 +196,7 @@ public class HelloWorld
             }
             else
             {
-               LOGGER.error("Update of Thing with ID '{}' failed with message '{}'", thingId, throwable.getMessage());
+               LOGGER.error(throwable.getMessage());
             }
          });
    }
@@ -225,7 +224,63 @@ public class HelloWorld
             }
             else
             {
-               LOGGER.error("Update of Thing with ID '{}' failed with message '{}'", thingId, throwable.getMessage());
+               LOGGER.error(throwable.getMessage());
+            }
+         });
+   }
+
+   /**
+    * Create a Thing with given ThingId
+    */
+   public void createThing(final String thingId)
+   {
+      thingIntegration.create(thingId) //
+         .whenComplete((aVoid, throwable) -> {
+            if (null == throwable)
+            {
+               LOGGER.info("Thing with ID '{}' created.", thingId);
+            }
+            else
+            {
+               LOGGER.error(throwable.getMessage());
+            }
+         });
+   }
+
+   /**
+    * Find a Thing with given ThingId
+    */
+   public void getThingByID(final String thingId)
+   {
+      thingIntegration.forId(thingId) //
+         .retrieve() //
+         .whenComplete((thing, throwable) -> {
+            if (null == throwable)
+            {
+               LOGGER.info("Thing with ID found: {}", thingId);
+               LOGGER.info("Thing Attributes: {}", thing.getAttributes());
+            }
+            else
+            {
+               LOGGER.error(throwable.getMessage());
+            }
+         });
+   }
+
+   /**
+    * Delete a specified Thing
+    */
+   public void deleteThing(final String thingId)
+   {
+      thingIntegration.delete(thingId) //
+         .whenComplete((aVoid, throwable) -> {
+            if (null == throwable)
+            {
+               LOGGER.info("Thing with ID deleted: {}", thingId);
+            }
+            else
+            {
+               LOGGER.error(throwable.getMessage());
             }
          });
    }
@@ -239,54 +294,4 @@ public class HelloWorld
       integrationClient.destroy();
    }
 
-   /**
-    * Create a Thing with given ThingId
-    */
-   public void createThing(final String thingID)
-   {
-      try
-      {
-         thingIntegration.create(thingID).thenAccept(thing -> LOGGER.info("Thing created: {}", thing)).get(TIMEOUT,
-            TimeUnit.SECONDS);
-      }
-      catch (InterruptedException | ExecutionException | TimeoutException e)
-      {
-         LOGGER.error(e.getMessage());
-      }
-   }
-
-   /**
-    * Find a Thing with given ThingId
-    */
-   public void getThingByID(final String thingID)
-   {
-      final Thing thing;
-      final ThingHandle thingHandle = thingIntegration.forId(thingID);
-      try
-      {
-         thing = thingHandle.retrieve().get(TIMEOUT, TimeUnit.SECONDS);
-         LOGGER.info("Thing with ID found: {}", thingHandle.getThingId());
-         LOGGER.info("Thing Attributes: {}", thing.getAttributes());
-      }
-      catch (InterruptedException | ExecutionException | TimeoutException e)
-      {
-         LOGGER.error(e.getMessage());
-      }
-   }
-
-   /**
-    * Delete a specified Thing
-    */
-   public void deleteThing(final String thingID)
-   {
-      try
-      {
-         thingIntegration.delete(thingID).get(TIMEOUT, TimeUnit.SECONDS);
-         LOGGER.info("Thing with ID deleted: {}", thingID);
-      }
-      catch (InterruptedException | ExecutionException | TimeoutException e)
-      {
-         LOGGER.error(e.getMessage());
-      }
-   }
 }
