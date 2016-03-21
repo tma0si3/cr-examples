@@ -1,6 +1,5 @@
 /*
- *                                            Bosch SI Example Code License
- *                                              Version 1.0, January 2016
+ * Bosch SI Example Code License Version 1.0, January 2016
  *
  * Copyright 2016 Bosch Software Innovations GmbH ("Bosch SI"). All rights reserved.
  *
@@ -14,15 +13,15 @@
  * following disclaimer in the documentation and/or other materials provided with the distribution.
  *
  * BOSCH SI PROVIDES THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE RISK AS TO
- * THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF
- * ALL NECESSARY SERVICING, REPAIR OR CORRECTION. THIS SHALL NOT APPLY TO MATERIAL DEFECTS AND DEFECTS OF TITLE WHICH
- * BOSCH SI HAS FRAUDULENTLY CONCEALED. APART FROM THE CASES STIPULATED ABOVE, BOSCH SI SHALL BE LIABLE WITHOUT
- * LIMITATION FOR INTENT OR GROSS NEGLIGENCE, FOR INJURIES TO LIFE, BODY OR HEALTH AND ACCORDING TO THE PROVISIONS OF
- * THE GERMAN PRODUCT LIABILITY ACT (PRODUKTHAFTUNGSGESETZ). THE SCOPE OF A GUARANTEE GRANTED BY BOSCH SI SHALL REMAIN
- * UNAFFECTED BY LIMITATIONS OF LIABILITY. IN ALL OTHER CASES, LIABILITY OF BOSCH SI IS EXCLUDED. THESE LIMITATIONS OF
- * LIABILITY ALSO APPLY IN REGARD TO THE FAULT OF VICARIOUS AGENTS OF BOSCH SI AND THE PERSONAL LIABILITY OF BOSCH SI'S
- * EMPLOYEES, REPRESENTATIVES AND ORGANS.
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE RISK AS TO THE
+ * QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL
+ * NECESSARY SERVICING, REPAIR OR CORRECTION. THIS SHALL NOT APPLY TO MATERIAL DEFECTS AND DEFECTS OF TITLE WHICH BOSCH
+ * SI HAS FRAUDULENTLY CONCEALED. APART FROM THE CASES STIPULATED ABOVE, BOSCH SI SHALL BE LIABLE WITHOUT LIMITATION FOR
+ * INTENT OR GROSS NEGLIGENCE, FOR INJURIES TO LIFE, BODY OR HEALTH AND ACCORDING TO THE PROVISIONS OF THE GERMAN
+ * PRODUCT LIABILITY ACT (PRODUKTHAFTUNGSGESETZ). THE SCOPE OF A GUARANTEE GRANTED BY BOSCH SI SHALL REMAIN UNAFFECTED
+ * BY LIMITATIONS OF LIABILITY. IN ALL OTHER CASES, LIABILITY OF BOSCH SI IS EXCLUDED. THESE LIMITATIONS OF LIABILITY
+ * ALSO APPLY IN REGARD TO THE FAULT OF VICARIOUS AGENTS OF BOSCH SI AND THE PERSONAL LIABILITY OF BOSCH SI'S EMPLOYEES,
+ * REPRESENTATIVES AND ORGANS.
  */
 package com.bosch.cr.integration.helloworld;
 
@@ -42,11 +41,10 @@ import com.bosch.cr.integration.client.configuration.PublicKeyAuthenticationConf
 import com.bosch.cr.integration.client.configuration.TrustStoreConfiguration;
 import com.bosch.cr.integration.things.ThingHandle;
 import com.bosch.cr.integration.things.ThingIntegration;
+import com.bosch.cr.json.JsonFactory;
 import com.bosch.cr.model.acl.AclEntry;
 import com.bosch.cr.model.acl.Permission;
-import com.bosch.cr.model.attributes.Attributes;
-import com.bosch.cr.model.attributes.AttributesModelFactory;
-import com.bosch.cr.model.authorization.AuthorizationModelFactory;
+import com.bosch.cr.model.authorization.AuthorizationSubject;
 import com.bosch.cr.model.things.Thing;
 
 public class HelloWorld
@@ -68,6 +66,7 @@ public class HelloWorld
    public static final String TRUSTSTORE_PASSWORD = "jks";
    // Logger
    private static final Logger LOGGER = LoggerFactory.getLogger(HelloWorld.class);
+   private static final int TIMEOUT = 2;
 
    public static int i = 0;
 
@@ -82,28 +81,26 @@ public class HelloWorld
       /**
        * Instantiate the Java Client
        */
-      HelloWorld helloWorld = new HelloWorld();
+      final HelloWorld helloWorld = new HelloWorld();
 
       /**
        * Create an empty Thing and get Thing ID
        */
-      String thingId = helloWorld.createEmptyThing();
-
-      /**
-       * Loop to update the attributes of the Thing
-       */
-      /*
-      for (int i = 0; i <= 200; i++)
-      {
-         helloWorld.updateThing(thingId);
-         Thread.sleep(2000);
-      }
-      */
+      final String thingId = helloWorld.createEmptyThing();
 
       /**
        * Update the ACL with your User ID to see your thing in the Demo Web UI
        */
-      // helloWorld.updateACL(thingId);
+      helloWorld.updateACL(thingId);
+
+      /**
+       * Loop to update the attributes of the Thing
+       */
+      for (int i = 0; i <= 100; i++)
+      {
+         helloWorld.updateThing(thingId);
+         Thread.sleep(2000);
+      }
 
       /**
        * This step must always be concluded to terminate the Java client.
@@ -117,12 +114,13 @@ public class HelloWorld
    public HelloWorld()
    {
       /* Build an authentication configuration */
-      final AuthenticationConfiguration authenticationConfiguration = PublicKeyAuthenticationConfiguration.newBuilder().clientId(CLIENT_ID) //
-         .keyStoreLocation(KEYSTORE_LOCATION) //
-         .keyStorePassword(KEYSTORE_PASSWORD) //
-         .alias(ALIAS) //
-         .aliasPassword(ALIAS_PASSWORD) //
-         .build();
+      final AuthenticationConfiguration authenticationConfiguration =
+         PublicKeyAuthenticationConfiguration.newBuilder().clientId(CLIENT_ID) //
+            .keyStoreLocation(KEYSTORE_LOCATION) //
+            .keyStorePassword(KEYSTORE_PASSWORD) //
+            .alias(ALIAS) //
+            .aliasPassword(ALIAS_PASSWORD) //
+            .build();
 
       /* optionally configure a proxy server */
       // final ProxyConfiguration proxy = ProxyConfiguration.newBuilder()
@@ -137,15 +135,16 @@ public class HelloWorld
          TrustStoreConfiguration.newBuilder().location(TRUSTSTORE_LOCATION).password(TRUSTSTORE_PASSWORD).build();
 
       /**
-       * Provide required configuration (authentication configuration and CR URI),
-       * optional proxy configuration can be added when needed
+       * Provide required configuration (authentication configuration and CR URI), optional proxy configuration can be
+       * added when needed
        */
-      final IntegrationClientConfiguration integrationClientConfiguration = IntegrationClientConfiguration.newBuilder()
-         .authenticationConfiguration(authenticationConfiguration)
-         .centralRegistryEndpointUrl(BOSCH_IOT_CENTRAL_REGISTRY_WS_ENDPOINT_URL)
-         // .proxyConfiguration(proxy)
-         .trustStoreConfiguration(trustStore)
-         .build();
+         final IntegrationClientConfiguration integrationClientConfiguration =
+            IntegrationClientConfiguration.newBuilder() //
+               .authenticationConfiguration(authenticationConfiguration)
+               .centralRegistryEndpointUrl(BOSCH_IOT_CENTRAL_REGISTRY_WS_ENDPOINT_URL) //
+               .trustStoreConfiguration(trustStore) //
+               // .proxyConfiguration(proxy) //
+               .build();
 
       LOGGER.info("Creating CR Integration Client for ClientID: {}", CLIENT_ID);
 
@@ -166,14 +165,16 @@ public class HelloWorld
       String thingId = null;
       try
       {
-         thingId = thingIntegration.create().thenCompose(thing -> {
-            LOGGER.info("Thing with ID '{}' created.", thing);
-            return integrationClient.things().forId(thing.getId().get()).retrieve();
-         }).get(2, TimeUnit.SECONDS).getId().get();
+         thingId = thingIntegration.create() //
+            .thenApply(thing -> {
+               final String id = thing.getId().get();
+               LOGGER.info("Thing with ID '{}' created.", id);
+               return id;
+            }).get(TIMEOUT, TimeUnit.SECONDS);
       }
       catch (InterruptedException | ExecutionException | TimeoutException e)
       {
-         e.printStackTrace();
+         LOGGER.error(e.getMessage());
       }
       return thingId;
    }
@@ -181,44 +182,52 @@ public class HelloWorld
    /**
     * Update Attributes of a specified Thing
     */
-   public void updateThing(String thingID)
+   public void updateThing(final String thingId)
    {
-      Thing thing;
-      ThingHandle thingHandle = thingIntegration.forId(thingID);
-      try
-      {
-         thing = thingHandle.retrieve().get(2, TimeUnit.SECONDS);
-         Attributes attributes = AttributesModelFactory.newAttributesBuilder().set("Counter", i++).build();
-         thing = thing.setAttributes(attributes);
-         thingIntegration.update(thing).get(2, TimeUnit.SECONDS);
-         LOGGER.info("Thing with ID '{}' updated with Counter={}!", thingHandle.getThingId(), i);
-      }
-      catch (InterruptedException | ExecutionException | TimeoutException e)
-      {
-         e.printStackTrace();
-      }
+      thingIntegration.forId(thingId) //
+         .retrieve() //
+         .thenCompose(thing -> {
+            final Thing updated = thing.setAttribute(JsonFactory.newPointer("Counter"), JsonFactory.newValue(i++));
+            return thingIntegration.update(updated);
+         }) //
+         .whenComplete((aVoid, throwable) -> {
+            if (null == throwable)
+            {
+               LOGGER.info("Thing with ID '{}' updated with Counter={}!", thingId, i);
+            }
+            else
+            {
+               LOGGER.error("Update of Thing with ID '{}' failed with message '{}'", thingId, throwable.getMessage());
+            }
+         });
    }
 
    /**
     * Update the ACL of a specified Thing
     */
-   public void updateACL(String thingID)
+   public void updateACL(final String thingId)
    {
-      Thing thing;
-      final AclEntry acl;
-      ThingHandle thingHandle = thingIntegration.forId(thingID);
-      try
-      {
-         thing = thingHandle.retrieve().get(2, TimeUnit.SECONDS);
-         acl = AclEntry.newInstance(AuthorizationModelFactory.newAuthSubject(USER_ID), Permission.READ, Permission.WRITE, Permission.ADMINISTRATE);
-         thing = thing.setAclEntry(acl);
-         thingIntegration.update(thing).get(2, TimeUnit.SECONDS);
-         LOGGER.info("Thing with ID '{}' updated (ACL entry)!", thingHandle.getThingId());
-      }
-      catch (InterruptedException | ExecutionException | TimeoutException e)
-      {
-         e.printStackTrace();
-      }
+      thingIntegration.forId(thingId) //
+         .retrieve() //
+         .thenCompose(thing -> {
+            final AclEntry aclEntry = AclEntry.newInstance(AuthorizationSubject.newInstance(USER_ID), //
+               Permission.READ, //
+               Permission.WRITE, //
+               Permission.ADMINISTRATE);
+
+            final Thing updated = thing.setAclEntry(aclEntry);
+            return thingIntegration.update(updated);
+         }) //
+         .whenComplete((aVoid, throwable) -> {
+            if (null == throwable)
+            {
+               LOGGER.info("Thing with ID '{}' updated (ACL entry)!", thingId);
+            }
+            else
+            {
+               LOGGER.error("Update of Thing with ID '{}' failed with message '{}'", thingId, throwable.getMessage());
+            }
+         });
    }
 
    /**
@@ -233,50 +242,51 @@ public class HelloWorld
    /**
     * Create a Thing with given ThingId
     */
-   public void createThing(String thingID)
+   public void createThing(final String thingID)
    {
       try
       {
-         thingIntegration.create(thingID).thenAccept(thing -> LOGGER.info("Thing created: {}", thing)).get(2, TimeUnit.SECONDS);
+         thingIntegration.create(thingID).thenAccept(thing -> LOGGER.info("Thing created: {}", thing)).get(TIMEOUT,
+            TimeUnit.SECONDS);
       }
       catch (InterruptedException | ExecutionException | TimeoutException e)
       {
-         e.printStackTrace();
+         LOGGER.error(e.getMessage());
       }
    }
 
    /**
     * Find a Thing with given ThingId
     */
-   public void getThingByID(String thingID)
+   public void getThingByID(final String thingID)
    {
-      Thing thing;
-      ThingHandle thingHandle = thingIntegration.forId(thingID);
+      final Thing thing;
+      final ThingHandle thingHandle = thingIntegration.forId(thingID);
       try
       {
-         thing = thingHandle.retrieve().get(2, TimeUnit.SECONDS);
+         thing = thingHandle.retrieve().get(TIMEOUT, TimeUnit.SECONDS);
          LOGGER.info("Thing with ID found: {}", thingHandle.getThingId());
          LOGGER.info("Thing Attributes: {}", thing.getAttributes());
       }
       catch (InterruptedException | ExecutionException | TimeoutException e)
       {
-         e.printStackTrace();
+         LOGGER.error(e.getMessage());
       }
    }
 
    /**
     * Delete a specified Thing
     */
-   public void deleteThing(String thingID)
+   public void deleteThing(final String thingID)
    {
       try
       {
-         thingIntegration.delete(thingID).get(2, TimeUnit.SECONDS);
+         thingIntegration.delete(thingID).get(TIMEOUT, TimeUnit.SECONDS);
          LOGGER.info("Thing with ID deleted: {}", thingID);
       }
       catch (InterruptedException | ExecutionException | TimeoutException e)
       {
-         e.printStackTrace();
+         LOGGER.error(e.getMessage());
       }
    }
 }
