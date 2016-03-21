@@ -34,20 +34,40 @@ import static com.bosch.iot.hub.HubConstants.SOLUTION_CLIENT_ID;
 import static com.bosch.iot.hub.HubConstants.TRUST_STORE_LOCATION;
 import static com.bosch.iot.hub.HubConstants.TRUST_STORE_PASSWORD;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import com.bosch.iot.hub.client.DefaultIotHubClient;
 import com.bosch.iot.hub.client.IotHubClient;
+import com.bosch.iot.hub.model.topic.TopicPath;
 
 public class HubExample
 {
    private static final String SOLUTION_TOPIC = "my_solution";
+   private static final String SOLUTION_SUBTOPIC = "my_solution/sub_topic";
 
-   public static void main(String[] args)
+   public static void main(String[] args) throws InterruptedException, ExecutionException, TimeoutException
    {
+      // init hub client, connect to backend
       IotHubClient solutionClient = initSolutionClient();
       solutionClient.connect();
-      solutionClient.createTopic(SOLUTION_TOPIC).thenAccept(topic -> {
+      
+      // create solution root topic
+      solutionClient.createTopic(SOLUTION_TOPIC).get(10, TimeUnit.SECONDS);
 
+      // create solution sub topic
+      TopicPath subTopicPath = TopicPath.of(SOLUTION_SUBTOPIC);
+      solutionClient.createTopic(subTopicPath).thenAccept(topic -> {
+         // you can do something here.
       });
+
+      // remove the root topic of the solution
+      solutionClient.deleteTopic(SOLUTION_TOPIC).get(10, TimeUnit.SECONDS);
+
+      // disconnect solution
+      solutionClient.disconnect();
+      solutionClient.destroy();
    }
 
    private static IotHubClient initSolutionClient()
@@ -60,5 +80,4 @@ public class HubExample
          .sslTrustStore(TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD) //
          .build();
    }
-
 }
