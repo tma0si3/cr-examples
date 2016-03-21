@@ -39,4 +39,5 @@ final class HubConstants
    public static final String TRUST_STORE_PASSWORD = "jks";
    public static final String ALIAS = "CR";
    public static final String ALIAS_PASSWORD = "123456";
+   public static final String PROXY_URI = System.getProperty("PROXY_URI");
 }

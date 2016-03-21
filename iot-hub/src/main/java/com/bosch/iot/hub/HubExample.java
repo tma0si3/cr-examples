@@ -34,15 +34,27 @@ import static com.bosch.iot.hub.HubConstants.SOLUTION_CLIENT_ID;
 import static com.bosch.iot.hub.HubConstants.TRUST_STORE_LOCATION;
 import static com.bosch.iot.hub.HubConstants.TRUST_STORE_PASSWORD;
 
+import java.net.URI;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import com.bosch.iot.hub.client.DefaultIotHubClient;
 import com.bosch.iot.hub.client.IotHubClient;
+import com.bosch.iot.hub.client.IotHubClientBuilder;
 import com.bosch.iot.hub.model.topic.TopicPath;
 
-public class HubExample
+/**
+ * Preconditions of runing the example :
+ * <ol>
+ * <li>Register your solution to get solution_id, and upload the public key from /HubExampleClient.jks (or create your
+ * own Key-pair)</li>
+ * <li>Use solution_id as your system property "SOLUTION_ID"</li>
+ * <li>Configure system property "HUB_CLOUD_ENDPOINT", using actual Websocket endpoint of IoT Hub Service</li>
+ * <li>Configure system property "PROXY_URI" if you have one, using format http://host:port</li>
+ * </ol>
+ */
+public final class HubExample
 {
    private static final String SOLUTION_TOPIC = "my_solution";
    private static final String SOLUTION_SUBTOPIC = "my_solution/sub_topic";
@@ -52,18 +64,19 @@ public class HubExample
       // init hub client, connect to backend
       IotHubClient solutionClient = initSolutionClient();
       solutionClient.connect();
-      
+
       // create solution root topic
-      solutionClient.createTopic(SOLUTION_TOPIC).get(10, TimeUnit.SECONDS);
+      solutionClient.createTopic(SOLUTION_TOPIC).get(20, TimeUnit.SECONDS);
 
       // create solution sub topic
       TopicPath subTopicPath = TopicPath.of(SOLUTION_SUBTOPIC);
       solutionClient.createTopic(subTopicPath).thenAccept(topic -> {
          // you can do something here.
+         System.out.println("A sub topic is created with path " + topic.getPath().toString());
       });
 
       // remove the root topic of the solution
-      solutionClient.deleteTopic(SOLUTION_TOPIC).get(10, TimeUnit.SECONDS);
+      solutionClient.deleteTopic(SOLUTION_TOPIC).get(20, TimeUnit.SECONDS);
 
       // disconnect solution
       solutionClient.disconnect();
@@ -72,12 +85,20 @@ public class HubExample
 
    private static IotHubClient initSolutionClient()
    {
-      return DefaultIotHubClient.newBuilder() //
+      IotHubClientBuilder.OptionalPropertiesSettable propertiesSettable = DefaultIotHubClient.newBuilder() //
          .endPoint(HUB_CLOUD_ENDPOINT) //
          .keyStore(KEY_STORE_LOCATION, KEY_STORE_PASSWORD) //
          .alias(ALIAS, ALIAS_PASSWORD) //
          .clientId(SOLUTION_CLIENT_ID) //
-         .sslTrustStore(TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD) //
-         .build();
+         .sslTrustStore(TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD);//
+
+      if (null != HubConstants.PROXY_URI)
+      {
+         return propertiesSettable.proxy(URI.create(HubConstants.PROXY_URI)).build();
+      }
+      else
+      {
+         return propertiesSettable.build();
+      }
    }
 }
