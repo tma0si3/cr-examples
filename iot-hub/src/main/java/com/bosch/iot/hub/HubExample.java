@@ -73,7 +73,7 @@ public final class HubExample
       solutionClient.createTopic(subTopicPath).thenAccept(topic -> {
          // you can do something here.
          System.out.println("A sub topic is created with path " + topic.getPath().toString());
-      });
+      }).get(10, TimeUnit.SECONDS);
 
       // remove the root topic of the solution
       solutionClient.deleteTopic(SOLUTION_TOPIC).get(20, TimeUnit.SECONDS);
