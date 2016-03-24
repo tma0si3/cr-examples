@@ -45,7 +45,7 @@ import com.bosch.iot.hub.client.IotHubClientBuilder;
 import com.bosch.iot.hub.model.topic.TopicPath;
 
 /**
- * Preconditions of runing the example :
+ * Preconditions of running the example :
  * <ol>
  * <li>Register your solution to get solution_id, and upload the public key from /HubExampleClient.jks (or create your
  * own Key-pair)</li>
