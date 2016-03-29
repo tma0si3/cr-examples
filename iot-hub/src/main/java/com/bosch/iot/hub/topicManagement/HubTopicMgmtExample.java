@@ -23,26 +23,20 @@
  * ALSO APPLY IN REGARD TO THE FAULT OF VICARIOUS AGENTS OF BOSCH SI AND THE PERSONAL LIABILITY OF BOSCH SI'S EMPLOYEES,
  * REPRESENTATIVES AND ORGANS.
  */
-package com.bosch.iot.hub;
+package com.bosch.iot.hub.topicManagement;
 
-import static com.bosch.iot.hub.HubConstants.ALIAS;
-import static com.bosch.iot.hub.HubConstants.ALIAS_PASSWORD;
-import static com.bosch.iot.hub.HubConstants.HUB_CLOUD_ENDPOINT;
-import static com.bosch.iot.hub.HubConstants.KEY_STORE_LOCATION;
-import static com.bosch.iot.hub.HubConstants.KEY_STORE_PASSWORD;
-import static com.bosch.iot.hub.HubConstants.SOLUTION_CLIENT_ID;
-import static com.bosch.iot.hub.HubConstants.TRUST_STORE_LOCATION;
-import static com.bosch.iot.hub.HubConstants.TRUST_STORE_PASSWORD;
+import static com.bosch.iot.hub.util.HubClientUtil.DEFAULT_TIMEOUT;
+import static com.bosch.iot.hub.util.HubClientUtil.SOLUTION_CLIENT_ID;
+import static com.bosch.iot.hub.util.HubClientUtil.SOLUTION_SUBTOPIC;
+import static com.bosch.iot.hub.util.HubClientUtil.SOLUTION_TOPIC;
 
-import java.net.URI;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import com.bosch.iot.hub.client.DefaultIotHubClient;
 import com.bosch.iot.hub.client.IotHubClient;
-import com.bosch.iot.hub.client.IotHubClientBuilder;
 import com.bosch.iot.hub.model.topic.TopicPath;
+import com.bosch.iot.hub.util.HubClientUtil;
 
 /**
  * Preconditions of running the example :
@@ -53,20 +47,23 @@ import com.bosch.iot.hub.model.topic.TopicPath;
  * <li>Configure system property "HUB_CLOUD_ENDPOINT", using actual Websocket endpoint of IoT Hub Service</li>
  * <li>Configure system property "PROXY_URI" if you have one, using format http://host:port</li>
  * </ol>
+ *
+ *Examples of System Properties:
+ * <br/>
+ * <strong> -DSOLUTION_ID=xx -DHUB_CLOUD_ENDPOINT=wss://xx.com -DPROXY_URI=http://xx.com</strong>
+
  */
-public final class HubExample
+public final class HubTopicMgmtExample
 {
-   private static final String SOLUTION_TOPIC = "my_solution";
-   private static final String SOLUTION_SUBTOPIC = "my_solution/sub_topic";
 
    public static void main(String[] args) throws InterruptedException, ExecutionException, TimeoutException
    {
       // init hub client, connect to backend
-      IotHubClient solutionClient = initSolutionClient();
+      IotHubClient solutionClient = HubClientUtil.initSolutionClient(SOLUTION_CLIENT_ID);
       solutionClient.connect();
 
       // create solution root topic
-      solutionClient.createTopic(SOLUTION_TOPIC).get(20, TimeUnit.SECONDS);
+      solutionClient.createTopic(SOLUTION_TOPIC).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 
       // create solution sub topic
       TopicPath subTopicPath = TopicPath.of(SOLUTION_SUBTOPIC);
@@ -76,29 +73,10 @@ public final class HubExample
       }).get(10, TimeUnit.SECONDS);
 
       // remove the root topic of the solution
-      solutionClient.deleteTopic(SOLUTION_TOPIC).get(20, TimeUnit.SECONDS);
+      solutionClient.deleteTopic(SOLUTION_TOPIC).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 
       // disconnect solution
       solutionClient.disconnect();
       solutionClient.destroy();
-   }
-
-   private static IotHubClient initSolutionClient()
-   {
-      IotHubClientBuilder.OptionalPropertiesSettable propertiesSettable = DefaultIotHubClient.newBuilder() //
-         .endPoint(HUB_CLOUD_ENDPOINT) //
-         .keyStore(KEY_STORE_LOCATION, KEY_STORE_PASSWORD) //
-         .alias(ALIAS, ALIAS_PASSWORD) //
-         .clientId(SOLUTION_CLIENT_ID) //
-         .sslTrustStore(TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD);//
-
-      if (null != HubConstants.PROXY_URI)
-      {
-         return propertiesSettable.proxy(URI.create(HubConstants.PROXY_URI)).build();
-      }
-      else
-      {
-         return propertiesSettable.build();
-      }
    }
 }
