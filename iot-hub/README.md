@@ -6,9 +6,33 @@ This repository contains examples for using the Bosch IoT Hub in the cloud.
 
 ## Preparation
 
+### Maven Repository
+ 
+In order to be able to run the examples (or to implement your own), you need the "Bosch IoT Central Registry Integration Client" (short: *CRIC*).
+This is available via our public Maven repository. Add following Maven-Repository to your Maven `settings.xml`:
+
+```
+   ..
+   <repositories>
+      <repository>
+         <id>bosch-releases</id>
+         <url>https://maven.bosch-si.com/content/repositories/bosch-releases/</url>
+         <releases>
+            <enabled>true</enabled>
+            <updatePolicy>never</updatePolicy>
+         </releases>
+         <snapshots>
+            <enabled>false</enabled>
+            <updatePolicy>daily</updatePolicy>
+         </snapshots>
+      </repository>
+      ..
+   </repositories>
+   ..
+```
 ### Maven Depedency
 
-After adding the public repository as described above, you can simply use the CRIC dependency to your `pom.xml`:
+After adding the public repository as described above, you can simply use the HIC dependency to your `pom.xml`:
 
 ```
   <dependency>
