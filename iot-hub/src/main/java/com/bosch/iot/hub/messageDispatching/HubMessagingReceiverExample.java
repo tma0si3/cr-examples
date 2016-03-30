@@ -68,7 +68,6 @@ public class HubMessagingReceiverExample
 
       // Wait for console input to clean up the client
       System.in.read();
-      receiverClient.disconnect();
       receiverClient.destroy();
    }
 }

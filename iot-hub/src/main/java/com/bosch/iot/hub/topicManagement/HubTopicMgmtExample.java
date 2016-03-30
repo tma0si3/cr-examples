@@ -76,7 +76,6 @@ public final class HubTopicMgmtExample
       solutionClient.deleteTopic(SOLUTION_TOPIC).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 
       // disconnect solution
-      solutionClient.disconnect();
       solutionClient.destroy();
    }
 }

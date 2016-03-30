@@ -101,7 +101,6 @@ public class HubMessagingSenderExample
       senderClient.deleteTopic(SOLUTION_TOPIC).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 
       // Clean up
-      senderClient.disconnect();
       senderClient.destroy();
    }
 }
