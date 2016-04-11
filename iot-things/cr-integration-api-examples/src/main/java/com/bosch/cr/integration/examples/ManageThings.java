@@ -160,7 +160,7 @@ public class ManageThings extends ExamplesBase
          .setAttribute(attributeJsonPointer, attributeJsonValue) //
          .build();
 
-      client.things().forId(thingId).registerForThingChanges("",
+      client.things().forId(thingId).registerForThingChanges(UUID.randomUUID().toString(),
          change -> LOGGER.info("Received Event: {} -> {}", change.getAction(), change.getValue()));
 
       client.things().create(thing) //
