@@ -26,6 +26,7 @@
 package com.bosch.cr.integration.helloworld;
 
 import java.net.URL;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -37,37 +38,48 @@ import com.bosch.cr.integration.IntegrationClient;
 import com.bosch.cr.integration.client.IntegrationClientImpl;
 import com.bosch.cr.integration.client.configuration.AuthenticationConfiguration;
 import com.bosch.cr.integration.client.configuration.IntegrationClientConfiguration;
+import com.bosch.cr.integration.client.configuration.ProxyConfiguration;
 import com.bosch.cr.integration.client.configuration.PublicKeyAuthenticationConfiguration;
 import com.bosch.cr.integration.client.configuration.TrustStoreConfiguration;
+import com.bosch.cr.integration.things.FeatureHandle;
 import com.bosch.cr.integration.things.ThingIntegration;
-import com.bosch.cr.json.JsonFactory;
+import com.bosch.cr.json.JsonObject;
 import com.bosch.cr.model.acl.AclEntry;
 import com.bosch.cr.model.acl.Permission;
 import com.bosch.cr.model.authorization.AuthorizationSubject;
+import com.bosch.cr.model.things.Feature;
 import com.bosch.cr.model.things.Thing;
 
 public class HelloWorld
 {
    // Things Service in Cloud
    public static final String BOSCH_IOT_CENTRAL_REGISTRY_WS_ENDPOINT_URL = "wss://events.apps.bosch-iot-cloud.com";
+
    // Insert your Solution ID here
    public static final String SOLUTION_ID = "<your-solution-id>";
    public static final String CLIENT_ID = SOLUTION_ID;
+
    // Insert your User ID here
    public static final String USER_ID = "<your-user-id>";
+
    // Insert your keystore passwords here
    public static final URL KEYSTORE_LOCATION = HelloWorld.class.getResource("/CRClient.jks");
    public static final String KEYSTORE_PASSWORD = "<your-keystore-password>";
    public static final String ALIAS = "CR";
    public static final String ALIAS_PASSWORD = "<your-alias-password>";
+
    // At the moment necessary for accepting bosch self signed certificates
    public static final URL TRUSTSTORE_LOCATION = HelloWorld.class.getResource("/bosch-iot-cloud.jks");
    public static final String TRUSTSTORE_PASSWORD = "jks";
+
    // Logger
    private static final Logger LOGGER = LoggerFactory.getLogger(HelloWorld.class);
-   private static final int TIMEOUT = 2;
 
-   public static int i = 0;
+   private static final int TIMEOUT = 2;
+   private static final String NAMESPACE = "com.bosch.example:";
+   private static final String THING_ID = NAMESPACE + UUID.randomUUID().toString();
+   private static final String COUNTER = "counter";
+   private static final String COUNTER_VALUE = "value";
 
    final IntegrationClient integrationClient;
    final ThingIntegration thingIntegration;
@@ -83,21 +95,21 @@ public class HelloWorld
       final HelloWorld helloWorld = new HelloWorld();
 
       /**
-       * Create an empty Thing and get Thing ID
+       * Create a Thing with a counter Feature and get the FeatureHandle
        */
-      final String thingId = helloWorld.createEmptyThing();
+      final FeatureHandle counter = helloWorld.createThingWithCounter();
 
       /**
        * Update the ACL with your User ID to see your thing in the Demo Web UI
        */
-      helloWorld.updateACL(thingId);
+      helloWorld.updateACL();
 
       /**
        * Loop to update the attributes of the Thing
        */
       for (int i = 0; i <= 100; i++)
       {
-         helloWorld.updateThing(thingId);
+         helloWorld.updateCounter(counter, i);
          Thread.sleep(2000);
       }
 
@@ -122,16 +134,16 @@ public class HelloWorld
             .build();
 
       /* optionally configure a proxy server */
-      // final ProxyConfiguration proxy = ProxyConfiguration.newBuilder()
-      // .proxyHost("some.proxy.server")
-      // .proxyPort(1234)
-      // .proxyUsername("some.proxy.username")
-      // .proxyPassword("some.proxy.password")
-      // .build();
+      final ProxyConfiguration proxy = ProxyConfiguration.newBuilder() //
+         .proxyHost("hostname") //
+         .proxyPort(8080) //
+         .build();
 
       /* Configure a truststore that contains trusted certificates */
-      final TrustStoreConfiguration trustStore =
-         TrustStoreConfiguration.newBuilder().location(TRUSTSTORE_LOCATION).password(TRUSTSTORE_PASSWORD).build();
+      final TrustStoreConfiguration trustStore = TrustStoreConfiguration.newBuilder() //
+         .location(TRUSTSTORE_LOCATION) //
+         .password(TRUSTSTORE_PASSWORD) //
+         .build();
 
       /**
        * Provide required configuration (authentication configuration and CR URI), optional proxy configuration can be
@@ -155,44 +167,50 @@ public class HelloWorld
    }
 
    /**
-    * Create an empty Thing
+    * Create a {@code Thing} with the counter {@code Feature}.
     *
-    * @return thing id
+    * @return a handle for the counter.
     */
-   public String createEmptyThing()
+   public FeatureHandle createThingWithCounter()
    {
-      String thingId = null;
+      final Thing thing = Thing.newBuilder() //
+         .setId(THING_ID) //
+         .setFeature(Feature.newBuilder() //
+            .properties(JsonObject.newBuilder() //
+               .set(COUNTER_VALUE, 0) //
+               .build()) //
+            .withId(COUNTER) //
+            .build()) //
+         .build();
+
+      FeatureHandle featureHandle = null;
+
       try
       {
-         thingId = thingIntegration.create() //
-            .thenApply(thing -> {
-               final String id = thing.getId().get();
-               LOGGER.info("Thing with ID '{}' created.", id);
-               return id;
-            }).get(TIMEOUT, TimeUnit.SECONDS);
+         featureHandle = thingIntegration.create(thing) //
+            .thenApply(created -> thingIntegration.forFeature(THING_ID, COUNTER)) //
+            .get(TIMEOUT, TimeUnit.SECONDS);
+
+         LOGGER.info("Thing with ID '{}' created.", THING_ID);
       }
       catch (InterruptedException | ExecutionException | TimeoutException e)
       {
          LOGGER.error(e.getMessage());
       }
-      return thingId;
+
+      return featureHandle;
    }
 
    /**
-    * Update Attributes of a specified Thing
+    * Update {@code counter} with {@code value}.
     */
-   public void updateThing(final String thingId)
+   public void updateCounter(final FeatureHandle counter, final int value)
    {
-      thingIntegration.forId(thingId) //
-         .retrieve() //
-         .thenCompose(thing -> {
-            final Thing updated = thing.setAttribute(JsonFactory.newPointer("Counter"), JsonFactory.newValue(i++));
-            return thingIntegration.update(updated);
-         }) //
+      counter.putProperty(COUNTER_VALUE, value) //
          .whenComplete((aVoid, throwable) -> {
             if (null == throwable)
             {
-               LOGGER.info("Thing with ID '{}' updated with Counter={}!", thingId, i);
+               LOGGER.info("Thing with ID '{}' updated with Counter={}!", counter.getThingId(), value);
             }
             else
             {
@@ -204,9 +222,9 @@ public class HelloWorld
    /**
     * Update the ACL of a specified Thing
     */
-   public void updateACL(final String thingId)
+   public void updateACL()
    {
-      thingIntegration.forId(thingId) //
+      thingIntegration.forId(THING_ID) //
          .retrieve() //
          .thenCompose(thing -> {
             final AclEntry aclEntry = AclEntry.newInstance(AuthorizationSubject.newInstance(USER_ID), //
@@ -220,7 +238,7 @@ public class HelloWorld
          .whenComplete((aVoid, throwable) -> {
             if (null == throwable)
             {
-               LOGGER.info("Thing with ID '{}' updated (ACL entry)!", thingId);
+               LOGGER.info("Thing with ID '{}' updated ACL entry!", THING_ID);
             }
             else
             {
