@@ -39,8 +39,8 @@
    <description>Central Registry Integration Client API Examples</description>
 
    <properties>
-      <cr.integration.api.version>3.2.0-SNAPSHOT</cr.integration.api.version>
-      <cr.integration.client.version>2.3.0-SNAPSHOT</cr.integration.client.version>
+      <cr.integration.api.version>3.2.0</cr.integration.api.version>
+      <cr.integration.client.version>2.3.0</cr.integration.client.version>
       <slf4j-api.version>1.7.12</slf4j-api.version>
       <logback-classic.version>1.1.3</logback-classic.version>
    </properties>
