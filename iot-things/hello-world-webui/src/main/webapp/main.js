@@ -36,45 +36,36 @@ $(document).ready(function () {
     var getThingId = function () {
         thingId = document.getElementById('thingId').value;
         apiToken = document.getElementById('apiToken').value;
-        $('#thingID').html(thingId.toString());
-        $("#failure").hide();
-        refreshDetails();
-    };
+        $('#failure').hide();
 
-    var refreshDetails = function () {
-        // Set solution api token for this request
+        // Set solution api token request header
         $.ajaxSetup({
             headers: {
                 'x-cr-api-token': apiToken
             }
         });
-        // Get thing
-        $.getJSON("cr/1/things/" + thingId).done(function (thing, textStatus) {
 
+        refreshDetails();
+    };
+
+    var refreshDetails = function () {
+        var path = "cr/1/things/" + thingId + "/features/counter/properties/value";
+
+        // Get thing
+        $.getJSON(path).done(function (value) {
             // --- clear table content and remember thingId
             $("#detailsThingId").text(thingId);
             var tablebody = $("#detailsTableBody");
             tablebody.empty();
 
-            if ("attributes" in thing) {
-                // --- for each attribute put row in details table
-                var attrNames = Object.getOwnPropertyNames(thing.attributes);
-                var first = true;
-                attrNames.forEach(function (attribute) {
-                    var value = thing.attributes[attribute];
-                    var row = $("<tr>");
-                    if (first) {
-                        row.append($("<td rowspan=" + attrNames.length + ">").text("Attribute"));
-                        first = false;
-                    }
-                    row.append($("<td>").text(attribute));
-                    row.append($("<td>").text(typeof value == "object" ? JSON.stringify(value, null, 3) : value));
-                    tablebody.append(row);
-                });
-            }
+            var row = $("<tr>");
+            row.append($("<td rowspan=1>").text("counter"));
+            row.append($("<td>").text("value"));
+            row.append($("<td>").text(value));
+            tablebody.append(row);
 
+            $("#failure").hide();
             $("#details").show();
-
         }).fail(function () {
             $("#details").hide();
             $("#failure").show();

@@ -27,10 +27,16 @@
 package com.bosch.cr.integration.examples;
 
 import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bosch.cr.integration.things.ChangeAction;
+import com.bosch.cr.integration.things.ThingHandle;
 import com.bosch.cr.json.JsonFactory;
 import com.bosch.cr.json.JsonValue;
 
@@ -88,5 +94,28 @@ public final class RegisterForChanges extends ExamplesBase
       /* Register for *specific* attribute changes of a *specific* thing */
       myThing.registerForAttributeChanges(MY_THING_SPECIFIC_ATTRIBUTE_CHANGE, JsonFactory.newPointer("address/city"),
          change -> LOGGER.info("attributeChange received: {}", change));
+   }
+
+   /**
+    * Register for {@code ThingChange}s and deregister after the created-event has been retrieved.
+    */
+   public void registerForThingChangesWithDeregistration() throws InterruptedException, ExecutionException, TimeoutException
+   {
+      final String registrationId = UUID.randomUUID().toString();
+      final String thingId = "com.bosch.cr.example:" + UUID.randomUUID().toString();
+      final ThingHandle thingHandle = client.things().forId(thingId);
+
+      /* Register for *all* change events of a *specific* thing */
+      LOGGER.info("Register handler with id: {}", registrationId);
+      thingHandle.registerForThingChanges(registrationId, change -> {
+         LOGGER.info("ThingChange received: {}", change);
+         /* Deregister when the created-event has been retrieved */
+         if (change.getAction() == ChangeAction.CREATED) {
+            LOGGER.info("Deregister handler with id: {}", registrationId);
+            thingHandle.deregister(registrationId);
+         }
+      });
+
+      client.things().create(thingId).get(10, TimeUnit.SECONDS);
    }
 }

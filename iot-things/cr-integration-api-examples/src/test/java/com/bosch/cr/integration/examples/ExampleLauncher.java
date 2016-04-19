@@ -49,9 +49,10 @@ public class ExampleLauncher
 //         e.printStackTrace();
 //      }
 
-      // final RegisterForChanges registerForChanges = new RegisterForChanges();
-      // registerForChanges.registerForAttributeChanges();
-      // registerForChanges.registerForThingChanges();
+      final RegisterForChanges registerForChanges = new RegisterForChanges();
+      registerForChanges.registerForAttributeChanges();
+      registerForChanges.registerForThingChanges();
+      registerForChanges.registerForThingChangesWithDeregistration();
 
       // final RegisterForAndSendMessages registerForAndSendMessages = new RegisterForAndSendMessages();
       // registerForAndSendMessages.registerForMessages();
@@ -62,7 +63,8 @@ public class ExampleLauncher
       // manageFeatures.crudFeatureProperty();
       // manageFeatures.crudFeatureProperties();
 
-       final RegisterForClaimMessages registerForClaimMessages = RegisterForClaimMessages.newInstance();
-       registerForClaimMessages.registerForClaimMessagesToSingleThing();
+
+      // final RegisterForClaimMessages registerForClaimMessages = RegisterForClaimMessages.newInstance();
+      // registerForClaimMessages.registerForClaimMessagesToSingleThing();
    }
 }
