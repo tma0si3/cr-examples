@@ -47,6 +47,7 @@ import java.util.concurrent.TimeoutException;
 import io.netty.util.internal.ThreadLocalRandom;
 
 import com.bosch.cr.integration.IntegrationClient;
+import com.bosch.cr.integration.SubscriptionConsumeOptions;
 import com.bosch.cr.integration.client.IntegrationClientImpl;
 import com.bosch.cr.integration.client.configuration.AuthenticationConfiguration;
 import com.bosch.cr.integration.client.configuration.IntegrationClientConfiguration;
@@ -244,7 +245,8 @@ public class VehicleSimulator
    {
       try
       {
-         integrationClient.subscriptions().create().get(10, TimeUnit.SECONDS);
+         final SubscriptionConsumeOptions consumeOptions = SubscriptionConsumeOptions.newBuilder().setConsumeOwnEvents(true).build();
+         integrationClient.subscriptions().create(consumeOptions).get(10, TimeUnit.SECONDS);
          integrationClient.subscriptions().consume().get(10, TimeUnit.SECONDS);
       }
       catch (InterruptedException | ExecutionException | TimeoutException e)
