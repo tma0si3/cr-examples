@@ -1,0 +1,6 @@
+target/
+.extract/
+.idea
+*.iml
+config*.properties
+**/config*.properties
