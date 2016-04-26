@@ -1,4 +1,4 @@
-# Examples for the Bosch IoT Things and Bosch IoT Hub 
+# Examples for the Bosch IoT Things and Bosch IoT Hub
 This repository contains examples for using the Bosch IoT Things and Hub service in the cloud.
 
 ## Bosch IoT Things service ##

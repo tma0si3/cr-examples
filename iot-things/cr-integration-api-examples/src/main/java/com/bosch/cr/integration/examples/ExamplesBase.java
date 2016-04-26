@@ -44,6 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bosch.cr.integration.IntegrationClient;
+import com.bosch.cr.integration.SubscriptionConsumeOptions;
 import com.bosch.cr.integration.client.IntegrationClientImpl;
 import com.bosch.cr.integration.client.configuration.AuthenticationConfiguration;
 import com.bosch.cr.integration.client.configuration.IntegrationClientConfiguration;
@@ -122,7 +123,8 @@ public abstract class ExamplesBase
       try
       {
          // create a subscription for this client, this step can be skipped if a subscription was created via REST
-         this.client.subscriptions().create()
+         final SubscriptionConsumeOptions consumeOptions = SubscriptionConsumeOptions.newBuilder().setConsumeOwnEvents(true).build();
+         this.client.subscriptions().create(consumeOptions)
             // and start consuming events that were triggered by the subscription
             .thenRun(() -> this.client.subscriptions().consume()).get(10, TimeUnit.SECONDS);
       }

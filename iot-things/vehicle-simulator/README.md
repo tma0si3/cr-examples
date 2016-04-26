@@ -26,13 +26,15 @@ If you didn't have such a file go back to #Create a Solution with a private/publ
 Create file "config.properties" in your project root folder. _Please change the ids._
 
 
-```centralRegistryMessagingUrl=wss://events.apps.bosch-iot-cloud.com```  
-```clientId=###your solution id ###:gateway```  
-```keyAlias=CR```  
-```keyStorePassword=### your key password ###```  
-```keyAliasPassword=### your key alias password ###```  
-```http.proxyHost=### your http proxy host, if you need one ###```  
-```http.proxyPort=### your http proxy host, if you need one ###```
+```
+centralRegistryMessagingUrl=wss://events.apps.bosch-iot-cloud.com
+clientId=###your solution id ###:gateway
+keyAlias=CR
+keyStorePassword=### your key password ###
+keyAliasPassword=### your key alias password ###
+http.proxyHost=### your http proxy host, if you need one ###
+http.proxyPort=### your http proxy host, if you need one ###
+```
 
 
 # Run it
