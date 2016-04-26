@@ -23,14 +23,15 @@
  * ALSO APPLY IN REGARD TO THE FAULT OF VICARIOUS AGENTS OF BOSCH SI AND THE PERSONAL LIABILITY OF BOSCH SI'S EMPLOYEES,
  * REPRESENTATIVES AND ORGANS.
  */
-package com.bosch.iot.hub.util;
+package com.bosch.iot.hub.integration.examples.util;
 
 import java.net.URI;
 
 import com.bosch.iot.hub.client.DefaultIotHubClient;
 import com.bosch.iot.hub.client.IotHubClient;
 import com.bosch.iot.hub.client.IotHubClientBuilder;
-import com.bosch.iot.hub.topicManagement.HubTopicMgmtExample;
+import com.bosch.iot.hub.integration.examples.topic.HubTopicMgmtExample;
+
 
 public final class HubClientUtil
 {

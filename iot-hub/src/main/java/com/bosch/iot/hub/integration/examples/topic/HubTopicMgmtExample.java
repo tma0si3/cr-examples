@@ -23,51 +23,61 @@
  * ALSO APPLY IN REGARD TO THE FAULT OF VICARIOUS AGENTS OF BOSCH SI AND THE PERSONAL LIABILITY OF BOSCH SI'S EMPLOYEES,
  * REPRESENTATIVES AND ORGANS.
  */
-package com.bosch.iot.hub.messageDispatching;
+package com.bosch.iot.hub.integration.examples.topic;
 
-import static com.bosch.iot.hub.util.HubClientUtil.RECEIVER_SOLUTION_CLIENT_ID;
-import static com.bosch.iot.hub.util.HubClientUtil.initSolutionClient;
 
-import java.io.IOException;
+import static com.bosch.iot.hub.integration.examples.util.HubClientUtil.DEFAULT_TIMEOUT;
+import static com.bosch.iot.hub.integration.examples.util.HubClientUtil.SOLUTION_CLIENT_ID;
+import static com.bosch.iot.hub.integration.examples.util.HubClientUtil.SOLUTION_SUBTOPIC;
+import static com.bosch.iot.hub.integration.examples.util.HubClientUtil.SOLUTION_TOPIC;
+import static com.bosch.iot.hub.integration.examples.util.HubClientUtil.initSolutionClient;
+
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import com.bosch.iot.hub.client.IotHubClient;
+import com.bosch.iot.hub.model.topic.TopicPath;
+
 
 /**
  * Preconditions of running the example :
  * <ol>
- * <li>Register one solution as message sender, get solution_id, and upload the public key from /HubExampleClient.jks (or create your
+ * <li>Register your solution to get solution_id, and upload the public key from /HubExampleClient.jks (or create your
  * own Key-pair)</li>
- * <li>Register one solution as message receiver, get solution_id, and upload the public key from /HubExampleClient.jks (or create your
- * own Key-pair)</li>
- * <li>Use sender solution_id as your system property "SENDER_SOLUTION_ID"</li>
- * <li>Use receiver solution_id as your system property "RECEIVER_SOLUTION_ID"</li>
+ * <li>Use solution_id as your system property "SOLUTION_ID"</li>
  * <li>Configure system property "HUB_CLOUD_ENDPOINT", using actual Websocket endpoint of IoT Hub Service</li>
  * <li>Configure system property "PROXY_URI" if you have one, using format http://host:port</li>
  * </ol>
  *
  *Examples of System Properties:
  * <br/>
- * <strong> -DSENDER_SOLUTION_ID=xx -DRECEIVER_SOLUTION_ID=xx -DHUB_CLOUD_ENDPOINT=wss://xx.com -DPROXY_URI=http://xx.com</strong>
+ * <strong> -DSOLUTION_ID=xx -DHUB_CLOUD_ENDPOINT=wss://xx.com -DPROXY_URI=http://xx.com</strong>
+
  */
-public class HubMessagingReceiverExample
+public final class HubTopicMgmtExample
 {
-   public static void main(String[] args) throws InterruptedException, ExecutionException, TimeoutException, IOException
+
+   public static void main(String[] args) throws InterruptedException, ExecutionException, TimeoutException
    {
-      // Create receiver client
-      IotHubClient receiverClient = initSolutionClient(RECEIVER_SOLUTION_CLIENT_ID);
-      receiverClient.connect();
+      // init hub client, connect to backend
+      IotHubClient solutionClient = initSolutionClient(SOLUTION_CLIENT_ID);
+      solutionClient.connect();
 
-      // Add consumer to message
-      receiverClient.consume(msg -> {
-         // Do something with the message
-         System.out.println(msg.getTopicPath().toString());
-         System.out.println(msg.getPayload().get());
-      });
+      // create solution root topic
+      solutionClient.createTopic(SOLUTION_TOPIC).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 
-      // Wait for console input to clean up the client
-      System.in.read();
-      receiverClient.destroy();
+      // create solution sub topic
+      TopicPath subTopicPath = TopicPath.of(SOLUTION_SUBTOPIC);
+      solutionClient.createTopic(subTopicPath).thenAccept(topic -> {
+         // you can do something here.
+         System.out.println("A sub topic is created with path " + topic.getPath().toString());
+      }).get(10, TimeUnit.SECONDS);
+
+      // remove the root topic of the solution
+      solutionClient.deleteTopic(SOLUTION_TOPIC).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+
+      // disconnect solution
+      solutionClient.destroy();
    }
 }

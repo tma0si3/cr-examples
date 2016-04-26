@@ -23,16 +23,16 @@
  * ALSO APPLY IN REGARD TO THE FAULT OF VICARIOUS AGENTS OF BOSCH SI AND THE PERSONAL LIABILITY OF BOSCH SI'S EMPLOYEES,
  * REPRESENTATIVES AND ORGANS.
  */
-package com.bosch.iot.hub.messageDispatching;
+package com.bosch.iot.hub.integration.examples.message;
 
+import static com.bosch.iot.hub.integration.examples.util.HubClientUtil.DEFAULT_TIMEOUT;
+import static com.bosch.iot.hub.integration.examples.util.HubClientUtil.RECEIVER_SOLUTION_CLIENT_ID;
+import static com.bosch.iot.hub.integration.examples.util.HubClientUtil.SENDER_SOLUTION_CLIENT_ID;
+import static com.bosch.iot.hub.integration.examples.util.HubClientUtil.SOLUTION_TOPIC;
+import static com.bosch.iot.hub.integration.examples.util.HubClientUtil.initSolutionClient;
 import static com.bosch.iot.hub.model.acl.Permission.ADMINISTRATE;
 import static com.bosch.iot.hub.model.acl.Permission.RECEIVE;
 import static com.bosch.iot.hub.model.acl.Permission.SEND;
-import static com.bosch.iot.hub.util.HubClientUtil.DEFAULT_TIMEOUT;
-import static com.bosch.iot.hub.util.HubClientUtil.RECEIVER_SOLUTION_CLIENT_ID;
-import static com.bosch.iot.hub.util.HubClientUtil.SENDER_SOLUTION_CLIENT_ID;
-import static com.bosch.iot.hub.util.HubClientUtil.SOLUTION_TOPIC;
-import static com.bosch.iot.hub.util.HubClientUtil.initSolutionClient;
 
 import java.io.BufferedReader;
 import java.io.IOException;
