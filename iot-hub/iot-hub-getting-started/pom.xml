@@ -2,6 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+   <parent>
+      <groupId>com.bosch.hub.examples</groupId>
+      <artifactId>hub-integration-api-examples</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+   </parent>
    <modelVersion>4.0.0</modelVersion>
    <!--
 /**
@@ -31,14 +36,29 @@
 * EMPLOYEES, REPRESENTATIVES AND ORGANS.
  */
 -->
-
-   <groupId>com.bosch.hub.examples</groupId>
-   <artifactId>hub-integration-api-examples</artifactId>
-   <version>0.0.1-SNAPSHOT</version>
-   <packaging>pom</packaging>
-   <name>IoT Hub :: Hub Integration Examples</name>
-   <description>Bosch IoT Hub Integration Client API Examples</description>
-   <modules>
-      <module>iot-hub-getting-started</module>
-   </modules>
+   <artifactId>iot-hub-getting-started</artifactId>
+   <properties>
+      <hic.version>1.0.0-SNAPSHOT</hic.version>
+   </properties>
+   <dependencies>
+      <dependency>
+         <groupId>com.bosch.iot.hub</groupId>
+         <artifactId>iot-hub-client</artifactId>
+         <version>${hic.version}</version>
+      </dependency>
+   </dependencies>
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.2</version>
+            <configuration>
+               <source>1.8</source>
+               <target>1.8</target>
+               <encoding>UTF-8</encoding>
+            </configuration>
+         </plugin>
+      </plugins>
+   </build>
 </project>

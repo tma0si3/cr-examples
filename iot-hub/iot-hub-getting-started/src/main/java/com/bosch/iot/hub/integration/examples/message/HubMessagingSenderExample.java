@@ -25,11 +25,6 @@
  */
 package com.bosch.iot.hub.integration.examples.message;
 
-import static com.bosch.iot.hub.integration.examples.util.HubClientUtil.DEFAULT_TIMEOUT;
-import static com.bosch.iot.hub.integration.examples.util.HubClientUtil.RECEIVER_SOLUTION_CLIENT_ID;
-import static com.bosch.iot.hub.integration.examples.util.HubClientUtil.SENDER_SOLUTION_CLIENT_ID;
-import static com.bosch.iot.hub.integration.examples.util.HubClientUtil.SOLUTION_TOPIC;
-import static com.bosch.iot.hub.integration.examples.util.HubClientUtil.initSolutionClient;
 import static com.bosch.iot.hub.model.acl.Permission.ADMINISTRATE;
 import static com.bosch.iot.hub.model.acl.Permission.RECEIVE;
 import static com.bosch.iot.hub.model.acl.Permission.SEND;
@@ -41,6 +36,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
+import com.bosch.iot.hub.integration.examples.util.HubClientUtil;
 
 import com.bosch.iot.hub.client.IotHubClient;
 import com.bosch.iot.hub.client.SendSuccess;
@@ -70,20 +67,20 @@ import com.bosch.iot.hub.model.message.Payload;
 public class HubMessagingSenderExample
 {
    private static final AclEntry RECEIVER_ACL =
-      AclEntry.of(AuthorizationSubject.of(RECEIVER_SOLUTION_CLIENT_ID), RECEIVE);
+      AclEntry.of(AuthorizationSubject.of(HubClientUtil.RECEIVER_SOLUTION_CLIENT_ID), RECEIVE);
    private static final AclEntry SENDER_ACL =
-      AclEntry.of(AuthorizationSubject.of(SENDER_SOLUTION_CLIENT_ID), ADMINISTRATE, RECEIVE, SEND);
+      AclEntry.of(AuthorizationSubject.of(HubClientUtil.SENDER_SOLUTION_CLIENT_ID), ADMINISTRATE, RECEIVE, SEND);
 
    private static final AccessControlList TOPIC_ACLS = AccessControlList.of(RECEIVER_ACL, SENDER_ACL);
 
    public static void main(String[] args) throws InterruptedException, ExecutionException, TimeoutException, IOException
    {
       // Create sender client
-      IotHubClient senderClient = initSolutionClient(SENDER_SOLUTION_CLIENT_ID);
+      IotHubClient senderClient = HubClientUtil.initSolutionClient(HubClientUtil.SENDER_SOLUTION_CLIENT_ID);
       senderClient.connect();
 
       // Sender create Topic and give Receiver RECEIVE permission
-      senderClient.createTopic(SOLUTION_TOPIC, TOPIC_ACLS).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+      senderClient.createTopic(HubClientUtil.SOLUTION_TOPIC, TOPIC_ACLS).get(HubClientUtil.DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 
       // Read console input and send them to solution topic
       final BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
@@ -92,13 +89,13 @@ public class HubMessagingSenderExample
       {
          // Send console input to solution Topic
          final CompletableFuture<SendSuccess> sendFuture =
-            senderClient.send(Message.of(SOLUTION_TOPIC, Payload.of(consoleInput)));
-         sendFuture.get(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+            senderClient.send(Message.of(HubClientUtil.SOLUTION_TOPIC, Payload.of(consoleInput)));
+         sendFuture.get(HubClientUtil.DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
       }
       consoleReader.close();
 
       // Delete Topic
-      senderClient.deleteTopic(SOLUTION_TOPIC).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+      senderClient.deleteTopic(HubClientUtil.SOLUTION_TOPIC).get(HubClientUtil.DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 
       // Clean up
       senderClient.destroy();
