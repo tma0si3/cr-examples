@@ -23,14 +23,13 @@
  * ALSO APPLY IN REGARD TO THE FAULT OF VICARIOUS AGENTS OF BOSCH SI AND THE PERSONAL LIABILITY OF BOSCH SI'S EMPLOYEES,
  * REPRESENTATIVES AND ORGANS.
  */
-package com.bosch.iot.hub.messageDispatching;
-
-import static com.bosch.iot.hub.util.HubClientUtil.RECEIVER_SOLUTION_CLIENT_ID;
-import static com.bosch.iot.hub.util.HubClientUtil.initSolutionClient;
+package com.bosch.iot.hub.integration.examples.message;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
+
+import com.bosch.iot.hub.integration.examples.util.HubClientUtil;
 
 import com.bosch.iot.hub.client.IotHubClient;
 
@@ -56,7 +55,7 @@ public class HubMessagingReceiverExample
    public static void main(String[] args) throws InterruptedException, ExecutionException, TimeoutException, IOException
    {
       // Create receiver client
-      IotHubClient receiverClient = initSolutionClient(RECEIVER_SOLUTION_CLIENT_ID);
+      IotHubClient receiverClient = HubClientUtil.initSolutionClient(HubClientUtil.RECEIVER_SOLUTION_CLIENT_ID);
       receiverClient.connect();
 
       // Add consumer to message

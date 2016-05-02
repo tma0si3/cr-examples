@@ -23,20 +23,18 @@
  * ALSO APPLY IN REGARD TO THE FAULT OF VICARIOUS AGENTS OF BOSCH SI AND THE PERSONAL LIABILITY OF BOSCH SI'S EMPLOYEES,
  * REPRESENTATIVES AND ORGANS.
  */
-package com.bosch.iot.hub.topicManagement;
+package com.bosch.iot.hub.integration.examples.topic;
 
-import static com.bosch.iot.hub.util.HubClientUtil.DEFAULT_TIMEOUT;
-import static com.bosch.iot.hub.util.HubClientUtil.SOLUTION_CLIENT_ID;
-import static com.bosch.iot.hub.util.HubClientUtil.SOLUTION_SUBTOPIC;
-import static com.bosch.iot.hub.util.HubClientUtil.SOLUTION_TOPIC;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import com.bosch.iot.hub.integration.examples.util.HubClientUtil;
+
 import com.bosch.iot.hub.client.IotHubClient;
 import com.bosch.iot.hub.model.topic.TopicPath;
-import com.bosch.iot.hub.util.HubClientUtil;
+
 
 /**
  * Preconditions of running the example :
@@ -59,21 +57,21 @@ public final class HubTopicMgmtExample
    public static void main(String[] args) throws InterruptedException, ExecutionException, TimeoutException
    {
       // init hub client, connect to backend
-      IotHubClient solutionClient = HubClientUtil.initSolutionClient(SOLUTION_CLIENT_ID);
+      IotHubClient solutionClient = HubClientUtil.initSolutionClient(HubClientUtil.SOLUTION_CLIENT_ID);
       solutionClient.connect();
 
       // create solution root topic
-      solutionClient.createTopic(SOLUTION_TOPIC).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+      solutionClient.createTopic(HubClientUtil.SOLUTION_TOPIC).get(HubClientUtil.DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 
       // create solution sub topic
-      TopicPath subTopicPath = TopicPath.of(SOLUTION_SUBTOPIC);
+      TopicPath subTopicPath = TopicPath.of(HubClientUtil.SOLUTION_SUBTOPIC);
       solutionClient.createTopic(subTopicPath).thenAccept(topic -> {
          // you can do something here.
          System.out.println("A sub topic is created with path " + topic.getPath().toString());
       }).get(10, TimeUnit.SECONDS);
 
       // remove the root topic of the solution
-      solutionClient.deleteTopic(SOLUTION_TOPIC).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+      solutionClient.deleteTopic(HubClientUtil.SOLUTION_TOPIC).get(HubClientUtil.DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 
       // disconnect solution
       solutionClient.destroy();
