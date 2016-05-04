@@ -61,6 +61,7 @@ import javax.annotation.PostConstruct;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.WriteResultChecking;
 import org.springframework.data.mongodb.core.query.*;
 import org.springframework.stereotype.Component;
 
@@ -111,6 +112,8 @@ public class Collector implements Runnable
    @PostConstruct
    public void start()
    {
+       mongoTemplate.setWriteResultChecking(WriteResultChecking.EXCEPTION);
+
       if (!mongoTemplate.collectionExists("history")) {
          mongoTemplate.createCollection("history");
       }

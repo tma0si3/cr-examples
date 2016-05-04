@@ -4,5 +4,5 @@
    <logger name="io.netty" level="WARN"/>
    <logger name="org.springframework" level="WARN"/>
    <logger name="org.springframework.web" level="WARN"/>
-   <logger name="com.bosch.iot.things.example.historian" level="DEBUG" />
+   <logger name="com.bosch.iot.things.example.historian" level="INFO" />
 </configuration>

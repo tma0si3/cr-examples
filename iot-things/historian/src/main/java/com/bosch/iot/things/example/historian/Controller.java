@@ -44,6 +44,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.annotation.PostConstruct;
 import javax.net.ssl.SSLContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -68,6 +69,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.WriteResultChecking;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -112,7 +114,7 @@ public class Controller
       }
    }
 
-   private static final Logger LOGGER = LoggerFactory.getLogger(Collector.class);
+   private static final Logger LOGGER = LoggerFactory.getLogger(Controller.class);
 
    private static final Pattern PARAM_PATTERN = Pattern.compile(".*/history/.+?/(.+?)/features/(.+?)/properties/(.+)");
 
@@ -121,6 +123,11 @@ public class Controller
 
    @Autowired
    private MongoTemplate mongoTemplate;
+   
+   @PostConstruct
+   public void postConstruct(){
+       mongoTemplate.setWriteResultChecking(WriteResultChecking.EXCEPTION);
+   }
 
    @RequestMapping("/history/data/**")
    public Map getHistory() throws Exception
