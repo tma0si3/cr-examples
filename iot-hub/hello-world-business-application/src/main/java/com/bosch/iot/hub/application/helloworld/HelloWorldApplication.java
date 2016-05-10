@@ -52,7 +52,7 @@ public class HelloWorldApplication
    public static final String CONSUMER_CLIENT_ID = SOLUTION_ID+":consumer";
 
    // Insert your keystore passwords here
-   public static final URL KEYSTORE_LOCATION = HelloWorldApplication.class.getResource("/CRClient.jks");
+   public static final URL KEYSTORE_LOCATION = HelloWorldApplication.class.getResource("/HubClient.jks");
    public static final String KEYSTORE_PASSWORD = "<your-keystore-password>";
    public static final String ALIAS = "CR";
    public static final String ALIAS_PASSWORD = "<your-alias-password>";
@@ -120,7 +120,8 @@ public class HelloWorldApplication
          .endPoint(URI.create(BOSCH_IOT_CENTRAL_REGISTRY_WS_ENDPOINT_URL)) //
          .keyStore(KEYSTORE_LOCATION.toURI(),KEYSTORE_PASSWORD) //
          .alias(ALIAS, ALIAS_PASSWORD)
-         .clientId(SOLUTION_ID).sslTrustStore(TRUSTSTORE_LOCATION.toURI(), TRUSTSTORE_PASSWORD); //
+         .clientId(CONSUMER_CLIENT_ID).sslTrustStore(TRUSTSTORE_LOCATION.toURI(), TRUSTSTORE_PASSWORD); //
+         //.proxy(URI.create("http://" + <proxy-host> + ":" + <proxy port>)); //
 
       return builder.build();
    }

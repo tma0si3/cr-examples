@@ -61,7 +61,7 @@ public class HelloWorldConnector
    public static final String CONSUMER_CLIENT_ID = SOLUTION_ID+":consumer";
 
    // Insert your keystore passwords here
-   public static final URL KEYSTORE_LOCATION = HelloWorldConnector.class.getResource("/CRClient.jks");
+   public static final URL KEYSTORE_LOCATION = HelloWorldConnector.class.getResource("/HubClient.jks");
    public static final String KEYSTORE_PASSWORD = "<your-keystore-password>";
    public static final String ALIAS = "CR";
    public static final String ALIAS_PASSWORD = "<your-alias-password>";
@@ -109,7 +109,9 @@ public class HelloWorldConnector
       LOGGER.info("Creating Hub Integration Client for ClientID: {}", CLIENT_ID);
 
       /* Create a new topic with consumer and connector ACL*/
-      iotHubClient.createTopic("com.example/myHouse/myGarden/mower",TOPIC_ACLS).get(5, TimeUnit.SECONDS);
+      iotHubClient.createTopic("myHouse",TOPIC_ACLS).get(5, TimeUnit.SECONDS);
+      iotHubClient.createTopic("myHouse/myGarden",TOPIC_ACLS).get(5, TimeUnit.SECONDS);
+      iotHubClient.createTopic("myHouse/myGarden/mower",TOPIC_ACLS).get(5, TimeUnit.SECONDS);
 
       /* Send a "Hello World " message for a device in my Garden every two Seconds */
       TimerTask sendAction = new TimerTask() {
@@ -139,6 +141,7 @@ public class HelloWorldConnector
          .keyStore(KEYSTORE_LOCATION.toURI(),KEYSTORE_PASSWORD) //
          .alias(ALIAS, ALIAS_PASSWORD)
          .clientId(CLIENT_ID).sslTrustStore(TRUSTSTORE_LOCATION.toURI(), TRUSTSTORE_PASSWORD); //
+        //.proxy(URI.create("http://" + <proxy-host> + ":" + <proxy port>)); //
 
       return builder.build();
    }
