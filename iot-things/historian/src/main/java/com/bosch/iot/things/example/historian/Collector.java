@@ -26,20 +26,6 @@
  */
 package com.bosch.iot.things.example.historian;
 
-import com.bosch.cr.integration.IntegrationClient;
-import com.bosch.cr.integration.SubscriptionConsumeOptions;
-import com.bosch.cr.integration.client.IntegrationClientImpl;
-import com.bosch.cr.integration.client.configuration.AuthenticationConfiguration;
-import com.bosch.cr.integration.client.configuration.IntegrationClientConfiguration;
-import com.bosch.cr.integration.client.configuration.ProxyConfiguration;
-import com.bosch.cr.integration.client.configuration.PublicKeyAuthenticationConfiguration;
-import com.bosch.cr.integration.client.configuration.TrustStoreConfiguration;
-import com.bosch.cr.integration.things.ChangeAction;
-import com.bosch.cr.json.JsonArray;
-import com.bosch.cr.json.JsonObject;
-import com.bosch.cr.json.JsonPointer;
-import com.bosch.cr.json.JsonValue;
-import com.mongodb.BasicDBObject;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -57,13 +43,33 @@ import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
 import javax.annotation.PostConstruct;
+
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.WriteResultChecking;
-import org.springframework.data.mongodb.core.query.*;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
+
+import com.mongodb.BasicDBObject;
+
+import com.bosch.cr.integration.IntegrationClient;
+import com.bosch.cr.integration.SubscriptionConsumeOptions;
+import com.bosch.cr.integration.client.IntegrationClientImpl;
+import com.bosch.cr.integration.client.configuration.AuthenticationConfiguration;
+import com.bosch.cr.integration.client.configuration.IntegrationClientConfiguration;
+import com.bosch.cr.integration.client.configuration.ProxyConfiguration;
+import com.bosch.cr.integration.client.configuration.PublicKeyAuthenticationConfiguration;
+import com.bosch.cr.integration.client.configuration.TrustStoreConfiguration;
+import com.bosch.cr.integration.things.ChangeAction;
+import com.bosch.cr.json.JsonArray;
+import com.bosch.cr.json.JsonObject;
+import com.bosch.cr.json.JsonPointer;
+import com.bosch.cr.json.JsonValue;
 
 /**
  * Example implemenetation of a history collector. It registers as a consumer for all changes of features of Things and
@@ -146,7 +152,7 @@ public class Collector implements Runnable
 
       // start consuming changes
       try {
-         client.subscriptions().create(SubscriptionConsumeOptions.newBuilder().build()).get(10, TimeUnit.SECONDS);
+         client.subscriptions().create(SubscriptionConsumeOptions.newBuilder().disableConsumeOwnEvents().build()).get(10, TimeUnit.SECONDS);
          client.subscriptions().consume().get(10, TimeUnit.SECONDS);
       } catch (InterruptedException | ExecutionException | TimeoutException ex) {
          throw new RuntimeException(ex);
