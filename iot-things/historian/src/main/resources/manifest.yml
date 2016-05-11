@@ -29,8 +29,8 @@ applications:
   memory: 1024M
   disk_quota: 256M
   buildpack: https://github.com/cloudfoundry/java-buildpack.git
-  domain: apps.bosch-iot-cloud.com
+  domain: internal.bosch-iot-cloud.com
   host: historian
-  path: historian-0.0.1-SNAPSHOT.jar
+  path: historian-@project.version@
   services:
   - mongodb
