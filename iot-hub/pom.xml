@@ -33,12 +33,14 @@
 -->
 
    <groupId>com.bosch.hub.examples</groupId>
-   <artifactId>hub-integration-api-examples</artifactId>
+   <artifactId>hub-examples</artifactId>
    <version>0.0.1-SNAPSHOT</version>
    <packaging>pom</packaging>
    <name>IoT Hub :: Hub Integration Examples</name>
    <description>Bosch IoT Hub Integration Client API Examples</description>
    <modules>
       <module>iot-hub-getting-started</module>
+      <module>hello-world-connector</module>
+      <module>hello-world-business-application</module>
    </modules>
 </project>
