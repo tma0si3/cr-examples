@@ -89,14 +89,14 @@ public class ProxyServlet extends HttpServlet {
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
-        targetHost = HttpHost.create(props.getProperty("centralRegistryTargetHost", "https://cr.apps.bosch-iot-cloud.com"));
+        targetHost = HttpHost.create(props.getProperty("thingsServiceEndpointUrl", "https://things.apps.bosch-iot-cloud.com"));
     }
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String auth = req.getHeader("Authorization");
         if (auth == null) {
-            resp.setHeader("WWW-Authenticate", "BASIC realm=\"Proxy for CR\"");
+            resp.setHeader("WWW-Authenticate", "BASIC realm=\"Proxy for Bosch IoT Things\"");
             resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
@@ -117,8 +117,7 @@ public class ProxyServlet extends HttpServlet {
                 targetReq.addHeader(new BasicScheme().authenticate(creds, targetReq, null));
             }
 
-            targetReq.addHeader("x-cr-api-token", props.getProperty("centralRegistryApiToken"));
-            targetReq.addHeader("x-craas-solution-api-token", props.getProperty("centralRegistryApiToken"));
+            targetReq.addHeader("x-cr-api-token", props.getProperty("apiToken"));
             CloseableHttpResponse targetResp = c.execute(targetHost, targetReq);
 
             System.out.println("Request: " + targetHost + targetUrl + ", user " + user

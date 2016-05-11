@@ -9,8 +9,8 @@ This example shows how to create a simple user interface to list things and thei
 Create or adjust file "src/main/resources/config.properties"
 
 ```
-centralRegistryTargetHost=https://things.apps.bosch-iot-cloud.com
-centralRegistryApiToken=### your Bosch IoT Things Solution API Token ###
+thingsServiceEndpointUrl=https://things.apps.bosch-iot-cloud.com
+apiToken=### your Bosch IoT Things Solution API Token ###
 http.proxyHost=### your http proxy host, if you need one ###
 http.proxyPort=### your http proxy port, if you need one ###
 ```

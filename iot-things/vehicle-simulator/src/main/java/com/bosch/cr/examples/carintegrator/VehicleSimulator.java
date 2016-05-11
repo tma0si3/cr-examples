@@ -245,7 +245,7 @@ public class VehicleSimulator
    {
       try
       {
-         final SubscriptionConsumeOptions consumeOptions = SubscriptionConsumeOptions.newBuilder().setConsumeOwnEvents(true).build();
+         final SubscriptionConsumeOptions consumeOptions = SubscriptionConsumeOptions.newBuilder().enableConsumeOwnEvents().build();
          integrationClient.subscriptions().create(consumeOptions).get(10, TimeUnit.SECONDS);
          integrationClient.subscriptions().consume().get(10, TimeUnit.SECONDS);
       }

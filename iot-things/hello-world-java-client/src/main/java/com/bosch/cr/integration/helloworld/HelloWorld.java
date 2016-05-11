@@ -53,19 +53,17 @@ import com.bosch.cr.model.things.Thing;
 public class HelloWorld
 {
    // Things Service in Cloud
-   public static final String BOSCH_IOT_CENTRAL_REGISTRY_WS_ENDPOINT_URL = "wss://events.apps.bosch-iot-cloud.com";
+   public static final String BOSCH_IOT_CENTRAL_REGISTRY_WS_ENDPOINT_URL = "wss://hub.apps.bosch-iot-cloud.com";
 
    // Insert your Solution ID here
    public static final String SOLUTION_ID = "<your-solution-id>";
-   public static final String CLIENT_ID = SOLUTION_ID;
+   public static final String CLIENT_ID = SOLUTION_ID+":connector";
 
-   // Insert your User ID here
-   public static final String USER_ID = "<your-user-id>";
 
    // Insert your keystore passwords here
    public static final URL KEYSTORE_LOCATION = HelloWorld.class.getResource("/CRClient.jks");
    public static final String KEYSTORE_PASSWORD = "<your-keystore-password>";
-   public static final String ALIAS = "CR";
+   public static final String ALIAS = "HUB";
    public static final String ALIAS_PASSWORD = "<your-alias-password>";
 
    // At the moment necessary for accepting bosch self signed certificates

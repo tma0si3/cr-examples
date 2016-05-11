@@ -40,8 +40,10 @@
          "use strict";
          document.addEventListener("DOMContentLoaded", function () {
 
-            var timestamps = /*[[${timestamps}]]*/ [];
-            var values = /*[[${values}]]*/ [];
+            var values = /*[[ ${values}?: null ]]*/ null;
+            var timestamps = /*[[ ${timestamps}?: null ]]*/ null;
+            values = values !== null ? values : [];
+            timestamps = timestamps !== null ? timestamps : [];
 
             var timestampIso = timestamps.map(function (d) {
                return new Date(d).toISOString();
@@ -62,7 +64,7 @@
                      type: "timeseries",
                      tick: {
                         format: "%Y-%m-%dT%H:%M:%S.%L%Z",
-                        count: 20
+                        count: 10
                      }
                   }
                },
@@ -79,7 +81,7 @@
       </script>
    </head>
    <body>
-      <nav class="navbar navbar-inverse">
+      <nav class="navbar navbar-inverse" th:unless="${embedded}">
          <div class="container">
             <div class="navbar-header">
                <div class="navbar-brand">Bosch IoT Things - Example Data Historian</div>
@@ -88,12 +90,19 @@
       </nav>
       <div class="container">
          <div class="starter-template">
-            <h1>
+            <h4>
                <p>Thing: <span th:text="${thingId}" /></p>
                <p>Feature: <span th:text="${featureId}" /></p>
                <p>Property: <span th:text="${propertyPath}" /></p>
-            </h1>
-            <div id="chart"></div>
+            </h4>
+            <div id="chart" th:if="${values}"></div>
+            <div class="panel panel-warning" th:unless="${values}">
+               <div class="panel-heading">Property is not accessible or history data has not been collected</div>
+               <div class="panel-body">
+                  Please ensure that you have access on this Thing and you have included permissions 
+                  for the Example Historian application to enable history collection.
+               </div>
+            </div>
          </div>
       </div>
    </body>
