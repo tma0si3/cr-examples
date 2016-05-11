@@ -89,7 +89,6 @@ public class Controller
 
    private static final class Param
    {
-
       String thingId;
       String featureId;
       String propertyPath;
@@ -111,6 +110,12 @@ public class Controller
          p.featureId = matcher.group(2);
          p.propertyPath = matcher.group(3);
          return p;
+      }
+
+      @Override
+      public String toString()
+      {
+         return "{" + "thingId=" + thingId + ", featureId=" + featureId + ", propertyPath=" + propertyPath + '}';
       }
    }
 
@@ -135,7 +140,7 @@ public class Controller
       Param p = Param.createFromRequest();
 
       if (!checkAccess(p)) {
-         LOGGER.info("Access denied");
+         LOGGER.info("Property not found or access denied: {}", p);
          return null;
       }
 
@@ -143,7 +148,7 @@ public class Controller
       LOGGER.debug("Query MongoDB on id: {}", id);
       Map m = mongoTemplate.findById(id, Map.class, "history");
       if (m == null) {
-         throw new RuntimeException();
+         return null;
       }
       m.remove("_id");
       return m;
@@ -152,18 +157,31 @@ public class Controller
    @RequestMapping("/history/view/**")
    public ModelAndView getViewHistory() throws Exception
    {
-      Map m = getHistory();
-      if (m == null) {
-         return null;
-      }
+      return getViewHistory(false);
+   }
+   
+   @RequestMapping("/history/embeddedview/**")
+   public ModelAndView getEmbeddedViewHistory() throws Exception
+   {
+      return getViewHistory(true);
+   }
 
+   public ModelAndView getViewHistory(boolean embedded) throws Exception
+   {
+      Map m = getHistory();
       Param p = Param.createFromRequest();
       ModelAndView mav = new ModelAndView();
       mav.addObject("thingId", p.thingId);
       mav.addObject("featureId", p.featureId);
       mav.addObject("propertyPath", p.propertyPath);
+      mav.addObject("clientId", getConfig().getProperty("clientId"));
+      if (embedded) {
+         mav.addObject("embedded", Boolean.TRUE);
+      }
       mav.setViewName("historyview");
-      mav.addAllObjects(m);
+      if (m != null) {
+         mav.addAllObjects(m);
+      }
       return mav;
    }
 
