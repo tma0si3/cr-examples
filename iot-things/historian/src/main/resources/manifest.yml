@@ -31,6 +31,6 @@ applications:
   buildpack: https://github.com/cloudfoundry/java-buildpack.git
   domain: internal.bosch-iot-cloud.com
   host: historian
-  path: historian-@project.version@
+  path: historian-@project.version@.jar
   services:
   - mongodb
