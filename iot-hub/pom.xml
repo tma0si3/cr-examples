@@ -34,10 +34,10 @@
 
    <groupId>com.bosch.hub.examples</groupId>
    <artifactId>hub-examples</artifactId>
-   <version>0.0.1-SNAPSHOT</version>
+   <version>1.0.0-SNAPSHOT</version>
    <packaging>pom</packaging>
-   <name>IoT Hub :: Hub Integration Examples</name>
-   <description>Bosch IoT Hub Integration Client API Examples</description>
+   <name>IoT Hub :: Hub Examples</name>
+   <description>Bosch IoT Hub Examples</description>
    <modules>
       <module>iot-hub-getting-started</module>
       <module>hello-world-connector</module>
