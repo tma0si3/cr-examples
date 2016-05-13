@@ -36,6 +36,8 @@
 * EMPLOYEES, REPRESENTATIVES AND ORGANS.
  */
 -->
+   <name>IoT Hub :: Getting Started</name>
+   <description>Getting Started</description>
    <artifactId>iot-hub-getting-started</artifactId>
    <properties>
       <hic.version>1.0.0-SNAPSHOT</hic.version>
