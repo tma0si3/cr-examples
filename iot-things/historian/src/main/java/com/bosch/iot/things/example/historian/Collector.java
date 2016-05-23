@@ -26,6 +26,37 @@
  */
 package com.bosch.iot.things.example.historian;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import javax.annotation.PostConstruct;
+
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.WriteResultChecking;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Component;
+
+import com.mongodb.BasicDBObject;
+
 import com.bosch.cr.integration.IntegrationClient;
 import com.bosch.cr.integration.SubscriptionConsumeOptions;
 import com.bosch.cr.integration.client.IntegrationClientImpl;
@@ -39,32 +70,20 @@ import com.bosch.cr.json.JsonArray;
 import com.bosch.cr.json.JsonObject;
 import com.bosch.cr.json.JsonPointer;
 import com.bosch.cr.json.JsonValue;
-import com.mongodb.BasicDBObject;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import javax.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.stereotype.Component;
-import org.springframework.data.mongodb.core.query.*;
 
+/**
+ * Example implemenetation of a history collector. It registers as a consumer for all changes of features of Things and
+ * stores them on level of individual properties in the MongoDB.
+ */
 @Component
 public class Collector implements Runnable
 {
 
+   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Collector.class);
+
+   /**
+    * Backlog of change values for each property
+    */
    private static final int HISTORY_SIZE = 1000;
 
    @Autowired
@@ -73,11 +92,11 @@ public class Collector implements Runnable
    private static class History
    {
 
-      private String thingId;
-      private String featureId;
-      private JsonPointer path;
-      private JsonValue value;
-      private LocalDateTime timestamp;
+      private final String thingId;
+      private final String featureId;
+      private final JsonPointer path;
+      private final JsonValue value;
+      private final LocalDateTime timestamp;
 
       public History(String thingId, String featureId, JsonPointer path, JsonValue value, LocalDateTime timestamp)
       {
@@ -99,180 +118,178 @@ public class Collector implements Runnable
    @PostConstruct
    public void start()
    {
-      System.out.println("############### Start Things Historian Collector ###############");
+       mongoTemplate.setWriteResultChecking(WriteResultChecking.EXCEPTION);
 
-      if (!mongoTemplate.collectionExists("history"))
-      {
+      if (!mongoTemplate.collectionExists("history")) {
          mongoTemplate.createCollection("history");
       }
 
       Thread thread = new Thread(this);
-      thread.run();
+      thread.start();
+
+      LOGGER.info("Historian collector started");
    }
 
+   @Override
    public void run()
    {
       IntegrationClient client = setupClient();
-      System.out.println("Started...");
 
-      client.things().registerForFeatureChanges("changes", change
-              -> 
-              {
-                 System.out.println("Change: " + change);
-                 final ChangeAction action = change.getAction();
-                 if (action == ChangeAction.CREATED || action == ChangeAction.UPDATED)
-                 {
-                    List<History> target = new LinkedList<>();
-                    collectChanges(target, change.getThingId(), change.getFeature().getId(),
-                            JsonPointer.newInstance(), change.getValue().get());
+      client.things().registerForFeatureChanges("changes", change -> {
+         final ChangeAction action = change.getAction();
+         if (action == ChangeAction.CREATED || action == ChangeAction.UPDATED) {
+            LOGGER.debug("Change: {}", change);
 
-                    System.out.println("--> " + target);
+            // collect list of individual property changes
+            List<History> target = new LinkedList<>();
+            collectChanges(target, change.getThingId(), change.getFeature().getId(),
+                    JsonPointer.newInstance(), change.getValue().get());
 
-                    target.stream().forEachOrdered(h -> storeHistory(h));
-                 }
+            // write them all the the MongoDB
+            target.stream().forEachOrdered(h -> storeHistory(h));
+         }
       });
 
-      startConsume(client);
+      // start consuming changes
+      try {
+         client.subscriptions().create(SubscriptionConsumeOptions.newBuilder().build()).get(10, TimeUnit.SECONDS);
+         client.subscriptions().consume().get(10, TimeUnit.SECONDS);
+      } catch (InterruptedException | ExecutionException | TimeoutException ex) {
+         throw new RuntimeException(ex);
+      }
    }
 
+   /**
+    * Write history to the the MongoDB
+    */
    private void storeHistory(History h)
    {
-      String id = h.thingId + "/" + h.featureId + "/" + h.path;
+      LOGGER.debug("Store history: {}", h);
+
+      // do combined update query: add newest value+timestamp to the array property and slice array if too long
+      String id = h.thingId + "/features/" + h.featureId + "/" + h.path;
       Update update = new Update()
               .push("values",
                       new BasicDBObject("$each", Arrays.asList(getJavaValue(h.value)))
-                      .append("$slice", -HISTORY_SIZE)
-              )
+                      .append("$slice", -HISTORY_SIZE))
               .push("timestamps",
                       new BasicDBObject("$each", Arrays.asList(h.timestamp))
                       .append("$slice", -HISTORY_SIZE));
+
+      // update or create document for this specific property in this thing/feature 
       mongoTemplate.upsert(
               Query.query(Criteria.where("_id").is(id)),
               update, String.class, "history");
    }
 
+   /**
+    * Collect list of individual property changes
+    */
+   private static void collectChanges(List target, String thingId, String featureId, JsonPointer path, JsonValue value)
+   {
+      if (value.isObject()) {
+         // on Object recursively collect all individual properties with concatenated property path
+         JsonObject obj = value.asObject();
+         obj.forEach(c -> {
+            collectChanges(target, thingId, featureId, path.addLeaf(c.getKey()), c.getValue());
+         });
+      } else {
+         target.add(new History(thingId, featureId, path, value, LocalDateTime.now()));
+      }
+   }
+
+   /**
+    * Return Java representation of JsonValue.
+    *
+    * For primitive types these are objects of type Integer, Long, Double, Boolean or String. Arrays are returned as
+    * Object[] and JsonObjects as Map.
+    */
+   private static Object getJavaValue(JsonValue v)
+   {
+      if (v.isNull()) {
+         return null;
+      } else if (v.isNumber()) {
+         try {
+            return v.asInt();
+         } catch (NumberFormatException ex1) {
+            try {
+               return v.asLong();
+            } catch (NumberFormatException ex2) {
+               return v.asDouble();
+            }
+         }
+      } else if (v.isBoolean()) {
+         return v.asBoolean();
+      } else if (v.isString()) {
+         return v.asString();
+      } else if (v.isArray()) {
+         JsonArray a = v.asArray();
+         return a.stream().map(w -> getJavaValue(w)).toArray();
+      } else if (v.isObject()) {
+         JsonObject o = v.asObject();
+         Map<String, Object> m = new HashMap<>();
+         o.forEach(e -> m.put(e.getKeyName(), getJavaValue(e.getValue())));
+         return m;
+      } else {
+         // fallback: render as String
+         return v.toString();
+      }
+   }
+
    private static IntegrationClient setupClient() throws RuntimeException, NumberFormatException
    {
       Properties props = new Properties(System.getProperties());
-      try
-      {
-         if (new File("config.properties").exists())
-         {
+      try {
+         if (new File("config.properties").exists()) {
             props.load(new FileReader("config.properties"));
-         } else
-         {
+         } else {
             InputStream i = Thread.currentThread().getContextClassLoader().getResourceAsStream("config.properties");
             props.load(i);
             i.close();
          }
-         System.out.println("Config: " + props);
-      } catch (IOException ex)
-      {
+         LOGGER.info("Used integration client config: {}", props);
+      } catch (IOException ex) {
          throw new RuntimeException(ex);
       }
-      String centralRegistryMessagingUrl = props.getProperty("centralRegistryMessagingUrl");
+
+      String thingsMessagingUrl = props.getProperty("thingsServiceMessagingUrl");
       String clientId = props.getProperty("clientId");
       URI keystoreUri;
-      try
-      {
+      try {
          keystoreUri = Collector.class.getResource("/CRClient.jks").toURI();
-      } catch (URISyntaxException ex)
-      {
+      } catch (URISyntaxException ex) {
          throw new RuntimeException(ex);
       }
+
       String keystorePassword = props.getProperty("keyStorePassword");
       String keyAlias = props.getProperty("keyAlias");
       String keyAliasPassword = props.getProperty("keyAliasPassword");
       String proxyHost = props.getProperty("http.proxyHost");
       String proxyPort = props.getProperty("http.proxyPort");
+
       AuthenticationConfiguration authenticationConfiguration;
-      try
-      {
+      try {
          authenticationConfiguration = PublicKeyAuthenticationConfiguration.newBuilder().clientId(clientId).keyStoreLocation(keystoreUri.toURL())
                  .keyStorePassword(keystorePassword).alias(keyAlias).aliasPassword(keyAliasPassword).build();
-      } catch (MalformedURLException ex)
-      {
+      } catch (MalformedURLException ex) {
          throw new RuntimeException(ex);
       }
+
       TrustStoreConfiguration trustStore
               = TrustStoreConfiguration.newBuilder().location(Collector.class.getResource("/bosch-iot-cloud.jks"))
               .password("jks").build();
       IntegrationClientConfiguration.OptionalConfigSettable configSettable
               = IntegrationClientConfiguration.newBuilder().authenticationConfiguration(authenticationConfiguration)
-              .centralRegistryEndpointUrl(centralRegistryMessagingUrl).trustStoreConfiguration(trustStore);
-      if (proxyHost != null && proxyPort != null)
-      {
+              .centralRegistryEndpointUrl(thingsMessagingUrl).trustStoreConfiguration(trustStore);
+
+      if (proxyHost != null && proxyPort != null) {
          configSettable = configSettable.proxyConfiguration(
                  ProxyConfiguration.newBuilder().proxyHost(proxyHost).proxyPort(Integer.parseInt(proxyPort)).build());
       }
+
       IntegrationClient client = IntegrationClientImpl.newInstance(configSettable.build());
+
       return client;
-   }
-
-   private static void startConsume(IntegrationClient client) throws RuntimeException
-   {
-      try
-      {
-         final SubscriptionConsumeOptions consumeOptions = SubscriptionConsumeOptions.newBuilder().setConsumeOwnEvents(true).build();
-         client.subscriptions().create(consumeOptions).get(10, TimeUnit.SECONDS);
-         client.subscriptions().consume().get(10, TimeUnit.SECONDS);
-      } catch (InterruptedException | ExecutionException | TimeoutException ex)
-      {
-         throw new RuntimeException(ex);
-      }
-   }
-
-   private static void collectChanges(List target, String thingId, String featureId, JsonPointer path, JsonValue value)
-   {
-      if (value.isObject())
-      {
-         JsonObject obj = value.asObject();
-         obj.forEach(c
-                 -> 
-                 {
-                    collectChanges(target, thingId, featureId, path.addLeaf(c.getKey()), c.getValue());
-         });
-      } else
-      {
-         target.add(new History(thingId, featureId, path, value, LocalDateTime.now()));
-      }
-   }
-
-   private static Object getJavaValue(JsonValue v)
-   {
-      // TODO support isObject also (for objects within arrays)
-      if (v.isArray())
-      {
-         JsonArray a = v.asArray();
-         return a.stream().map(w -> getJavaValue(w)).toArray();
-      } else if (v.isString())
-      {
-         return v.asString();
-      } else if (v.isNumber())
-      {
-         try
-         {
-            return v.asInt();
-         } catch (NumberFormatException ex1)
-         {
-            try
-            {
-               return v.asLong();
-            } catch (NumberFormatException ex2)
-            {
-               return v.asDouble();
-            }
-         }
-      } else if (v.isBoolean())
-      {
-         return v.asBoolean();
-      } else if (v.isNull())
-      {
-         return null;
-      } else
-      {
-         return v.toString();
-      }
    }
 
 }

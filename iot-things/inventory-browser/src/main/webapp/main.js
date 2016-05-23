@@ -29,6 +29,50 @@
 
 $(document).ready(function () {
 
+    // --- Open/close popup for history property
+    var openPopup = function(url) {
+       $("#popupIframe").attr("src", url);
+       $('#popupOverlay').css("display", "inline");
+    };
+    $("#popupClose").click(function () {
+       $('#popupOverlay').css("display", "none");
+       $("#popupIframe").attr("src", "about:blank");
+    });
+
+    // --- Render object properties as nested table
+    var populateDetails = function(html, obj, historyBaseUrl, path, level) {
+      path = typeof path !== 'undefined' ? path : "";
+      level = typeof level !== 'undefined' ? level : 0;
+
+      var table = $("<table>").addClass("table table-condensed");
+      html.append(table);
+      var tbody = table.append($("<tbody>"));
+      
+      var propNames = Object.getOwnPropertyNames(obj);
+      propNames.forEach(function (prop) {
+         var value = obj[prop];
+         var row = $("<tr>");
+         tbody.append(row);
+         var propHtml = $("<td>").text(prop);
+         row.append(propHtml);
+         
+         if (typeof value === "object" && !Array.isArray(value)) {
+            var cell = $("<td>");
+            row.append(cell);
+            populateDetails(cell, value, historyBaseUrl, path + prop + ".", level + 1);
+         } else if (typeof value === "number" && typeof historyBaseUrl !== "undefined") {
+            var link = $("<a>", { href: "#", text: value });
+            link.click(function() { 
+               openPopup(historyBaseUrl + (path + prop).replace("\.", "/"));
+            });
+            row.append($("<td>").html(link));
+         } else {
+            row.append($("<td>").text(JSON.stringify(value, null, 3)));
+         }
+       });
+       
+    };
+
     // --- Click handler for refreshing details
     var refreshDetails = function () {
         var thingId = $("#details").attr("thingId");
@@ -38,49 +82,36 @@ $(document).ready(function () {
             $("#detailsThingId").text(thingId);
             var tablebody = $("#detailsTableBody");
             tablebody.empty();
-
+            
             if ("attributes" in thing) {
                 // --- for each attribute put row in details table
-                var attrNames = Object.getOwnPropertyNames(thing.attributes);
-                var first = true;
-                attrNames.forEach(function (attribute) {
-                    var value = thing.attributes[attribute];
-                    var row = $("<tr>");
-                    if (first) {
-                        row.append($("<td rowspan=" + attrNames.length + ">").text("Attribute"));
-                        first = false;
-                    }
-                    row.append($("<td>").text(attribute));
-                    row.append($("<td>").text(typeof value == "object" ? JSON.stringify(value, null, 3) : value));
-                    tablebody.append(row);
-                });
+                var row = $("<tr>");
+                tablebody.append(row);
+                row.append($("<td>").text("Attributes"));
+                var cell = $("<td>");
+                row.append(cell);
+                populateDetails(cell, thing.attributes);
             }
             if ("features" in thing) {
                 // --- for each feature property put row in details table
                 Object.getOwnPropertyNames(thing.features).forEach(function (featureId) {
                     var feature = thing.features[featureId];
                     if ("properties" in feature) {
-                        var propNames = Object.getOwnPropertyNames(feature.properties);
-                        var first = true;
-                        propNames.forEach(function (prop) {
-                            var value = feature.properties[prop];
-                            var row = $("<tr>");
-                            if (first) {
-                                row.append($("<td rowspan=" + propNames.length + ">").text("Feature \"" + featureId + "\""));
-                                first = false;
-                            }
-                            row.append($("<td>").text(prop));
-                            row.append($("<td>").text(typeof value == "object" ? JSON.stringify(value, null, 3) : value));
-                            tablebody.append(row);
-                        });
+                        var row = $("<tr>");
+                        tablebody.append(row);
+                        row.append($("<td>").text("Feature \"" + featureId + "\""));
+                        var cell = $("<td>");
+                        row.append(cell);
+                        populateDetails(cell, feature.properties,
+                           "https://demos.apps.bosch-iot-cloud.com/historian/history/embeddedview/" + thingId + "/features/" + featureId + "/properties/");
                     }
                 });
             }
 
-            $("#table-wrapper").removeClass("col-md-12").addClass("col-md-6");
+            $("#table-wrapper").removeClass("col-md-12").addClass("col-md-4");
             $("#details").show();
         }).fail(function () {
-            $("#table-wrapper").removeClass("col-md-6").addClass("col-md-12");
+            $("#table-wrapper").removeClass("col-md-4").addClass("col-md-12");
             $("#details").hide();
         });
     };
@@ -211,5 +242,5 @@ $(document).ready(function () {
         refreshDetails();
     });
 
-    refreshTable();
+   refreshTable();
 });

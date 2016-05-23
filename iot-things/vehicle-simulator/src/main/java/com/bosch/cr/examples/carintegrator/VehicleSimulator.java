@@ -171,7 +171,7 @@ public class VehicleSimulator
                      JsonFactory.newObjectBuilder().set("latitude", latitude + (random.nextDouble() - 0.5) / 250)
                         .set("longitude", longitude + (random.nextDouble() - 0.5) / 250).build();
 
-                  client.things().forFeature(thingId, "geolocation").putProperty("geoposition", newGeoposition);
+                  client.things().forFeature(thingId, "geolocation").putProperty("geoposition", newGeoposition).get(5, TimeUnit.SECONDS);
 
                   System.out.print(".");
                   if (random.nextDouble() < 0.01)
@@ -245,7 +245,7 @@ public class VehicleSimulator
    {
       try
       {
-         final SubscriptionConsumeOptions consumeOptions = SubscriptionConsumeOptions.newBuilder().setConsumeOwnEvents(true).build();
+         final SubscriptionConsumeOptions consumeOptions = SubscriptionConsumeOptions.newBuilder().enableConsumeOwnEvents().build();
          integrationClient.subscriptions().create(consumeOptions).get(10, TimeUnit.SECONDS);
          integrationClient.subscriptions().consume().get(10, TimeUnit.SECONDS);
       }

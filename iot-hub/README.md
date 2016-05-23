@@ -8,7 +8,7 @@ This repository contains examples for using the Bosch IoT Hub in the cloud.
 
 ### Maven Repository
  
-In order to be able to run the examples (or to implement your own), you need the "Bosch IoT Central Registry Integration Client" (short: *CRIC*).
+In order to be able to run the examples (or to implement your own), you need the "Bosch IoT Hub Client" (short: *HIC*).
 This is available via our public Maven repository. Add following Maven-Repository to your Maven `settings.xml`:
 
 ```
