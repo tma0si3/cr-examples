@@ -25,18 +25,10 @@
  */
 package com.bosch.iot.hub.connector.helloworld;
 
-import static com.bosch.iot.hub.model.acl.Permission.ADMINISTRATE;
-import static com.bosch.iot.hub.model.acl.Permission.RECEIVE;
-import static com.bosch.iot.hub.model.acl.Permission.SEND;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,102 +38,89 @@ import com.bosch.iot.hub.client.IotHubClient;
 import com.bosch.iot.hub.client.IotHubClientBuilder;
 import com.bosch.iot.hub.model.acl.AccessControlList;
 import com.bosch.iot.hub.model.acl.AclEntry;
-import com.bosch.iot.hub.model.acl.AuthorizationSubject;
+import com.bosch.iot.hub.model.acl.Permission;
 import com.bosch.iot.hub.model.message.Message;
 import com.bosch.iot.hub.model.message.Payload;
+import com.bosch.iot.hub.model.topic.TopicPath;
 
-public class HelloWorldConnector
+/**
+ * This example shows how simple it is to create new Topics and send messages with the BOSCH IoT Hub Java Client.
+ */
+public final class HelloWorldConnector
 {
-   // Hub Service in the cloud
-   public static final String BOSCH_IOT_CENTRAL_REGISTRY_WS_ENDPOINT_URL = "wss://hub.apps.bosch-iot-cloud.com";
 
-   // Insert your Solution ID here
-   public static final String SOLUTION_ID = "<your-solution-id>";
-   public static final String CLIENT_ID = SOLUTION_ID+":connector";
-   public static final String CONSUMER_CLIENT_ID = SOLUTION_ID+":consumer";
+   /**
+    * URL of the BOSCH IoT Hub cloud service.
+    */
+   private static final URI BOSCH_IOT_HUB_ENDPOINT_URI = URI.create("wss://hub.apps.bosch-iot-cloud.com");
 
-   // Insert your keystore passwords here
-   public static final URL KEYSTORE_LOCATION = HelloWorldConnector.class.getResource("/HubClient.jks");
-   public static final String KEYSTORE_PASSWORD = "<your-keystore-password>";
-   public static final String ALIAS = "CR";
-   public static final String ALIAS_PASSWORD = "<your-alias-password>";
+   private static final String SOLUTION_ID = "<your-solution-id>"; // TODO insert your Solution ID here
+   private static final String CLIENT_ID = SOLUTION_ID + ":connector";
+   private static final String CONSUMER_CLIENT_ID = SOLUTION_ID + ":consumer";
 
-   // At the moment necessary for accepting bosch self signed certificates
-   public static final URL TRUSTSTORE_LOCATION = HelloWorldConnector.class.getResource("/bosch-iot-cloud.jks");
-   public static final String TRUSTSTORE_PASSWORD = "jks";
+   private static final URL KEYSTORE_LOCATION = HelloWorldConnector.class.getResource("/HubClient.jks");
+   private static final String KEYSTORE_PASSWORD = "<your-keystore-password>"; // TODO insert your keystore password here
+   private static final String ALIAS = "CR";
+   private static final String ALIAS_PASSWORD = "<your-alias-password>"; // TODO insert your alias password here
 
-   // Logger
+   // The Trust store is currently necessary for accepting BOSCH self signed certificates.
+   private static final URL TRUST_STORE_LOCATION = HelloWorldConnector.class.getResource("/bosch-iot-cloud.jks");
+   private static final String TRUST_STORE_PASSWORD = "jks";
+
    private static final Logger LOGGER = LoggerFactory.getLogger(HelloWorldConnector.class);
 
-   // need to know the connector and consumer ACL
-   private static final AclEntry CONSUMER_ACL =
-      AclEntry.of(AuthorizationSubject.of(CONSUMER_CLIENT_ID), RECEIVE);
-   private static final AclEntry CONNECTOR_ACL =
-      AclEntry.of(AuthorizationSubject.of(CLIENT_ID), ADMINISTRATE, RECEIVE, SEND);
+   // ACLs (Access Control List) are used to define permissions on Topics.
+   private static final AclEntry CONNECTOR_ACL_ENTRY = AclEntry.of(CLIENT_ID, Permission.ADMINISTRATE,
+         Permission.RECEIVE, Permission.SEND);
+   private static final AclEntry CONSUMER_ACL_ENTRY = AclEntry.of(CONSUMER_CLIENT_ID, Permission.RECEIVE);
+   private static final AccessControlList TOPIC_ACL = AccessControlList.of(CONNECTOR_ACL_ENTRY, CONSUMER_ACL_ENTRY);
 
-   private static final AccessControlList TOPIC_ACLS = AccessControlList.of(CONSUMER_ACL, CONNECTOR_ACL);
-
-
-   /**
-    * Create a Topic and send messages the java client.
-    */
-   public static void main(final String... args) throws InterruptedException, ExecutionException, TimeoutException, URISyntaxException
-   {
-      /**
-       * Instantiate the Java Client
-       */
-      final HelloWorldConnector helloWorld = new HelloWorldConnector();
-
-   }
+   private static final long DEFAULT_TIMEOUT = 5;
 
    /**
-    * Client instantiation
+    * Creates a Topic and sends a "Hello World" message to that Topic using the IoT Hub Java Client.
     */
-   public HelloWorldConnector() throws URISyntaxException, InterruptedException, ExecutionException, TimeoutException
+   public static void main(final String[] args) throws Exception
    {
+      final IotHubClient iotHubClient = createNewIntegrationClient();
 
-      /* Create a new integration client object to start interacting with the Hub Service */
-      IotHubClient iotHubClient = iniIotHubClient();
-      /**
-       * Connect the iot hub client
-       */
+      // In order to work with the client a connection has to be established first.
       iotHubClient.connect();
-      LOGGER.info("Creating Hub Integration Client for ClientID: {}", CLIENT_ID);
 
-      /* Create a new topic with consumer and connector ACL*/
-      iotHubClient.createTopic("myHouse",TOPIC_ACLS).get(5, TimeUnit.SECONDS);
-      iotHubClient.createTopic("myHouse/myGarden",TOPIC_ACLS).get(5, TimeUnit.SECONDS);
-      iotHubClient.createTopic("myHouse/myGarden/mower",TOPIC_ACLS).get(5, TimeUnit.SECONDS);
+      // Using a dedicated type for Topic paths; simple strings would work as well.
+      final TopicPath rootTopicPath = TopicPath.of("com.example");
+      final TopicPath myHouseTopicPath = rootTopicPath.append("myHouse");
+      final TopicPath myGardenTopicPath = myHouseTopicPath.append("myGarden");
+      final TopicPath mowerTopicPath = myGardenTopicPath.append("mower");
+      // mowerTopicPath is "com.example/myHouse/myGarden/mower"
 
-      /* Send a "Hello World " message for a device in my Garden every two Seconds */
-      TimerTask sendAction = new TimerTask() {
-         public void run() {
-            iotHubClient.send(Message.of("com.example/myHouse/myGarden/mower", Payload.of("Hello World")));
-         }
-      };
-      Timer caretaker = new Timer();
-      caretaker.schedule(sendAction, 1000,2000);
+      // Create new Topics with the pre-defined ACL (recursive Topic creation is not possible)
+      iotHubClient.createTopic(rootTopicPath, TOPIC_ACL).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+      iotHubClient.createTopic(myHouseTopicPath, TOPIC_ACL).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+      iotHubClient.createTopic(myGardenTopicPath, TOPIC_ACL).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+      iotHubClient.createTopic(mowerTopicPath, TOPIC_ACL).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 
-      /**
-       * This step must always be concluded to terminate the Java client.
-       */
+      // Send the message.
+      iotHubClient.send(Message.of(mowerTopicPath, Payload.of("Hello World")));
+
+      // This step must always be performed in order to terminate the client.
       iotHubClient.destroy();
-
    }
 
-
-   public IotHubClient iniIotHubClient() throws URISyntaxException
+   private static IotHubClient createNewIntegrationClient() throws URISyntaxException
    {
-      /**
-       * Provide required configuration (authentication configuration and HUB URI), optional proxy configuration can be
-       * added when needed
+      LOGGER.info("Creating Hub Integration Client for client ID <{}>.", CLIENT_ID);
+
+      /*
+       * Provide required configuration (authentication configuration and HUB URI).
+       * Proxy configuration is optional and can be added if needed.
        */
-      IotHubClientBuilder.OptionalPropertiesSettable builder = DefaultIotHubClient.newBuilder() //
-         .endPoint(URI.create(BOSCH_IOT_CENTRAL_REGISTRY_WS_ENDPOINT_URL)) //
-         .keyStore(KEYSTORE_LOCATION.toURI(),KEYSTORE_PASSWORD) //
-         .alias(ALIAS, ALIAS_PASSWORD)
-         .clientId(CLIENT_ID).sslTrustStore(TRUSTSTORE_LOCATION.toURI(), TRUSTSTORE_PASSWORD); //
-        //.proxy(URI.create("http://" + <proxy-host> + ":" + <proxy port>)); //
+      final IotHubClientBuilder.OptionalPropertiesSettable builder = DefaultIotHubClient.newBuilder() //
+         .endPoint(BOSCH_IOT_HUB_ENDPOINT_URI) //
+         .keyStore(KEYSTORE_LOCATION.toURI(), KEYSTORE_PASSWORD) //
+         .alias(ALIAS, ALIAS_PASSWORD).clientId(CLIENT_ID) //
+         .sslTrustStore(TRUST_STORE_LOCATION.toURI(), TRUST_STORE_PASSWORD); //
+      // .proxy(URI.create("http://" + <proxy-host> + ":" + <proxy port>)); //
 
       return builder.build();
    }
