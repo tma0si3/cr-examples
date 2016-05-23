@@ -25,14 +25,10 @@
  */
 package com.bosch.iot.hub.application.helloworld;
 
-import static com.bosch.iot.hub.client.configuration.ConfigOptions.General.CLIENT_ID;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
+import java.nio.charset.StandardCharsets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,87 +37,86 @@ import com.bosch.iot.hub.client.ConsumerRegistration;
 import com.bosch.iot.hub.client.DefaultIotHubClient;
 import com.bosch.iot.hub.client.IotHubClient;
 import com.bosch.iot.hub.client.IotHubClientBuilder;
+import com.bosch.iot.hub.model.message.MessageSender;
+import com.bosch.iot.hub.model.message.Payload;
 
-public class HelloWorldApplication
+/**
+ * This example shows how to use the BOSCH IoT Hub Java Client for easily registering and unregistering a consumer
+ * for inbound messages.
+ */
+public final class HelloWorldApplication
 {
-   // Hub Service in the cloud
-   public static final String BOSCH_IOT_CENTRAL_REGISTRY_WS_ENDPOINT_URL = "wss://hub.apps.bosch-iot-cloud.com";
 
-   // Insert your Solution ID here
-   public static final String SOLUTION_ID = "<your-solution-id>";
-   public static final String CONSUMER_CLIENT_ID = SOLUTION_ID+":consumer";
+   /**
+    * URL of the BOSCH IoT Hub cloud service.
+    */
+   private static final URI BOSCH_IOT_HUB_ENDPOINT_URI = URI.create("wss://hub.apps.bosch-iot-cloud.com");
 
-   // Insert your keystore passwords here
-   public static final URL KEYSTORE_LOCATION = HelloWorldApplication.class.getResource("/HubClient.jks");
-   public static final String KEYSTORE_PASSWORD = "<your-keystore-password>";
-   public static final String ALIAS = "CR";
-   public static final String ALIAS_PASSWORD = "<your-alias-password>";
+   private static final String SOLUTION_ID = "<your-solution-id>"; // TODO insert your Solution ID here
+   private static final String CONSUMER_CLIENT_ID = SOLUTION_ID + ":consumer";
 
-   // At the moment necessary for accepting bosch self signed certificates
-   public static final URL TRUSTSTORE_LOCATION = HelloWorldApplication.class.getResource("/bosch-iot-cloud.jks");
-   public static final String TRUSTSTORE_PASSWORD = "jks";
+   private static final URL KEYSTORE_LOCATION = HelloWorldApplication.class.getResource("/HubClient.jks");
+   private static final String KEYSTORE_PASSWORD = "<your-keystore-password>"; // TODO insert your keystore password here
+   private static final String ALIAS = "CR";
+   private static final String ALIAS_PASSWORD = "<your-alias-password>"; // TODO insert your alias password here
 
-   // Logger
+   // The Trust store is currently necessary for accepting BOSCH self signed certificates.
+   private static final URL TRUST_STORE_LOCATION = HelloWorldApplication.class.getResource("/bosch-iot-cloud.jks");
+   private static final String TRUST_STORE_PASSWORD = "jks";
+
    private static final Logger LOGGER = LoggerFactory.getLogger(HelloWorldApplication.class);
 
-   /**
-    * Create a Topic and send messages the java client.
-    */
-   public static void main(final String... args) throws InterruptedException, ExecutionException, TimeoutException, URISyntaxException
-   {
-      /**
-       * Instantiate the Java Client
-       */
-      final HelloWorldApplication helloWorld = new HelloWorldApplication();
-
-   }
+   private static final long EXECUTION_TIME_MILLIS = 60000;
 
    /**
-    * Client instantiation
+    * Uses the BOSCH IoT Hub Java Client to register a consumer for inbound messages.
     */
-   public HelloWorldApplication() throws URISyntaxException, InterruptedException, ExecutionException, TimeoutException
+   public static void main(final String[] args) throws Exception
    {
+      final IotHubClient iotHubClient = createNewIntegrationClient();
 
-      /* Create a new integration client object to start interacting with the Hub Service */
-      IotHubClient iotHubClient = iniIotHubClient();
-      /**
-       * Connect the iot hub client
-       */
+      // In order to work with the client a connection has to be established first.
       iotHubClient.connect();
-      LOGGER.info("Creating Hub Integration Client for ClientID: {}", CLIENT_ID);
 
-      /* Create a new topic with consumer and connector ACL*/
-      ConsumerRegistration consumerRegistration = iotHubClient.consume(inboundMessage -> {
-         LOGGER.info("Receive message: {} from client {}", new String(inboundMessage.getPayload().get().getContentAsByteArray()),inboundMessage.getSender().getIdentifier());
+      // Create and register a new consumer.
+      final ConsumerRegistration consumerRegistration = iotHubClient.consume(inboundMessage -> {
+         final String payload = inboundMessage.getPayload() //
+            .map(Payload::getContentAsByteArray) //
+            .map(payloadBytes -> new String(payloadBytes, StandardCharsets.UTF_8)) //
+            .orElse(null);
+
+         final MessageSender messageSender = inboundMessage.getSender();
+
+         LOGGER.info("Received message with payload <{}> from client <{}>.", payload, messageSender.getIdentifier());
       });
 
-      CompletableFuture completableFuture = new CompletableFuture();
-      completableFuture.wait();
-
-      /**
-       * Deregister the consumer
+      /*
+       * Block the main thread. The consumer runs in its own thread and thus still gets notified about received
+       * messages.
        */
+      Thread.sleep(EXECUTION_TIME_MILLIS);
+
+      // Unregister the consumer.
       consumerRegistration.unregister();
-      /**
-       * This step must always be concluded to terminate the Java client.
-       */
-      iotHubClient.destroy();
 
+      // This step must always be performed in order to terminate the client.
+      iotHubClient.destroy();
    }
 
-
-   public IotHubClient iniIotHubClient() throws URISyntaxException
+   private static IotHubClient createNewIntegrationClient() throws URISyntaxException
    {
-      /**
-       * Provide required configuration (authentication configuration and HUB URI), optional proxy configuration can be
-       * added when needed
+      LOGGER.info("Creating Hub Integration Client for client ID <{}>.", CONSUMER_CLIENT_ID);
+
+      /*
+       * Provide required configuration (authentication configuration and HUB URI).
+       * Proxy configuration is optional and can be added if needed.
        */
-      IotHubClientBuilder.OptionalPropertiesSettable builder = DefaultIotHubClient.newBuilder() //
-         .endPoint(URI.create(BOSCH_IOT_CENTRAL_REGISTRY_WS_ENDPOINT_URL)) //
-         .keyStore(KEYSTORE_LOCATION.toURI(),KEYSTORE_PASSWORD) //
-         .alias(ALIAS, ALIAS_PASSWORD)
-         .clientId(CONSUMER_CLIENT_ID).sslTrustStore(TRUSTSTORE_LOCATION.toURI(), TRUSTSTORE_PASSWORD); //
-         //.proxy(URI.create("http://" + <proxy-host> + ":" + <proxy port>)); //
+      final IotHubClientBuilder.OptionalPropertiesSettable builder = DefaultIotHubClient.newBuilder() //
+         .endPoint(BOSCH_IOT_HUB_ENDPOINT_URI) //
+         .keyStore(KEYSTORE_LOCATION.toURI(), KEYSTORE_PASSWORD) //
+         .alias(ALIAS, ALIAS_PASSWORD).clientId(CONSUMER_CLIENT_ID) //
+         .sslTrustStore(TRUST_STORE_LOCATION.toURI(), TRUST_STORE_PASSWORD); //
+      // .proxy(URI.create("http://" + <proxy-host> + ":" + <proxy port>)); //
 
       return builder.build();
    }
