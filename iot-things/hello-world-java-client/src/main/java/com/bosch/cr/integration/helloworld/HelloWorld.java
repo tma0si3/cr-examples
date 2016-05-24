@@ -53,24 +53,27 @@ import com.bosch.cr.model.things.Thing;
 public class HelloWorld
 {
    // Things Service in Cloud
-   public static final String BOSCH_IOT_CENTRAL_REGISTRY_WS_ENDPOINT_URL = "wss://hub.apps.bosch-iot-cloud.com";
+   public static final String BOSCH_IOT_THINGS_WS_ENDPOINT_URL = "wss://events.apps.bosch-iot-cloud.com";
 
    // Insert your Solution ID here
    public static final String SOLUTION_ID = "<your-solution-id>";
    public static final String CLIENT_ID = SOLUTION_ID+":connector";
-
+   public static final String USER_ID = "<your-user-id>";
 
    // Insert your keystore passwords here
    public static final URL KEYSTORE_LOCATION = HelloWorld.class.getResource("/CRClient.jks");
    public static final String KEYSTORE_PASSWORD = "<your-keystore-password>";
-   public static final String ALIAS = "HUB";
+   public static final String ALIAS = "CR";
    public static final String ALIAS_PASSWORD = "<your-alias-password>";
 
-   // At the moment necessary for accepting bosch self signed certificates
+   // Currently  necessary for accepting bosch self signed certificates
    public static final URL TRUSTSTORE_LOCATION = HelloWorld.class.getResource("/bosch-iot-cloud.jks");
    public static final String TRUSTSTORE_PASSWORD = "jks";
 
-   // Logger
+   // optionally configure a proxy server
+   // public static final String PROXY_HOST = "proxyhost";
+   // public static final String PROXY_PORT = 8080;
+
    private static final Logger LOGGER = LoggerFactory.getLogger(HelloWorld.class);
 
    private static final int TIMEOUT = 2;
@@ -87,33 +90,23 @@ public class HelloWorld
     */
    public static void main(final String... args) throws InterruptedException, ExecutionException, TimeoutException
    {
-      /**
-       * Instantiate the Java Client
-       */
+       // Instantiate the Java Client
       final HelloWorld helloWorld = new HelloWorld();
 
-      /**
-       * Create a Thing with a counter Feature and get the FeatureHandle
-       */
+      // Create a Thing with a counter Feature and get the FeatureHandle
       final FeatureHandle counter = helloWorld.createThingWithCounter();
 
-      /**
-       * Update the ACL with your User ID to see your thing in the Demo Web UI
-       */
+      // Update the ACL with your User ID to see your thing in the Demo Web UI
       helloWorld.updateACL();
 
-      /**
-       * Loop to update the attributes of the Thing
-       */
+      // Loop to update the attributes of the Thing
       for (int i = 0; i <= 100; i++)
       {
          helloWorld.updateCounter(counter, i);
          Thread.sleep(2000);
       }
 
-      /**
-       * This step must always be concluded to terminate the Java client.
-       */
+      // This step must always be concluded to terminate the Java client.
       helloWorld.terminate();
    }
 
@@ -132,10 +125,10 @@ public class HelloWorld
             .build();
 
       /* optionally configure a proxy server */
-      final ProxyConfiguration proxy = ProxyConfiguration.newBuilder() //
-         .proxyHost("hostname") //
-         .proxyPort(8080) //
-         .build();
+      //      final ProxyConfiguration proxy = ProxyConfiguration.newBuilder() //
+      //         .proxyHost(PROXY_HOST) //
+      //         .proxyPort(PROXY_PORT) //
+      //         .build();
 
       /* Configure a truststore that contains trusted certificates */
       final TrustStoreConfiguration trustStore = TrustStoreConfiguration.newBuilder() //
@@ -147,20 +140,20 @@ public class HelloWorld
        * Provide required configuration (authentication configuration and CR URI), optional proxy configuration can be
        * added when needed
        */
-         final IntegrationClientConfiguration integrationClientConfiguration =
+      final IntegrationClientConfiguration integrationClientConfiguration =
             IntegrationClientConfiguration.newBuilder() //
                .authenticationConfiguration(authenticationConfiguration)
-               .centralRegistryEndpointUrl(BOSCH_IOT_CENTRAL_REGISTRY_WS_ENDPOINT_URL) //
+               .centralRegistryEndpointUrl(BOSCH_IOT_THINGS_WS_ENDPOINT_URL) //
                .trustStoreConfiguration(trustStore) //
                // .proxyConfiguration(proxy) //
                .build();
 
       LOGGER.info("Creating CR Integration Client for ClientID: {}", CLIENT_ID);
 
-      /* Create a new integration client object to start interacting with the Central Registry */
+      // Create a new integration client object to start interacting with the Central Registry
       integrationClient = IntegrationClientImpl.newInstance(integrationClientConfiguration);
 
-      /* Create a new thing integration object to start interacting with the Central Registry */
+      // Create a new thing integration object to start interacting with the Central Registry
       thingIntegration = integrationClient.things();
    }
 
@@ -306,7 +299,7 @@ public class HelloWorld
     */
    public void terminate()
    {
-      /* Gracefully shutdown the integrationClient */
+      // Gracefully shutdown the integrationClient
       integrationClient.destroy();
    }
 
