@@ -10,7 +10,7 @@ mvn clean install
 
 # Create a Solution with a private/public key
 
-http://m2m.bosch-si.com/dokuwiki/doku.php?id=002_getting_started:cr_02_booking-cr-service.txt
+https://things.apps.bosch-iot-cloud.com/dokuwiki/doku.php?id=002_getting_started:cr_02_booking-cr-service.txt
 
 # Create a User
 
@@ -18,8 +18,8 @@ Register your user on [things.apps.bosch-iot-cloud.com](https://things.apps.bosc
 
 # Add CRClient.jks
 
-Add the CRClient.jks to your project root folder.  
-If you didn't have such a file go back to #Create a Solution with a private/public key.
+Add the CRClient.jks to your project root folder.
+If you don't have such a file go back to #Create a Solution with a private/public key.
 
 # Configure your Client Id and other settings
 
@@ -27,7 +27,7 @@ Create file "config.properties" in your project root folder. _Please change the 
 
 
 ```
-centralRegistryMessagingUrl=wss://events.apps.bosch-iot-cloud.com
+thingsServiceMessagingUrl=wss://events.apps.bosch-iot-cloud.com
 clientId=###your solution id ###:gateway
 keyAlias=CR
 keyStorePassword=### your key password ###
