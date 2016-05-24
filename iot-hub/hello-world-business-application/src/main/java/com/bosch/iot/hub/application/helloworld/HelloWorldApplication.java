@@ -57,7 +57,7 @@ public final class HelloWorldApplication
 
    private static final URL KEYSTORE_LOCATION = HelloWorldApplication.class.getResource("/HubClient.jks");
    private static final String KEYSTORE_PASSWORD = "<your-keystore-password>"; // TODO insert your keystore password here
-   private static final String ALIAS = "CR";
+   private static final String ALIAS = "<ALIAS>"; // TODO insert your alias here
    private static final String ALIAS_PASSWORD = "<your-alias-password>"; // TODO insert your alias password here
 
    // The Trust store is currently necessary for accepting BOSCH self signed certificates.
