@@ -88,7 +88,7 @@ public final class HelloWorldConnector
       iotHubClient.connect();
 
       // Using a dedicated type for Topic paths; simple strings would work as well.
-      final TopicPath rootTopicPath = TopicPath.of("com.example");
+      final TopicPath rootTopicPath = TopicPath.of(SOLUTION_ID);
       final TopicPath myHouseTopicPath = rootTopicPath.append("myHouse");
       final TopicPath myGardenTopicPath = myHouseTopicPath.append("myGarden");
       final TopicPath mowerTopicPath = myGardenTopicPath.append("mower");
@@ -103,6 +103,8 @@ public final class HelloWorldConnector
       // Send the message.
       iotHubClient.send(Message.of(mowerTopicPath, Payload.of("Hello World")));
 
+      // Delete all created Topics
+      iotHubClient.deleteTopic(rootTopicPath).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
       // This step must always be performed in order to terminate the client.
       iotHubClient.destroy();
    }
