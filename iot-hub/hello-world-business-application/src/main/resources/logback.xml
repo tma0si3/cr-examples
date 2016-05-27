@@ -5,7 +5,7 @@
       </encoder>
    </appender>
 
-   <logger name="com.bosch.iot.hub.application.helloworld" level="info"
+   <logger name="com.bosch.iot.hub" level="info"
            additivity="false">
       <appender-ref ref="STDOUT" />
    </logger>
