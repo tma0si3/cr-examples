@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+<link rel="stylesheet"
+	href="https://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" />
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.css" />
+<title>Bosch IoT Hub - Example SSE Consumer</title>
+<style type="text/css">
+.log {
+	margin-top: .5em;
+	border: 1px solid black;
+	padding: .5em;
+	height: 40em;
+	width: 80em;
+	overflow-y: scroll;
+	overflow-x: auto;
+}
+</style>
+</head>
+<body>
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+		var source = /*[[ ${source}?: null ]]*/null;
+		source = source !== null ? source : "";
+		var topic = /*[[ ${topic}?: null ]]*/null;
+		topic = topic !== null ? topic : "";
+
+		if (typeof (EventSource) !== "undefined") {
+			var source = new EventSource(source);
+			source.addEventListener(topic, function(e) {
+				printEvent(e.type, e.data);
+			}, false);
+
+			source.onerror = function(e) {
+				var msg = '';
+				switch (e.target.readyState) {
+				// if reconnecting
+				case EventSource.CONNECTING:
+					msg = 'Reconnecting…';
+					break;
+				// if an error has occured
+				case EventSource.CLOSED:
+					msg = 'Connection closed.';
+					break;
+				}
+				document.getElementById("result").innerHTML += '<span style="color:red;">'
+						+ msg + "</span><br>";
+			};
+		} else {
+			document.getElementById("result").innerHTML = "<b>Sorry, your browser does not support server-sent events...";
+		}
+
+		function printEvent(name, data) {
+			var now = new Date();
+			document.getElementById("result").innerHTML += "<b>["
+					+ now.toUTCString()
+					+ "] Received event from server: </b><br>"
+					+ "<b>name</b>: " + name + "<br><b>data</b>: "
+					+ (data == null ? "none" : data) + "<br><br>";
+		}
+		/*]]>*/
+	</script>
+	<nav class="navbar navbar-inverse">
+		<div class="container">
+			<div class="navbar-header">
+				<div class="navbar-brand">Bosch IoT Hub - Example SSE Consumer</div>
+			</div>
+		</div>
+	</nav>
+	<div class="container">
+		<div class="starter-template">
+			<h3>
+				SSE log from source <b><span th:text="${source}" /></b>
+			</h3>
+			<div id="result" class="log"></div>
+		</div>
+	</div>
+</body>
+</html>
