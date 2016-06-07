@@ -101,7 +101,9 @@ public final class HelloWorldConnector
       iotHubClient.createTopic(mowerTopicPath, TOPIC_ACL).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 
       // Send the message.
-      iotHubClient.send(Message.of(mowerTopicPath, Payload.of("Hello World")));
+      iotHubClient.send(Message.of(mowerTopicPath, Payload.of("Hello World"))).thenAccept(SendSuccess -> {
+         LOGGER.info("Successfully send the message to topic <{}>.", mowerTopicPath);
+      });
 
       // This step must always be performed in order to terminate the client.
       iotHubClient.destroy();
