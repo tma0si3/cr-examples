@@ -133,7 +133,7 @@ public class CentralRegistrySignatureAuthenticationTest
    public void putThingWithCRS() throws ExecutionException, InterruptedException
    {
       final String thingJsonString = "{}";
-      final String path = "/cr/1/things/" + thingId;
+      final String path = "/api/1/things/" + thingId;
 
       final ListenableFuture<Response> future = asyncHttpClient.preparePut(centralRegistryEndpointUrl + path) //
          .addHeader(HTTP_HEADER_CONTENT_TYPE, CONTENT_TYPE_JSON) //
@@ -153,7 +153,7 @@ public class CentralRegistrySignatureAuthenticationTest
    @Test
    public void deleteThingWithCRS() throws ExecutionException, InterruptedException
    {
-      final String path = "/cr/1/things/" + thingId;
+      final String path = "/api/1/things/" + thingId;
 
       final ListenableFuture<Response> future = asyncHttpClient.prepareDelete(centralRegistryEndpointUrl + path) //
          .execute();
