@@ -19,7 +19,7 @@
 		{
 			"id": "3795e20f-4bbc-30f9-35d4-2691471d8712",
 			"headers": "Accept: application/json\n",
-			"url": "{{craas.baseurl}}/cr/1/subscriptions?option=limit(0,200)",
+			"url": "{{craas.baseurl}}/api/1/subscriptions?option=limit(0,200)",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "GET",
@@ -38,7 +38,7 @@
 		{
 			"id": "63f101dc-1007-cd85-b18e-578ea3ddef0c",
 			"headers": "Accept: application/json\nContent-Type: application/json\n",
-			"url": "{{craas.baseurl}}/cr/1/subscriptions/<subscriptionId>",
+			"url": "{{craas.baseurl}}/api/1/subscriptions/<subscriptionId>",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "DELETE",
@@ -58,7 +58,7 @@
 		{
 			"id": "886b11d3-8032-c663-73ce-4d18d02c901d",
 			"headers": "Accept: application/json\nContent-Type: application/json\n",
-			"url": "{{craas.baseurl}}/cr/1/subscriptions",
+			"url": "{{craas.baseurl}}/api/1/subscriptions",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "POST",
@@ -78,7 +78,7 @@
 		{
 			"id": "cf620a51-cddc-9f5e-6706-146c6ac0641e",
 			"headers": "Accept: application/json\nContent-Type: application/json\n",
-			"url": "{{craas.baseurl}}/cr/1/subscriptions/<subscriptionId>",
+			"url": "{{craas.baseurl}}/api/1/subscriptions/<subscriptionId>",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "PUT",
@@ -98,7 +98,7 @@
 		{
 			"id": "de29b9cc-dac6-5831-873e-28e7e277e462",
 			"headers": "Accept: application/json\nContent-Type: application/json\n",
-			"url": "{{craas.baseurl}}/cr/1/subscriptions/<subscriptionId>",
+			"url": "{{craas.baseurl}}/api/1/subscriptions/<subscriptionId>",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "PUT",
@@ -118,7 +118,7 @@
 		{
 			"id": "e8a7d342-125d-8c15-f413-38b392103279",
 			"headers": "Accept: application/json\n",
-			"url": "{{craas.baseurl}}/cr/1/subscriptions/<subscriptionId>",
+			"url": "{{craas.baseurl}}/api/1/subscriptions/<subscriptionId>",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "GET",
