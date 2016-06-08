@@ -40,11 +40,9 @@ public final class HubClientUtil
    public static final String RECEIVER_SOLUTION_CLIENT_ID = System.getProperty("RECEIVER_SOLUTION_ID");
 
    public static final URI HUB_CLOUD_ENDPOINT = URI.create(System.getProperty("HUB_CLOUD_ENDPOINT"));
-   public static final URI KEY_STORE_LOCATION = URI.create(HubTopicMgmtExample.class.getResource("/HubExampleClient.jks").toString());
+   public static final URI KEY_STORE_LOCATION =
+      URI.create(HubTopicMgmtExample.class.getResource("/HubExampleClient.jks").toString());
    public static final String KEY_STORE_PASSWORD = "123456";
-   public static final URI TRUST_STORE_LOCATION =
-      URI.create(HubTopicMgmtExample.class.getResource("/bosch-iot-cloud.jks").toString());
-   public static final String TRUST_STORE_PASSWORD = "jks";
    public static final String ALIAS = "CR";
    public static final String ALIAS_PASSWORD = "123456";
    public static final String PROXY_URI = System.getProperty("PROXY_URI");
@@ -52,17 +50,16 @@ public final class HubClientUtil
 
    public static final String SOLUTION_TOPIC = "topic_management_solution";
    public static final String SOLUTION_SUBTOPIC = "topic_management_solution/sub_topic";
-   
+
    public static final long DEFAULT_TIMEOUT = 20;
-   
+
    public static IotHubClient initSolutionClient(final String solutionId)
    {
       IotHubClientBuilder.OptionalPropertiesSettable propertiesSettable = DefaultIotHubClient.newBuilder() //
          .endPoint(HUB_CLOUD_ENDPOINT) //
          .keyStore(KEY_STORE_LOCATION, KEY_STORE_PASSWORD) //
          .alias(ALIAS, ALIAS_PASSWORD) //
-         .clientId(solutionId) //
-         .sslTrustStore(TRUST_STORE_LOCATION, TRUST_STORE_PASSWORD);//
+         .clientId(solutionId);//
 
       if (null != PROXY_URI)
       {

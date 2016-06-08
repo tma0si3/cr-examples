@@ -41,8 +41,8 @@ import com.bosch.iot.hub.model.message.MessageSender;
 import com.bosch.iot.hub.model.message.Payload;
 
 /**
- * This example shows how to use the BOSCH IoT Hub Java Client for easily registering and unregistering a consumer
- * for inbound messages.
+ * This example shows how to use the BOSCH IoT Hub Java Client for easily registering and unregistering a consumer for
+ * inbound messages.
  */
 public final class HelloWorldApplication
 {
@@ -56,14 +56,9 @@ public final class HelloWorldApplication
    private static final String CONSUMER_CLIENT_ID = SOLUTION_ID + ":consumer";
 
    private static final URL KEYSTORE_LOCATION = HelloWorldApplication.class.getResource("/HubClient.jks");
-   private static final String KEYSTORE_PASSWORD = "<your-keystore-password>"; // TODO insert your keystore password here
+   private static final String KEYSTORE_PASSWORD = "<your-keystore-password>"; // TODO insert your keystore password
    private static final String ALIAS = "<ALIAS>"; // TODO insert your alias here
    private static final String ALIAS_PASSWORD = "<your-alias-password>"; // TODO insert your alias password here
-
-   // The Trust store is currently necessary for accepting BOSCH self signed certificates.
-   private static final URL TRUST_STORE_LOCATION = HelloWorldApplication.class.getResource("/bosch-iot-cloud.jks");
-   private static final String TRUST_STORE_PASSWORD = "jks";
-
    private static final Logger LOGGER = LoggerFactory.getLogger(HelloWorldApplication.class);
 
    private static final long EXECUTION_TIME_MILLIS = 60000;
@@ -114,8 +109,7 @@ public final class HelloWorldApplication
       final IotHubClientBuilder.OptionalPropertiesSettable builder = DefaultIotHubClient.newBuilder() //
          .endPoint(BOSCH_IOT_HUB_ENDPOINT_URI) //
          .keyStore(KEYSTORE_LOCATION.toURI(), KEYSTORE_PASSWORD) //
-         .alias(ALIAS, ALIAS_PASSWORD).clientId(CONSUMER_CLIENT_ID) //
-         .sslTrustStore(TRUST_STORE_LOCATION.toURI(), TRUST_STORE_PASSWORD); //
+         .alias(ALIAS, ALIAS_PASSWORD).clientId(CONSUMER_CLIENT_ID); //
       // .proxy(URI.create("http://" + <proxy-host> + ":" + <proxy port>)); //
 
       return builder.build();

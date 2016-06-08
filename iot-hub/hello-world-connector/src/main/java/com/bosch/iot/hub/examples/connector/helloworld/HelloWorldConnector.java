@@ -63,10 +63,6 @@ public final class HelloWorldConnector
    private static final String ALIAS = "<ALIAS>"; // TODO insert your alias here
    private static final String ALIAS_PASSWORD = "<your-alias-password>"; // TODO insert your alias password here
 
-   // The Trust store is currently necessary for accepting BOSCH self signed certificates.
-   private static final URL TRUST_STORE_LOCATION = HelloWorldConnector.class.getResource("/bosch-iot-cloud.jks");
-   private static final String TRUST_STORE_PASSWORD = "jks";
-
    private static final Logger LOGGER = LoggerFactory.getLogger(HelloWorldConnector.class);
 
    // ACLs (Access Control List) are used to define permissions on Topics.
@@ -120,9 +116,8 @@ public final class HelloWorldConnector
       final IotHubClientBuilder.OptionalPropertiesSettable builder = DefaultIotHubClient.newBuilder() //
          .endPoint(BOSCH_IOT_HUB_ENDPOINT_URI) //
          .keyStore(KEYSTORE_LOCATION.toURI(), KEYSTORE_PASSWORD) //
-         .alias(ALIAS, ALIAS_PASSWORD).clientId(CLIENT_ID) //
-         .sslTrustStore(TRUST_STORE_LOCATION.toURI(), TRUST_STORE_PASSWORD); //
-      // .proxy(URI.create("http://" + <proxy-host> + ":" + <proxy port>)); //
+         .alias(ALIAS, ALIAS_PASSWORD).clientId(CLIENT_ID); //
+           // .proxy(URI.create("http://" + <proxy-host> + ":" + <proxy port>)); //
 
       return builder.build();
    }
