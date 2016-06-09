@@ -92,7 +92,7 @@ public final class HelloWorldConnector
       final TopicPath myHouseTopicPath = rootTopicPath.append("myHouse");
       final TopicPath myGardenTopicPath = myHouseTopicPath.append("myGarden");
       final TopicPath mowerTopicPath = myGardenTopicPath.append("mower");
-      // mowerTopicPath is "com.example/myHouse/myGarden/mower"
+      // mowerTopicPath is "<SOLUTION_ID>/myHouse/myGarden/mower"
 
       // Create new Topics with the pre-defined ACL (recursive Topic creation is not possible)
       iotHubClient.createTopic(rootTopicPath, TOPIC_ACL).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
