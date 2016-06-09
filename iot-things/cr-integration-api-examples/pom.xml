@@ -33,7 +33,7 @@
    -->
 
    <groupId>com.bosch.cr.examples</groupId>
-   <artifactId>integration-api-examples</artifactId>
+   <artifactId>cr-integration-api-examples</artifactId>
    <version>0.0.1-SNAPSHOT</version>
    <name>Bosch IoT Things :: Java Integration Client Examples</name>
    <description>Integration Client API Examples for Bosch IoT Things</description>
