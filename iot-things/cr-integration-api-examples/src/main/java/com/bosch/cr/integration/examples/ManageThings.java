@@ -69,7 +69,7 @@ public class ManageThings extends ExamplesBase
       client.things().create(myThingId)
          .thenCompose(createdThing -> myThing.putAttribute(JsonFactory.newPointer("address/city"), "Berlin"))
          .thenCompose(changedSuccessfully -> myThing.retrieve()).thenCompose(retrievedThing -> {
-            LOGGER.info("My thing as persisted on the Bosch IoT Central Registry: {}", retrievedThing);
+            LOGGER.info("My thing as persisted: {}", retrievedThing);
             return myThing.delete();
          }).get(10, TimeUnit.SECONDS);
    }
