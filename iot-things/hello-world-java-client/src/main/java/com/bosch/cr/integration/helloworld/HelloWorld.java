@@ -157,10 +157,10 @@ public class HelloWorld
 
       LOGGER.info("Creating CR Integration Client for ClientID: {}", CLIENT_ID);
 
-      // Create a new integration client object to start interacting with the Central Registry
+      // Create a new integration client object to start interacting service
       integrationClient = IntegrationClientImpl.newInstance(integrationClientConfiguration);
 
-      // Create a new thing integration object to start interacting with the Central Registry
+      // Create a new thing integration object for working with things
       thingIntegration = integrationClient.things();
    }
 

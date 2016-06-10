@@ -53,16 +53,9 @@ $(document).ready(function () {
 
         // Get thing
         $.getJSON(path).done(function (value) {
-            // --- clear table content and remember thingId
+            // --- remember thingId and show content
             $("#detailsThingId").text(thingId);
-            var tablebody = $("#detailsTableBody");
-            tablebody.empty();
-
-            var row = $("<tr>");
-            row.append($("<td rowspan=1>").text("counter"));
-            row.append($("<td>").text("value"));
-            row.append($("<td>").text(value));
-            tablebody.append(row);
+            $("#detailsData").text(JSON.stringify(value));
 
             $("#failure").hide();
             $("#details").show();

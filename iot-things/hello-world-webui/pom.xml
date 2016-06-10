@@ -37,8 +37,7 @@
    <artifactId>hello-world-webui</artifactId>
    <version>0.0.1-SNAPSHOT</version>
    <packaging>war</packaging>
-   <name>Hello World Web UI</name>
-   <description>Central Registry Integration Client - Hello World Web UI</description>
+   <description>Boch IoT Things - Hello World Web UI</description>
 
    <properties>
       <maven.compiler.source>1.8</maven.compiler.source>
@@ -88,6 +87,7 @@
          </plugin>
          <plugin>
             <artifactId>maven-resources-plugin</artifactId>
+            <version>2.7</version>
             <executions>
                <execution>
                   <id>copy-manifest</id>
