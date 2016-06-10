@@ -39,7 +39,7 @@ After adding the public repository as described above, you can simply use the CR
 <dependency>
    <groupId>com.bosch.cr</groupId>
    <artifactId>cr-integration-client</artifactId>
-   <version>2.4.0</version>
+   <version>2.3.1</version>
 </dependency>
 ```
 
@@ -49,7 +49,7 @@ We also provide an OSGi-bundle:
 <dependency>
    <groupId>com.bosch.cr</groupId>
    <artifactId>cr-integration-client-osgi</artifactId>
-   <version>2.4.0</version>
+   <version>2.3.1</version>
 </dependency>
 ```
 
