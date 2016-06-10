@@ -40,7 +40,7 @@
 
    <properties>
       <jackson.version>2.5.4</jackson.version>
-      <async-http-client.version>2.0.0-RC8</async-http-client.version>
+      <async-http-client.version>2.0.0</async-http-client.version>
       <junit.version>4.12</junit.version>
    </properties>
 
