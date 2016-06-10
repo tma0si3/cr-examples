@@ -33,12 +33,12 @@ import org.asynchttpclient.RequestBuilderBase;
 import org.asynchttpclient.SignatureCalculator;
 
 /**
- * Apache Ning SignatureCalculator which calculates the "CRS" asymmetrical signature for authenticating technical clients
- * at the RESTful interface of CR.
+ * Apache Ning SignatureCalculator which calculates the asymmetrical signature for authenticating technical clients
+ * at the RESTful interface of the Bosch IoT Things service.
  *
  * @since 1.0.0
  */
-public class CrAsymmetricalSignatureCalculator implements SignatureCalculator
+public class AsymmetricalSignatureCalculator implements SignatureCalculator
 {
    private static final String HTTP_HEADER_AUTHORIZATION = "Authorization";
    private static final String CRS_AUTH_PREFIX = "CRS ";
@@ -52,7 +52,7 @@ public class CrAsymmetricalSignatureCalculator implements SignatureCalculator
    private final String clientId;
    private final String apiToken;
 
-   public CrAsymmetricalSignatureCalculator(final SignatureFactory signatureFactory, final String clientId,
+   public AsymmetricalSignatureCalculator(final SignatureFactory signatureFactory, final String clientId,
       final String apiToken)
    {
       this.signatureFactory = signatureFactory;

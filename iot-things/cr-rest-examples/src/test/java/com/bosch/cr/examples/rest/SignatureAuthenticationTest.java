@@ -49,13 +49,15 @@ import org.asynchttpclient.Response;
 import org.asynchttpclient.proxy.ProxyServer;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 /**
- * Unit test to show CRS Authentication.
+ * Unit test to show Signature Authentication for authenticating technical clients at the RESTful interface 
+ * of the Bosch IoT Things service
  *
  * @since 1.0.0
  */
-public class CentralRegistrySignatureAuthenticationTest
+public class SignatureAuthenticationTest
 {
 
    private static final String HTTP_HEADER_CONTENT_TYPE = "Content-Type";
@@ -64,7 +66,7 @@ public class CentralRegistrySignatureAuthenticationTest
    private static final int HTTP_STATUS_CREATED = 201;
    private static final int HTTP_STATUS_NO_CONTENT = 204;
 
-   private static String centralRegistryEndpointUrl;
+   private static String thingsServiceEndpointUrl;
    private static AsyncHttpClient asyncHttpClient;
    private static String thingId;
 
@@ -81,12 +83,12 @@ public class CentralRegistrySignatureAuthenticationTest
       else
       {
          r = new FileReader(
-            CentralRegistrySignatureAuthenticationTest.class.getClassLoader().getResource("config.properties").getFile());
+            SignatureAuthenticationTest.class.getClassLoader().getResource("config.properties").getFile());
       }
       props.load(r);
       r.close();
 
-      centralRegistryEndpointUrl = props.getProperty("centralRegistryEndpointUrl");
+      thingsServiceEndpointUrl = props.getProperty("thingsServiceEndpointUrl", props.getProperty("centralRegistryEndpointUrl"));
 
       final String clientId = props.getProperty("clientId");
       final String apiToken = props.getProperty("apiToken");
@@ -118,7 +120,7 @@ public class CentralRegistrySignatureAuthenticationTest
       }
 
       asyncHttpClient = new DefaultAsyncHttpClient(builder.build());
-      asyncHttpClient.setSignatureCalculator(new CrAsymmetricalSignatureCalculator(signatureFactory, clientId, apiToken));
+      asyncHttpClient.setSignatureCalculator(new AsymmetricalSignatureCalculator(signatureFactory, clientId, apiToken));
 
       thingId = "com.bosch.cr.example:myThing-" + UUID.randomUUID().toString();
    }
@@ -135,7 +137,7 @@ public class CentralRegistrySignatureAuthenticationTest
       final String thingJsonString = "{}";
       final String path = "/api/1/things/" + thingId;
 
-      final ListenableFuture<Response> future = asyncHttpClient.preparePut(centralRegistryEndpointUrl + path) //
+      final ListenableFuture<Response> future = asyncHttpClient.preparePut(thingsServiceEndpointUrl + path) //
          .addHeader(HTTP_HEADER_CONTENT_TYPE, CONTENT_TYPE_JSON) //
          .setBody(thingJsonString) //
          .execute();
@@ -155,7 +157,7 @@ public class CentralRegistrySignatureAuthenticationTest
    {
       final String path = "/api/1/things/" + thingId;
 
-      final ListenableFuture<Response> future = asyncHttpClient.prepareDelete(centralRegistryEndpointUrl + path) //
+      final ListenableFuture<Response> future = asyncHttpClient.prepareDelete(thingsServiceEndpointUrl + path) //
          .execute();
 
       final Response response = future.get();
