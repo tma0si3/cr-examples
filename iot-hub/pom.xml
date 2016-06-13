@@ -44,6 +44,5 @@
       <module>hello-world-connector</module>
       <module>hello-world-business-application</module>
 	  <module>http-connector</module>
-	  <module>http-consumer</module>
    </modules>
 </project>

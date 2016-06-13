@@ -27,9 +27,6 @@ package com.bosch.iot.hub.examples.connector.http;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.support.DefaultConversionService;
 
 @SpringBootApplication
 public class HttpConnectorApplication {
@@ -38,8 +35,4 @@ public class HttpConnectorApplication {
 		SpringApplication.run(HttpConnectorApplication.class, args);
 	}
 
-	@Bean
-	public ConversionService conversionService() {
-		return new DefaultConversionService();
-	}
 }

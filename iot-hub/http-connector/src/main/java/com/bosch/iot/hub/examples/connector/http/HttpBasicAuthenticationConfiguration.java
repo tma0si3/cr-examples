@@ -27,7 +27,11 @@ package com.bosch.iot.hub.examples.connector.http;
 
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configurers.provisioning.InMemoryUserDetailsManagerConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -35,26 +39,34 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 /**
- * The example HTTP connector services employs basic authentication for
- * HTTP-connected devices, credentials for devices which shall be authorized to
- * communicate with the HTTP connector are loaded form the
- * {@code credentials.properties} file - please make sure that you have properly
- * configured the list of authorized devices before starting the HTTP connector
- * application.
+ * The example HTTP connector service employs basic authentication for HTTP-connected devices.
+ * Credentials for devices which shall be authorized to communicate with the HTTP connector are
+ * loaded form the {@code credentials.properties} file, passwords should be provided as SHA-256
+ * hashes - please make sure that you have properly configured the list of authorized devices before
+ * starting the HTTP connector application.
  */
 @Configuration
 @EnableWebSecurity
 public class HttpBasicAuthenticationConfiguration extends WebSecurityConfigurerAdapter {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(HttpBasicAuthenticationConfiguration.class);
+
 	@Override
 	protected void configure(AuthenticationManagerBuilder builder) throws Exception {
 		final InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> configurer = builder
-				.inMemoryAuthentication();
+				.inMemoryAuthentication().passwordEncoder(passwordEncoder());
+		// load and configure authorized devices list, passwords are sha-256 hashes
 		Properties credentials = new Properties();
-		// configure authorized devices list
-		credentials.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("credentials.properties"));
-		credentials.forEach((username, password) -> {
-			configurer.withUser((String) username).password((String) password).roles("USER");
+		try {
+			credentials
+					.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("credentials.properties"));
+		} catch (Exception e) {
+			LOGGER.warn("Error while loading authorized devices credentials");
+			throw new RuntimeException(e);
+		}
+		LOGGER.info("Loaded authorized devices credentials : {}", credentials);
+		credentials.forEach((username, sha256passwordHash) -> {
+			configurer.withUser((String) username).password((String) sha256passwordHash).roles("USER");
 		});
 	}
 
@@ -62,6 +74,15 @@ public class HttpBasicAuthenticationConfiguration extends WebSecurityConfigurerA
 	protected void configure(HttpSecurity http) throws Exception {
 		// disable csrf protection if you would like to use the same device credentials form different browsers
 		http.authorizeRequests().anyRequest().fullyAuthenticated().and().httpBasic().and().csrf().disable();
+	}
+
+	/**
+	 * Enable configuration of user credentials using SHA-256 password hashes.
+	 */
+	@Bean
+	public ShaPasswordEncoder passwordEncoder() { // TODO use BCrypt?
+		ShaPasswordEncoder encoder = new ShaPasswordEncoder(256);
+		return encoder;
 	}
 
 }
