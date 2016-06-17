@@ -28,12 +28,16 @@ package com.bosch.iot.hub.examples.connector.http;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -85,14 +89,16 @@ public class HttpConnectorController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(HttpConnectorController.class);
 	private static final long DEFAULT_TIMEOUT = 5; // 5 seconds
 
+	private static final PathMatcher TOPIC_PATH_MATCHER = new AntPathMatcher();
+	private static final Pattern PAYLOAD_LINES_PATTERN = Pattern.compile("\\r?\\n");
+
 	private String solutionId; // solution id used to authenticate to the iot hub service
 	private String senderId; // id of the client which will be used for sending messages to the iot hub service
-	private String consumerId; // id of the client which will be used for consuming messages from th eiot hub service
+	private String consumerId; // id of the client which will be used for consuming messages from the iot hub service
 
 	private IotHubClient sender; // client instance which will be used for sending messages to iot hub service
 	private IotHubClient consumer; // client instance which will be used for consuming messages from the iot hub service
 
-	private PathMatcher topicPathMatcher = new AntPathMatcher();
 	private Map<String, SubscriptionData> subscriptions = new ConcurrentHashMap<>();
 
 	/**
@@ -135,7 +141,6 @@ public class HttpConnectorController {
 		subscriptions.forEach((subscribtionId, consumer) -> consumer.emitter().complete());
 
 		// destroy the hub integration clients used for exchanging messages
-		// close the connection to back-end and clean up allocated resources
 		destroyIotHubClient(consumerId, consumer);
 		destroyIotHubClient(senderId, sender);
 
@@ -179,7 +184,6 @@ public class HttpConnectorController {
 		final String topic = extractTopicPath(request, "http-connector/messages/**");
 		LOGGER.info("Sending message at topic <{}> using client <{}>", topic, senderId);
 		try {
-			// TODO add support for polling the status of an asynchronously sent message via the REST API
 			Payload payload = requestEntity.hasBody() ? Payload.of(requestEntity.getBody()) : Payload.empty();
 			getMessageSender().send(Message.of(topic, payload)).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 		} catch (InterruptedException | ExecutionException | java.util.concurrent.TimeoutException e) {
@@ -187,16 +191,19 @@ public class HttpConnectorController {
 			return ResponseEntity.badRequest().build();
 		}
 		// URI included in the Location HTTP response header would point to the SSE source
-		return ResponseEntity.created(URI.create(request.getRequestURI())).build();
+		return ResponseEntity.created(URI.create(request.getRequestURL().toString())).build();
 	}
 
 	/**
 	 * Authenticated HTTP-connected devices can consume messages form the IoT Hub service by
 	 * subscribing for server-sent events on arbitrary URIs. The topic of interest is derived from
-	 * the HTTP request URI, each event in the stream contains {@code name} - specifying the message
-	 * topic, and {@code data} - carrying the message payload. The media type of the {@code data}
-	 * content may be defined by including {@code x-payload-media-type} header in the HTTP request.
-	 * The value of the header must represent a valid media type definition.
+	 * the HTTP request URI, each event in the stream contains "name" field - specifying the message
+	 * topic, and one or more "data" fields - carrying the message payload. The media type of the
+	 * event may be defined by including "x-payload-media-type" header in the HTTP request. The
+	 * value of the header must represent a valid media type definition. If the event media type is
+	 * not explicitly set then "text/plain" will be assumed by default. Please note that '\n' and
+	 * '\r' characters are delimiters for the various fields in the event stream, thus, a paylod
+	 * that contains such characters would be split into multiple "data" fields in the stream.
 	 * <p>
 	 * For example, an authenticated HTTP-connected device can consume messages from the IoT Things
 	 * service using HTTP requests:
@@ -218,19 +225,19 @@ public class HttpConnectorController {
 	 * 
 	 * 
 	 * @param request {@link HttpServletRequest} encapsulating the HTTP client request information,
-	 *            it is used to access the request path, session and headers.
+	 *            it is used to access the request path and session and headers.
 	 * @return {@link ResponseEntity} including the HTTP status code for the operation. Possible
-	 *         values are 200 OK - if the messages has been successfully sent to the IoT Hub
-	 *         service, or 400 Bad Request - if any error occurs while consuming the message.
+	 *         values are 200 OK - if the messages has been successfully sent in the event stream,
+	 *         or 400 Bad Request - if any error occurs while consuming the message.
 	 */
 	@RequestMapping(value = "/http-connector/messages/**", method = RequestMethod.GET, produces = "text/event-stream")
 	public SseEmitter consumeMessages(HttpServletRequest request) {
 		final String topic = extractTopicPath(request, "http-connector/messages/**");
-		final String subscriptionId = topic.toString() + ':' + request.getSession().getId();
+		final String subscriptionId = topic + ':' + request.getSession().getId();
 
 		LOGGER.info("Subscribing for server-sent events for messages with topic <{}> using client <{}>", topic,
 				consumerId);
-		SseEmitter emitter = new SseEmitter(120000L); // 2 minutes
+		final SseEmitter emitter = new SseEmitter(120000L); // after 2 minutes of inactivity the HTTP connection will be closed
 		emitter.onCompletion(() -> {
 			LOGGER.info("Closing server-sent events connection for messages with topic <{}>", topic);
 			SubscriptionData consumer = subscriptions.remove(subscriptionId);
@@ -241,17 +248,25 @@ public class HttpConnectorController {
 
 		try {
 			ConsumerRegistration registration = getMessageConsumer().consume(message -> {
-				TopicPath messageTopicPath = message.getTopicPath();
-				Optional<Payload> payload = message.getPayload();
+				final TopicPath messageTopicPath = message.getTopicPath();
+				final Optional<Payload> payload = message.getPayload();
 				LOGGER.info("Consuming message with topic <{}> using client <{}>", messageTopicPath, consumerId);
 
 				// drop messages which topic path does not match the topic of interest or any of its sub-topics
 				// currently iot hub client version does not support consuming messages for a specific topic 
 				// as dispatching is based only on client identifiers and access control lists
 				if (messageTopicPath.toString().startsWith(topic)) {
+					// write the message topic as "name" field in the event stream
 					SseEventBuilder sseBuilder = SseEmitter.event().name(messageTopicPath.toString());
-					MediaType payloadMediaType = extractPayloadMediaType(request);
-					payload.ifPresent(data -> sseBuilder.data(payload.get().getContentAsByteArray(), payloadMediaType));
+					final MediaType payloadMediaType = extractPayloadMediaType(request);
+
+					// write the message payload as one or more "data" fields in the event stream
+					// if the message payload contains '\n' or '\r' characters then it will be split into multiple "data" fields
+					payload.map(Payload::getContentAsByteArray)//
+							.map(payloadBytes -> payloadStringForMediaType(payloadBytes, payloadMediaType))//
+							.map(PAYLOAD_LINES_PATTERN::splitAsStream).orElseGet(Stream::<String> empty)//
+							.forEach(payloadLine -> sseBuilder.data(payloadLine, payloadMediaType));
+
 					LOGGER.info("Sending server event for consumed message with topic <{}>", messageTopicPath);
 					try {
 						emitter.send(sseBuilder);
@@ -271,7 +286,7 @@ public class HttpConnectorController {
 			SubscriptionData consumer = SubscriptionData.of(emitter, registration);
 			subscriptions.put(subscriptionId, consumer);
 
-		} catch (NullPointerException | IllegalStateException e) {
+		} catch (RuntimeException e) {
 			LOGGER.warn("Error while subscribing for messages with topic <{}> using client <{}>", topic, consumerId, e);
 		}
 		return emitter;
@@ -304,45 +319,14 @@ public class HttpConnectorController {
 	}
 
 	/**
-	 * Extracts the topic path from the HTTP request path, the provided {@link HttpServletRequest}
-	 * object is used to access the HTTP request path.
+	 * Constructs a new {@link IotHubClient} instance using the provided configuration and client
+	 * id, establishes a connection to the Bosch IoT Hub service.
 	 * 
-	 * @param request {@link HttpServletRequest} encapsulating the HTTP client request information,
-	 *            it is used to access the HTTP request path
-	 * @param pattern pattern to match
-	 * 
-	 * @return the topic path of interest
+	 * @param clientId client identifier
+	 * @param configuration properties providing IoT Hub endpoint URI, client authentication
+	 *            configuration and optionally HTTP proxy settings
+	 * @return new {@link IotHubClient} instance
 	 */
-	private String extractTopicPath(HttpServletRequest request, String pattern) {
-		String fullPath = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-		String topicPath = topicPathMatcher.extractPathWithinPattern(pattern, fullPath);
-		return topicPath;
-	}
-
-	/**
-	 * Extracts the requested media type for the message payload from the value of
-	 * {@code x-payload-media-type} HTTP request header, the provided {@link HttpServletRequest}
-	 * object is used to access the HTTP request headers. If this header is missing or its value
-	 * does not represent a valid {@link MimeType} then {@link MediaType#TEXT_PLAIN} is returned.
-	 * 
-	 * @param request {@link HttpServletRequest} encapsulating the HTTP client request information,
-	 *            it is used to access the HTTP request headers.
-	 * @return {@link MimeType} representing the message payload mime type, used for serializing the
-	 *         content of {@code data} fields in server-sent events.
-	 */
-	private MediaType extractPayloadMediaType(HttpServletRequest request) {
-		String value = request.getHeader("x-payload-media-type");
-		if (value != null) {
-			try {
-				return MediaType.valueOf(value);
-			} catch (InvalidMediaTypeException e) {
-				LOGGER.warn("Value of header x-payload-media-type does not represent a valid media type : {}", value,
-						e);
-			}
-		}
-		return MediaType.TEXT_PLAIN;
-	}
-
 	private IotHubClient constructIotHubClient(String clientId, Properties configuration) {
 		LOGGER.info("Constructing IoT Hub integration client for client ID <{}>.", clientId);
 
@@ -395,10 +379,65 @@ public class HttpConnectorController {
 		}
 	}
 
+	/**
+	 * Destroys the provided {@link IotHubClient} instance, closes the connection to the Bosch IoT
+	 * Hub service and cleans up allocated resources.
+	 * 
+	 * @param clientId client identifier
+	 * @param client {@link IotHubClient} to be destroyed
+	 */
 	private void destroyIotHubClient(String clientId, IotHubClient client) {
 		LOGGER.info("Destroying IoT Hub integration client for client ID <{}>.", clientId);
-		client.destroy();
+		client.destroy(); // close the connection to back-end and clean up allocated resources
 
+	}
+
+	/**
+	 * Extracts the topic path from the HTTP request path, the provided {@link HttpServletRequest}
+	 * object is used to access the HTTP request path.
+	 * 
+	 * @param request {@link HttpServletRequest} encapsulating the HTTP client request information,
+	 *            it is used to access the HTTP request path
+	 * @param pattern pattern to match
+	 * 
+	 * @return the topic path of interest
+	 */
+	private String extractTopicPath(HttpServletRequest request, String pattern) {
+		String fullPath = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+		String topicPath = TOPIC_PATH_MATCHER.extractPathWithinPattern(pattern, fullPath);
+		return topicPath;
+	}
+
+	/**
+	 * Extracts the requested media type for the message payload from the value of
+	 * {@code x-payload-media-type} HTTP request header, the provided {@link HttpServletRequest}
+	 * object is used to access the HTTP request headers. If this header is missing or its value
+	 * does not represent a valid {@link MimeType} then {@link MediaType#TEXT_PLAIN} is returned.
+	 * 
+	 * @param request {@link HttpServletRequest} encapsulating the HTTP client request information,
+	 *            it is used to access the HTTP request headers.
+	 * @return {@link MimeType} representing the message payload mime type, used for serializing the
+	 *         content of {@code data} fields in server-sent events.
+	 */
+	private MediaType extractPayloadMediaType(HttpServletRequest request) {
+		String value = request.getHeader("x-payload-media-type");
+		if (value != null) {
+			try {
+				return MediaType.valueOf(value);
+			} catch (InvalidMediaTypeException e) {
+				LOGGER.warn("Value of header x-payload-media-type does not represent a valid media type : {}", value,
+						e);
+			}
+		}
+		return MediaType.TEXT_PLAIN;
+	}
+
+	private String payloadStringForMediaType(byte[] payloadBytes, MediaType payloadMediaType) {
+		Charset payloadCharSet = payloadMediaType.getCharSet();
+		if (payloadCharSet == null) {
+			payloadCharSet = StandardCharsets.UTF_8;
+		}
+		return new String(payloadBytes, payloadCharSet);
 	}
 
 	private IotHubClient getMessageSender() {
@@ -421,6 +460,11 @@ public class HttpConnectorController {
 		return consumer;
 	}
 
+	/**
+	 * This class encapsulates the {@link SseEmitter} and {@link ConsumerRegistration} objects
+	 * associated with each subscription for messages streamed as server-sent events.
+	 *
+	 */
 	private static class SubscriptionData {
 
 		private SseEmitter emitter;

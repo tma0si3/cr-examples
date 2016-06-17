@@ -28,8 +28,10 @@ package com.bosch.iot.hub.examples.connector.http;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
@@ -37,6 +39,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.StatusType;
 
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
@@ -91,16 +94,19 @@ public class HttpDevice {
 	 * 
 	 * @param topic message topic of interest, will be included in the target URI for the request
 	 * @param payload optional message payload, can be {@code null}
+	 * @param mediaType media type for the message payload
 	 */
-	public void sendMessage(String topic, String payload) {
-		LOGGER.info("Sending request at http://localhost:8088/http-connector/messages/<{}> with body <{}>", topic,
+	public void sendMessage(String topic, String payload, String mediaType) {
+		LOGGER.info("Sending POST request at http://localhost:8088/http-connector/messages/{} with body <{}>", topic,
 				payload);
 		WebTarget target = client.target("http://localhost:8088/http-connector/messages").path(topic);
 		try {
-			StatusType status = target.request().post(Entity.entity(payload, MediaType.TEXT_PLAIN)).getStatusInfo();
-			if (status.getStatusCode() != HttpURLConnection.HTTP_OK) {
-				LOGGER.warn("Error while sending message with topic <{}>: {} {}", topic, status.getStatusCode(),
-						status.getReasonPhrase());
+			Response response = target.request().post(Entity.entity(payload, mediaType));
+			StatusType status = response.getStatusInfo();
+
+			if (status.getStatusCode() != HttpURLConnection.HTTP_CREATED) {
+				LOGGER.warn("Error while sending request at http://localhost:8088/http-connector/messages/<{}>: {} {}",
+						topic, status.getStatusCode(), status.getReasonPhrase());
 			}
 		} catch (IllegalArgumentException | ProcessingException e) {
 			LOGGER.warn("Error while sending message with topic <{}>", topic, e);
@@ -112,14 +118,16 @@ public class HttpDevice {
 	 * connector service at arbitrary URIs denoting the message topics.
 	 * 
 	 * @param topic message topic of interest, will be included in the target URI for the request
+	 * @param mediaType media type for the message payload
 	 */
-	public void consumeMessages(String topic) {
-		LOGGER.info("Subscribing for server-sent events from source http://localhost:8088/http-connector/messages/<{}>",
+	public void consumeMessages(String topic, String mediaType) {
+		LOGGER.info("Subscribing for server-sent events from source http://localhost:8088/http-connector/messages/{}",
 				topic);
 		WebTarget target = client.target("http://localhost:8088/http-connector/messages").path(topic);
-		EventSource source = EventSource.target(target).build();
+		EventSource source = EventSource.target(target).build(); // TODO include x-payload-media-type header in HTTP GET request
 		source.register(message -> LOGGER.info("Received server-sent event for message at topic <{}> with payload <{}>",
-				message.getName(), message.readData(String.class)));
+				message.getName(),
+				message.readData(String.class, MediaType.valueOf(mediaType))));
 		source.open();
 		sources.add(source);
 	}
@@ -137,11 +145,13 @@ public class HttpDevice {
 	 * Runs a simulated HTTP-connected device. You can use a simple console interface to interact
 	 * with the simulated HTTP devices as follows:
 	 * <ul>
-	 * <li><code>send &lt;topic&gt; &lt;payload&gt;</code> will instruct the device to send a
-	 * message to the IoT Hub service through the HTTP connector service</li>
-	 * <li><code>consume &lt;topic&gt;</code> will instruct the device to consume messages form the
-	 * IoT Hub service through the HTTP connector via server-sent events</li>
+	 * <li>typing <b>send</b> topic [payload [media type]] will instruct the device to issue an HTTP
+	 * POST request and a message to the IoT Hub service through the example HTTP connector</li>
+	 * <li>typing <b>consume</b> topic [media type] will instruct the device to subscribe for SSE
+	 * and consume messages form the IoT Hub service through the example HTTP connector, consumed
+	 * messages will be printed in the console.</li>
 	 * </ul>
+	 * 
 	 * 
 	 * @param args arguments used to configure user name and password for the device
 	 */
@@ -155,17 +165,38 @@ public class HttpDevice {
 		final HttpDevice device = new HttpDevice(username, password);
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> device.close()));
 
-		LOGGER.info("Initialized Jersey JAX-RS client with SSE feaure and basic authentication enabled");
-		
+		LOGGER.info("Initialized Jersey JAX-RS client with SSE feaure and Basic Authentication enabled.");
+
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		in.lines().map(line -> line.split("\\s+")).forEach(input -> {
-			switch (input[0]) {
+			String command = input[0];
+			switch (command) {
 			case "send":
-				device.sendMessage(input[1], input[2]);
+				if (input.length >= 2 && input.length <= 4) {
+					final String topic = input[1];
+					final String payload = getElementAt(input, 2).orElse(null);
+					final String mediaType = getElementAt(input, 3).orElse(MediaType.TEXT_PLAIN);
+					device.sendMessage(topic, payload, mediaType);
+				} else {
+					LOGGER.error("Invalid input for command <send> {}", Arrays.asList(input));
+				}
+				break;
+
 			case "consume":
-				device.consumeMessages(input[1]);
+				if (input.length >= 2 && input.length <= 3) {
+					final String topic = input[1];
+					final String mediaType = getElementAt(input, 2).orElse(MediaType.TEXT_PLAIN);
+					device.consumeMessages(topic, mediaType);
+				} else {
+					LOGGER.error("Invalid input for command <consume> {}", Arrays.asList(input));
+				}
+				break;
 			}
 		});
+	}
+
+	private static Optional<String> getElementAt(String[] input, int index) {
+		return index > input.length - 1 ? Optional.empty() : Optional.of(input[index]);
 	}
 
 }
