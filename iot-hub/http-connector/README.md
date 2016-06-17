@@ -1,4 +1,4 @@
-## Bosch IoT Hub - Example HTTP Connector
+# Bosch IoT Hub - Example HTTP Connector
 
 This example shows an implementation of a general purpose HTTP Connector for the Bosch IoT Hub.
 
