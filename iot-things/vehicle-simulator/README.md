@@ -10,7 +10,8 @@ mvn clean install
 
 # Create a Solution with a private/public key
 
-https://things.apps.bosch-iot-cloud.com/dokuwiki/doku.php?id=002_getting_started:cr_02_booking-cr-service.txt
+<https://things.apps.bosch-iot-cloud.com/dokuwiki/doku.php?id=002_getting_started:cr_02_booking-cr-service.txt>
+
 
 # Create a User
 
@@ -78,8 +79,8 @@ Create a Thing with the inventory-browser acl and your solution id acl and your 
 
 # Usage
 
-Login to the [Inventory Browser](../inventory-browser) with your created User and see your vehicle(s) move.
-http://demos.apps.bosch-iot-cloud.com/inventory-browser/
+Login to the [Inventory Browser](http://demos.apps.bosch-iot-cloud.com/inventory-browser/) with your created User and see your vehicle(s) move.
+
 
 # License
 

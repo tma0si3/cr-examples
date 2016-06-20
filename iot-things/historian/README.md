@@ -41,7 +41,7 @@ In addition the array is sliced to not exceed a fixed element count.
 
 ## Create a Solution with a private/public key
 
-http://m2m.bosch-si.com/dokuwiki/doku.php?id=002_getting_started:cr_02_booking-cr-service.txt
+<a href="https://things.apps.bosch-iot-cloud.com/dokuwiki/doku.php?id=002_getting_started:cr_02_booking-cr-service.txt">Book the Bosch IoT Things cloud service</a>
 
 Add the CRClient.jks to the folder "src/main/resources".
 
