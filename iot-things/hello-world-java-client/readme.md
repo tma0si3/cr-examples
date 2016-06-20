@@ -1,7 +1,7 @@
 # Bosch IoT Things - Hello World Example
 
 This example shows how to create and use the Java Integration Client for managing your first Hello World Thing.
-For detailed instructions see: <a href="https://m2m.bosch-si.com/cr/doku.php?id=005_dev_guide:tutorial:000_hello_world">here</a>
+For detailed instructions see: <a href="https://things.apps.bosch-iot-cloud.com/dokuwiki/doku.php?id=start">here</a>
 
 ## Configure your Solution ID and UserID  
 Set your IDs and keystore passwords in the file "src/main/java/.../HelloWorld.java"
