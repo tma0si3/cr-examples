@@ -1,7 +1,7 @@
 # Bosch IoT Things - Hello World UI
 
 This example shows how to create a simple user interface to list your first Hello World Thing.
-For detailed instructions see: <a href="https://m2m.bosch-si.com/cr/doku.php?id=005_dev_guide:tutorial:001_hello_world">here</a>
+For detailed instructions see: <a href="https://things.apps.bosch-iot-cloud.com/dokuwiki/doku.php?id=005_dev_guide:tutorial:001_hello_world">here</a>
 
 ## Configure your proxy host if needed
 
