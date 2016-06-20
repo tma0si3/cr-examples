@@ -49,7 +49,7 @@ Browse to the example web app: <http://localhost:8080/hello-world-webui/>
 
 ### Create Thing over REST
 
-In REST Documentation (Swagger): <https://things.apps.bosch-iot-cloud.com/doc/>
+In REST Documentation (Swagger): <https://cr.apps.bosch-iot-cloud.com/documentation/rest/>
 use "Things - POST/things"
 
 thing: 
@@ -63,7 +63,7 @@ And the ID for the created Thing.
 
 ### Update Thing over REST
 
-In REST Documentation (Swagger): <https://things.apps.bosch-iot-cloud.com/doc/>
+In REST Documentation (Swagger): <https://cr.apps.bosch-iot-cloud.com/documentation/rest/>
 use "Things - PUT /things/{thingId}"
 
 thingId: "your-thing-id"

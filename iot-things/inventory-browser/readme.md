@@ -49,7 +49,7 @@ Browse to the example web app: <http://localhost:8080/inventory-browser/>
 
 ## Create Empty Thing
 
-In REST Documentation (Swagger): <https://things.apps.bosch-iot-cloud.com/doc/>
+In REST Documentation (Swagger): <https://cr.apps.bosch-iot-cloud.com/documentation/rest/>
 use "Things - POST /things"
 
 thing:
