@@ -2,7 +2,7 @@
 
 This example shows an implementation of a general purpose HTTP Connector for the Bosch IoT Hub.
 
-# How it works?
+# How does it work?
 
 ## Overview
 
@@ -10,10 +10,6 @@ The following diagram shows how the Example HTTP Connector could work:
 
 ![overview](overview.png)
 
-The example HTTP Connector service manages:
-* authentication of HTTP-connected devices based on Basic Authentication 
-* sending of messages from authenticated HTTP-connected devices to the IoT Hub service via accepting HTTP POST requests against arbitrary URIs denoting the messages topics
-* delivering messages form the IoT Hub service to authenticated HTTP-connected devices via server-sent events (SSE) streamed at arbitrary URIs denoting the message topics
 
  
 # How to run it?
@@ -185,6 +181,28 @@ send com.example.http/devices/commands/modify/device1 {"attribute":"counter","va
 2016-06-16 18:45:50.855  INFO   --- [           main] c.b.i.h.e.connector.http.HttpDevice      : Sending POST request at http://localhost:8088/http-connector/messages/com.example.http/devices/commands/modify/device1 with body <{"attribute":"counter","value":55}>
 
 ```
+
+# Features and Limitations
+
+## Features
+
+The example HTTP Connector service implements the following features:
+
+* Basic authentication of HTTP-connected devices based on a configurable list of credential hashes managed by the HTTP Connector
+* Topic authorization based on IoT Hub authorization model
+* Sending of fire-and-forget messages from authenticated HTTP-connected devices to the IoT Hub service via accepting HTTP POST requests against arbitrary URIs denoting the messages topics
+* Delivering of fire-and-forget messages form the IoT Hub service to authenticated HTTP-connected devices via server-sent events (SSE) streamed at arbitrary URIs denoting the message topics
+
+
+## Limitations
+
+The example HTTP Connector service has the following limitations:
+
+* No support for exchanging messages using the request-response messaging pattern, only fire-and-forget messages are supported
+* No support for mapping custom message headers from/to the HTTP context, only message topic and payload are mapped over HTTP
+* No support for buffering messages at the HTTP Connector, received messages are delivered only to the currently connected HTTP devices
+* No support for per-device message dispatching, no support for defining and handling fine-grained device-related permissions on Topics
+
 
 ## License
 
