@@ -42,7 +42,7 @@
    <artifactId>iot-hub-getting-started</artifactId>
 
    <properties>
-      <hic.version>1.0.1</hic.version>
+      <hic.version>2.0.0.M1</hic.version>
    </properties>
 
    <dependencies>
