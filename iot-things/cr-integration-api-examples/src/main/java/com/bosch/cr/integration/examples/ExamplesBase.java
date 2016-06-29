@@ -30,7 +30,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -49,7 +48,6 @@ import com.bosch.cr.integration.client.IntegrationClientImpl;
 import com.bosch.cr.integration.client.configuration.AuthenticationConfiguration;
 import com.bosch.cr.integration.client.configuration.IntegrationClientConfiguration;
 import com.bosch.cr.integration.client.configuration.MessageSerializerConfiguration;
-import com.bosch.cr.integration.client.configuration.ProxyConfiguration;
 import com.bosch.cr.integration.client.configuration.PublicKeyAuthenticationConfiguration;
 import com.bosch.cr.integration.client.configuration.TrustStoreConfiguration;
 import com.bosch.cr.integration.client.messages.MessageSerializerRegistry;
@@ -126,7 +124,7 @@ public abstract class ExamplesBase
       try
       {
          // create a subscription for this client
-         final SubscriptionConsumeOptions consumeOptions = SubscriptionConsumeOptions.newBuilder().build();
+         final SubscriptionConsumeOptions consumeOptions = SubscriptionConsumeOptions.newBuilder().enableConsumeOwnEvents().build();
          this.client.subscriptions().create(consumeOptions)
             // and start consuming events that were triggered by the subscription
             .thenRun(() -> this.client.subscriptions().consume()).get(10, TimeUnit.SECONDS);

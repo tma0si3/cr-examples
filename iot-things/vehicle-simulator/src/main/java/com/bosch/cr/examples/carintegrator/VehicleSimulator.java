@@ -141,7 +141,7 @@ public class VehicleSimulator
          }
       });
 
-      client.subscriptions().create(SubscriptionConsumeOptions.newBuilder().build()).get(10, TimeUnit.SECONDS);
+      client.subscriptions().create(SubscriptionConsumeOptions.newBuilder().enableConsumeOwnEvents().build()).get(10, TimeUnit.SECONDS);
       client.subscriptions().consume().get(10, TimeUnit.SECONDS);
 
       Thread thread = new Thread(() -> {
