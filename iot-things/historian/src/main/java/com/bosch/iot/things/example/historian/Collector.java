@@ -152,7 +152,7 @@ public class Collector implements Runnable
 
       // start consuming changes
       try {
-         client.subscriptions().create(SubscriptionConsumeOptions.newBuilder().build()).get(10, TimeUnit.SECONDS);
+         client.subscriptions().create(SubscriptionConsumeOptions.newBuilder().disableConsumeOwnEvents().build()).get(10, TimeUnit.SECONDS);
          client.subscriptions().consume().get(10, TimeUnit.SECONDS);
       } catch (InterruptedException | ExecutionException | TimeoutException ex) {
          throw new RuntimeException(ex);

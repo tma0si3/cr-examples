@@ -2,4 +2,7 @@ target/
 .extract/
 .idea
 *.iml
+.classpath
+.project
+.settings
 

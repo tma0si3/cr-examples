@@ -23,28 +23,30 @@
  * ALSO APPLY IN REGARD TO THE FAULT OF VICARIOUS AGENTS OF BOSCH SI AND THE PERSONAL LIABILITY OF BOSCH SI'S EMPLOYEES,
  * REPRESENTATIVES AND ORGANS.
  */
-package com.bosch.iot.hub.application.helloworld;
+package com.bosch.iot.hub.examples.connector.helloworld;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bosch.iot.hub.client.ConsumerRegistration;
 import com.bosch.iot.hub.client.DefaultIotHubClient;
 import com.bosch.iot.hub.client.IotHubClient;
 import com.bosch.iot.hub.client.IotHubClientBuilder;
-import com.bosch.iot.hub.model.message.MessageSender;
+import com.bosch.iot.hub.model.acl.AccessControlList;
+import com.bosch.iot.hub.model.acl.AclEntry;
+import com.bosch.iot.hub.model.acl.Permission;
+import com.bosch.iot.hub.model.message.Message;
 import com.bosch.iot.hub.model.message.Payload;
+import com.bosch.iot.hub.model.topic.TopicPath;
 
 /**
- * This example shows how to use the BOSCH IoT Hub Java Client for easily registering and unregistering a consumer for
- * inbound messages.
+ * This example shows how simple it is to create new Topics and send messages with the BOSCH IoT Hub Java Client.
  */
-public final class HelloWorldApplication
+public final class HelloWorldConnector
 {
 
    /**
@@ -53,18 +55,26 @@ public final class HelloWorldApplication
    private static final URI BOSCH_IOT_HUB_ENDPOINT_URI = URI.create("wss://hub.apps.bosch-iot-cloud.com");
 
    private static final String SOLUTION_ID = "<your-solution-id>"; // TODO insert your Solution ID here
+   private static final String CLIENT_ID = SOLUTION_ID + ":connector";
    private static final String CONSUMER_CLIENT_ID = SOLUTION_ID + ":consumer";
 
-   private static final URL KEYSTORE_LOCATION = HelloWorldApplication.class.getResource("/HubClient.jks");
-   private static final String KEYSTORE_PASSWORD = "<your-keystore-password>"; // TODO insert your keystore password
+   private static final URL KEYSTORE_LOCATION = HelloWorldConnector.class.getResource("/HubClient.jks");
+   private static final String KEYSTORE_PASSWORD = "<your-keystore-password>"; // TODO insert your keystore password here
    private static final String ALIAS = "<ALIAS>"; // TODO insert your alias here
    private static final String ALIAS_PASSWORD = "<your-alias-password>"; // TODO insert your alias password here
-   private static final Logger LOGGER = LoggerFactory.getLogger(HelloWorldApplication.class);
 
-   private static final long EXECUTION_TIME_MILLIS = 60000;
+   private static final Logger LOGGER = LoggerFactory.getLogger(HelloWorldConnector.class);
+
+   // ACLs (Access Control List) are used to define permissions on Topics.
+   private static final AclEntry CONNECTOR_ACL_ENTRY = AclEntry.of(CLIENT_ID, Permission.ADMINISTRATE,
+         Permission.RECEIVE, Permission.SEND);
+   private static final AclEntry CONSUMER_ACL_ENTRY = AclEntry.of(CONSUMER_CLIENT_ID, Permission.RECEIVE);
+   private static final AccessControlList TOPIC_ACL = AccessControlList.of(CONNECTOR_ACL_ENTRY, CONSUMER_ACL_ENTRY);
+
+   private static final long DEFAULT_TIMEOUT = 5;
 
    /**
-    * Uses the BOSCH IoT Hub Java Client to register a consumer for inbound messages.
+    * Creates a Topic and sends a "Hello World" message to that Topic using the IoT Hub Java Client.
     */
    public static void main(final String[] args) throws Exception
    {
@@ -73,26 +83,23 @@ public final class HelloWorldApplication
       // In order to work with the client a connection has to be established first.
       iotHubClient.connect();
 
-      // Create and register a new consumer.
-      final ConsumerRegistration consumerRegistration = iotHubClient.consume(inboundMessage -> {
-         final String payload = inboundMessage.getPayload() //
-            .map(Payload::getContentAsByteArray) //
-            .map(payloadBytes -> new String(payloadBytes, StandardCharsets.UTF_8)) //
-            .orElse(null);
+      // Using a dedicated type for Topic paths; simple strings would work as well.
+      final TopicPath rootTopicPath = TopicPath.of(SOLUTION_ID);
+      final TopicPath myHouseTopicPath = rootTopicPath.append("myHouse");
+      final TopicPath myGardenTopicPath = myHouseTopicPath.append("myGarden");
+      final TopicPath mowerTopicPath = myGardenTopicPath.append("mower");
+      // mowerTopicPath is "<SOLUTION_ID>/myHouse/myGarden/mower"
 
-         final MessageSender messageSender = inboundMessage.getSender();
+      // Create new Topics with the pre-defined ACL (recursive Topic creation is not possible)
+      iotHubClient.createTopic(rootTopicPath, TOPIC_ACL).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+      iotHubClient.createTopic(myHouseTopicPath, TOPIC_ACL).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+      iotHubClient.createTopic(myGardenTopicPath, TOPIC_ACL).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+      iotHubClient.createTopic(mowerTopicPath, TOPIC_ACL).get(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
 
-         LOGGER.info("Received message with payload <{}> from client <{}>.", payload, messageSender.getIdentifier());
+      // Send the message.
+      iotHubClient.send(Message.of(mowerTopicPath, Payload.of("Hello World"))).thenAccept(SendSuccess -> {
+         LOGGER.info("Successfully send the message to topic <{}>.", mowerTopicPath);
       });
-
-      /*
-       * Block the main thread. The consumer runs in its own thread and thus still gets notified about received
-       * messages.
-       */
-      Thread.sleep(EXECUTION_TIME_MILLIS);
-
-      // Unregister the consumer.
-      consumerRegistration.unregister();
 
       // This step must always be performed in order to terminate the client.
       iotHubClient.destroy();
@@ -100,7 +107,7 @@ public final class HelloWorldApplication
 
    private static IotHubClient createNewIntegrationClient() throws URISyntaxException
    {
-      LOGGER.info("Creating Hub Integration Client for client ID <{}>.", CONSUMER_CLIENT_ID);
+      LOGGER.info("Creating Hub Integration Client for client ID <{}>.", CLIENT_ID);
 
       /*
        * Provide required configuration (authentication configuration and HUB URI).
@@ -109,8 +116,8 @@ public final class HelloWorldApplication
       final IotHubClientBuilder.OptionalPropertiesSettable builder = DefaultIotHubClient.newBuilder() //
          .endPoint(BOSCH_IOT_HUB_ENDPOINT_URI) //
          .keyStore(KEYSTORE_LOCATION.toURI(), KEYSTORE_PASSWORD) //
-         .alias(ALIAS, ALIAS_PASSWORD).clientId(CONSUMER_CLIENT_ID); //
-      // .proxy(URI.create("http://" + <proxy-host> + ":" + <proxy port>)); //
+         .alias(ALIAS, ALIAS_PASSWORD).clientId(CLIENT_ID); //
+           // .proxy(URI.create("http://" + <proxy-host> + ":" + <proxy port>)); //
 
       return builder.build();
    }

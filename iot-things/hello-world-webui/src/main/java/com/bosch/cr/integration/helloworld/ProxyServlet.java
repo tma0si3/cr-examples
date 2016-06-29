@@ -24,7 +24,7 @@
  * LIABILITY ALSO APPLY IN REGARD TO THE FAULT OF VICARIOUS AGENTS OF BOSCH SI AND THE PERSONAL LIABILITY OF BOSCH SI'S
  * EMPLOYEES, REPRESENTATIVES AND ORGANS.
  */
-package com.bosch.cr.integration.hello_world_ui;
+package com.bosch.cr.integration.helloworld;
 
 import java.io.File;
 import java.io.FileReader;
@@ -105,7 +105,7 @@ public class ProxyServlet extends HttpServlet
          }
       }
       System.out.println("Config: " + props);
-      targetHost = HttpHost.create(props.getProperty("thingsTargetHost", "https://things.apps.bosch-iot-cloud.com"));
+      targetHost = HttpHost.create(props.getProperty("thingsServiceEndpointUrl", "https://things.apps.bosch-iot-cloud.com"));
    }
 
    @Override
@@ -114,7 +114,7 @@ public class ProxyServlet extends HttpServlet
       String auth = req.getHeader("Authorization");
       if (auth == null)
       {
-         resp.setHeader("WWW-Authenticate", "BASIC realm=\"Proxy for CR\"");
+         resp.setHeader("WWW-Authenticate", "BASIC realm=\"Proxy for Bosch IoT Things\"");
          resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
          return;
       }
@@ -159,43 +159,22 @@ public class ProxyServlet extends HttpServlet
    {
       if (httpClient == null)
       {
-         try
+         HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+
+         if (props.getProperty("http.proxyHost") != null)
          {
-            HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
-
-            // #### ONLY FOR TEST: Trust ANY certificate (self certified, any chain, ...)
-            SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null, (chain, authType) -> true).build();
-            httpClientBuilder.setSSLContext(sslContext);
-
-            // #### ONLY FOR TEST: Do NOT verify hostname
-            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext, NoopHostnameVerifier.INSTANCE);
-
-            Registry<ConnectionSocketFactory> socketFactoryRegistry =
-               RegistryBuilder.<ConnectionSocketFactory>create().register("http", PlainConnectionSocketFactory.getSocketFactory())
-                  .register("https", sslConnectionSocketFactory)
-                  .build();
-            PoolingHttpClientConnectionManager httpClientConnectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
-            httpClientBuilder.setConnectionManager(httpClientConnectionManager);
-
-            if (props.getProperty("http.proxyHost") != null)
-            {
-               httpClientBuilder.setProxy(new HttpHost(props.getProperty("http.proxyHost"), Integer.parseInt(props.getProperty("http.proxyPort"))));
-            }
-
-            if (props.getProperty("http.proxyUser") != null)
-            {
-               CredentialsProvider credsProvider = new BasicCredentialsProvider();
-               credsProvider.setCredentials(new AuthScope(targetHost),
-                  new UsernamePasswordCredentials(props.getProperty("http.proxyUser"), props.getProperty("http.proxyPwd")));
-               httpClientBuilder.setDefaultCredentialsProvider(credsProvider);
-            }
-
-            httpClient = httpClientBuilder.build();
+            httpClientBuilder.setProxy(new HttpHost(props.getProperty("http.proxyHost"), Integer.parseInt(props.getProperty("http.proxyPort"))));
          }
-         catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException ex)
+
+         if (props.getProperty("http.proxyUser") != null)
          {
-            throw new RuntimeException(ex);
+            CredentialsProvider credsProvider = new BasicCredentialsProvider();
+            credsProvider.setCredentials(new AuthScope(targetHost),
+               new UsernamePasswordCredentials(props.getProperty("http.proxyUser"), props.getProperty("http.proxyPwd")));
+            httpClientBuilder.setDefaultCredentialsProvider(credsProvider);
          }
+
+         httpClient = httpClientBuilder.build();
       }
 
       return httpClient;

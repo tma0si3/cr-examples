@@ -30,7 +30,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -58,24 +57,25 @@ import com.bosch.cr.integration.things.ThingHandle;
 import com.bosch.cr.integration.things.ThingIntegration;
 
 /**
- * Instantiates an {@link IntegrationClient} and connects to the Bosch IoT Central Registry. It also initializes
+ * Instantiates an {@link IntegrationClient} and connects to the Bosch IoT Things service. It also initializes
  * {@link ThingIntegration} and {@link ThingHandle} instances for reuse in tests that extend this base class.
  */
 public abstract class ExamplesBase
 {
    private static final Logger LOGGER = LoggerFactory.getLogger(ExamplesBase.class);
 
-   public static final String BOSCH_IOT_CENTRAL_REGISTRY_WS_ENDPOINT_URL = "wss://events.apps.bosch-iot-cloud.com";
+   private static final String THINGS_SERVICE_EVENTS_ENDPOINT_URL = "wss://events.apps.bosch-iot-cloud.com";
 
-   public static final String SOLUTION_ID = "<your-solution-id>";
-   public static final String CLIENT_ID = SOLUTION_ID + ":" + UUID.randomUUID().toString();
+   private static final String SOLUTION_ID = "<your-solution-id>";
+   protected static final String CLIENT_ID = SOLUTION_ID + ":example";
 
-   public static final URL KEYSTORE_LOCATION = ExamplesBase.class.getResource("/CRClient.jks");
-   public static final String KEYSTORE_PASSWORD = "solutionPass";
-   public static final URL TRUSTSTORE_LOCATION = ExamplesBase.class.getResource("/bosch-iot-cloud.jks");
-   public static final String TRUSTSTORE_PASSWORD = "jks";
-   public static final String ALIAS = "CR";
-   public static final String ALIAS_PASSWORD = "crPass";
+   private static final URL KEYSTORE_LOCATION = ExamplesBase.class.getResource("/CRClient.jks");
+   private static final String ALIAS = "<your-key-alias>";
+   private static final String KEYSTORE_PASSWORD = "<your-keystore-password";
+   private static final String ALIAS_PASSWORD = "<your-alias-password>";
+
+   private static final URL TRUSTSTORE_LOCATION = ExamplesBase.class.getResource("/bosch-iot-cloud.jks");
+   private static final String TRUSTSTORE_PASSWORD = "jks";
 
    protected final IntegrationClient client;
    protected final String myThingId;
@@ -105,6 +105,7 @@ public abstract class ExamplesBase
       final TrustStoreConfiguration trustStore =
          TrustStoreConfiguration.newBuilder().location(TRUSTSTORE_LOCATION).password(TRUSTSTORE_PASSWORD).build();
 
+      /* optional example to setup custom MessageSerializerConfiguration */
       final MessageSerializerConfiguration serializerConfiguration = MessageSerializerConfiguration.newInstance();
       setupCustomMessageSerializer(serializerConfiguration);
 
@@ -112,8 +113,8 @@ public abstract class ExamplesBase
          optional configuration (proxy, truststore etc.) can be added when needed */
       final IntegrationClientConfiguration integrationClientConfiguration =
          IntegrationClientConfiguration.newBuilder().authenticationConfiguration(authenticationConfiguration)
-            .centralRegistryEndpointUrl(BOSCH_IOT_CENTRAL_REGISTRY_WS_ENDPOINT_URL)
-            // .proxyConfiguration(proxy)
+            .centralRegistryEndpointUrl(THINGS_SERVICE_EVENTS_ENDPOINT_URL)
+            //.proxyConfiguration(proxy)
             .trustStoreConfiguration(trustStore).serializerConfiguration(serializerConfiguration).build();
 
       LOGGER.info("Creating CR Integration Client for ClientID: {}", CLIENT_ID);
@@ -122,8 +123,8 @@ public abstract class ExamplesBase
 
       try
       {
-         // create a subscription for this client, this step can be skipped if a subscription was created via REST
-         final SubscriptionConsumeOptions consumeOptions = SubscriptionConsumeOptions.newBuilder().build();
+         // create a subscription for this client
+         final SubscriptionConsumeOptions consumeOptions = SubscriptionConsumeOptions.newBuilder().enableConsumeOwnEvents().build();
          this.client.subscriptions().create(consumeOptions)
             // and start consuming events that were triggered by the subscription
             .thenRun(() -> this.client.subscriptions().consume()).get(10, TimeUnit.SECONDS);

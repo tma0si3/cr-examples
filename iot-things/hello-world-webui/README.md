@@ -1,4 +1,4 @@
-# Bosch IoT Things - Hello World UI
+# Bosch IoT Things - Hello World Web UI
 
 This example shows how to create a simple user interface to list your first Hello World Thing.
 For detailed instructions see: <a href="https://things.apps.bosch-iot-cloud.com/dokuwiki/doku.php?id=005_dev_guide:tutorial:001_hello_world">here</a>
@@ -8,7 +8,7 @@ For detailed instructions see: <a href="https://things.apps.bosch-iot-cloud.com/
 Create or adjust file "src/main/resources/config.properties"
 
 ```
-thingsTargetHost=https://things.apps.bosch-iot-cloud.com
+thingsServiceEndpointUrl=https://things.apps.bosch-iot-cloud.com
 http.proxyHost=### your http proxy host, if you need one ###
 http.proxyPort=### your http proxy port, if you need one ###
 http.proxyUser=### your http proxy user, if you need one ###

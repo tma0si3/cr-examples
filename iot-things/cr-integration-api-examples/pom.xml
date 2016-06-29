@@ -35,8 +35,8 @@
    <groupId>com.bosch.cr.examples</groupId>
    <artifactId>cr-integration-api-examples</artifactId>
    <version>0.0.1-SNAPSHOT</version>
-   <name>IoT Central Registry :: CR Integration Examples</name>
-   <description>Central Registry Integration Client API Examples</description>
+   <name>Bosch IoT Things :: Java Integration Client Examples</name>
+   <description>Integration Client API Examples for Bosch IoT Things</description>
 
    <properties>
       <cr.integration.api.version>3.2.0</cr.integration.api.version>

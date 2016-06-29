@@ -1,23 +1,23 @@
 # Bosch IoT Things - REST examples
 
-This example shows in a simple test how to connect to Bosch IoT Things with the Central Registry Signature (CRS) Authentication.
-The CRS Authentication allows clients to connect with a signature instead of basic auth.
-You can find more information on the different authentication processes at our [wiki](http://m2m.bosch-si.com/dokuwiki/doku.php?id=005_dev_guide:004_rest_api:011_authenticate_as_a_client).
+This example shows in a simple test how to connect to Bosch IoT Things with the Signature Authentication (CRS).
+The CRS Authentication allows (technical) clients to connect with a signature instead of BASIC auth.
+You can find more information on the different authentication processes at our [wiki](https://things.apps.bosch-iot-cloud.com/dokuwiki/doku.php?id=005_dev_guide:004_rest_api:011_authenticate_as_a_client).
 
 ## Configure
 
 Create or adjust file "config.properties"
 
 ```
-centralRegistryEndpointUrl=https\://things.apps.bosch-iot-cloud.com
+thingsServiceEndpointUrl=https\://things.apps.bosch-iot-cloud.com
 clientId=### user solution id ###\:restcli
 apiToken=### user solution API Token ###
 keystoreLocation=CRClient.jks
 keyAlias=CR
 keyStorePassword=### your key password ###
 keyAliasPassword=### your key alias password ###
-http.proxyHost=### your http proxy host, if you need one ###
-http.proxyPort=### your http proxy host, if you need one ###
+#http.proxyHost=### your http proxy host, if you need one ###
+#http.proxyPort=### your http proxy host, if you need one ###
 #http.proxyPrincipal=### your http proxy principal (user), if you need one ###
 #http.proxyPassword=### your http proxy password, if you need one ###
 ```

@@ -158,7 +158,7 @@
 
             $.ajax({
                 type: 'GET',
-                url: '/cr/1/things/' + thingId,
+                url: '/api/1/things/' + thingId,
                 beforeSend: setAuthorizationHeader
             }).then(resolve, function onError(data) {
                 var errorJson = JSON.parse(data.responseText);
@@ -200,7 +200,7 @@
 
             $.ajax({
                 type: 'PUT',
-                url: '/cr/1/things/' + thingId,
+                url: '/api/1/things/' + thingId,
                 data: JSON.stringify(newThing),
                 contentType: 'application/json; charset=UTF-8',
                 beforeSend: setAuthorizationHeader
@@ -223,7 +223,7 @@
             if (thing) {
                 $.ajax({
                     type: 'PUT',
-                    url: '/cr/1/things/' + thing.thingId + '/features/' + feature + '/properties/' + jsonPointer,
+                    url: '/api/1/things/' + thing.thingId + '/features/' + feature + '/properties/' + jsonPointer,
                     data: JSON.stringify(jsonValue),
                     contentType: 'application/json; charset=UTF-8',
                     beforeSend: setAuthorizationHeader
@@ -241,7 +241,7 @@
             if (thing) {
                 $.ajax({
                     type: 'PUT',
-                    url: '/cr/1/things/' + thing.thingId + '/features/' + feature + '/properties',
+                    url: '/api/1/things/' + thing.thingId + '/features/' + feature + '/properties',
                     data: JSON.stringify(jsonValue),
                     contentType: 'application/json; charset=UTF-8',
                     beforeSend: setAuthorizationHeader
@@ -258,7 +258,7 @@
         return new Promise(function (resolve, reject) {
             $.ajax({
                 type: 'PUT',
-                url: '/cr/1/things/' + device.thingId + '/acl/' + sid,
+                url: '/api/1/things/' + device.thingId + '/acl/' + sid,
                 data: JSON.stringify(aclEntry),
                 contentType: 'application/json; charset=UTF-8',
                 beforeSend: setAuthorizationHeader
@@ -272,7 +272,7 @@
         return new Promise(function (resolve, reject) {
             $.ajax({
                 type: 'DELETE',
-                url: '/cr/1/things/' + device.thingId + '/acl/' + sid,
+                url: '/api/1/things/' + device.thingId + '/acl/' + sid,
                 beforeSend: setAuthorizationHeader
             }).then(resolve, function onError(data) {
                 reject(data.responseText || data.statusText)

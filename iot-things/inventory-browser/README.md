@@ -4,6 +4,10 @@ This example shows how to create a simple user interface to list things and thei
 
 ![Screenshot](screenshot.png)
 
+# Create a Solution
+
+https://things.apps.bosch-iot-cloud.com/dokuwiki/doku.php?id=002_getting_started:cr_02_booking-cr-service.txt
+
 # Configure your API Token and other settings
 
 Create or adjust file "src/main/resources/config.properties"
@@ -34,10 +38,6 @@ java -jar target/inventory-browser.jar
 ## Show Dashboard
 
 Browse to the Bosch IoT Things Dashboard: <https://things.apps.bosch-iot-cloud.com/>
-
-## Create a Solution
-
-Use the dashboard to create a solution.
 
 ## Create Demo User
 

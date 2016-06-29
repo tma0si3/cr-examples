@@ -45,7 +45,7 @@ import com.bosch.cr.json.JsonValue;
  * such {@code Message}s using the {@code IntegrationClient}.
  * <p>
  * NOTE: Make sure to invoke {@code IntegrationClient.subscriptions().consume()} once after all message handlers are
- * registered to start receiving events from Central Registry.
+ * registered to start receiving events.
  */
 public final class RegisterForAndSendMessages extends ExamplesBase
 {

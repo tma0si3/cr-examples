@@ -67,9 +67,10 @@ import com.bosch.cr.model.things.Thing;
 public class VehicleSimulator
 {
 
-   public static void main(String[] args) throws IOException, InterruptedException
-   {
+   private static boolean shouldRun = true;
 
+   public static void main(String[] args) throws Exception
+   {
       Properties props = new Properties(System.getProperties());
       try
       {
@@ -90,7 +91,7 @@ public class VehicleSimulator
          throw new RuntimeException(ex);
       }
 
-      String centralRegistryMessagingUrl = props.getProperty("centralRegistryMessagingUrl");
+      String thingsServiceMessagingUrl = props.getProperty("thingsServiceMessagingUrl");
 
       String clientId = props.getProperty("clientId");
 
@@ -111,8 +112,10 @@ public class VehicleSimulator
             .password("jks").build();
 
       IntegrationClientConfiguration.OptionalConfigSettable configSettable =
-         IntegrationClientConfiguration.newBuilder().authenticationConfiguration(authenticationConfiguration)
-            .centralRegistryEndpointUrl(centralRegistryMessagingUrl).trustStoreConfiguration(trustStore);
+         IntegrationClientConfiguration.newBuilder()
+                 .authenticationConfiguration(authenticationConfiguration)
+                 .centralRegistryEndpointUrl(thingsServiceMessagingUrl)
+                 .trustStoreConfiguration(trustStore);
       if (proxyHost != null && proxyPort != null)
       {
          configSettable = configSettable.proxyConfiguration(
@@ -138,11 +141,12 @@ public class VehicleSimulator
          }
       });
 
-      createSubscriptionAndStartReceiving(client);
+      client.subscriptions().create(SubscriptionConsumeOptions.newBuilder().enableConsumeOwnEvents().build()).get(10, TimeUnit.SECONDS);
+      client.subscriptions().consume().get(10, TimeUnit.SECONDS);
 
       Thread thread = new Thread(() -> {
          Random random = ThreadLocalRandom.current();
-         while (true)
+         while (shouldRun)
          {
             for (String thingId : activeThings)
             {
@@ -199,7 +203,7 @@ public class VehicleSimulator
       System.in.read();
 
       System.out.println("Shutting down ...");
-      thread.interrupt();
+      shouldRun = false;
       Thread.sleep(5000);
       client.destroy();
       System.out.println("Client destroyed");
@@ -240,20 +244,5 @@ public class VehicleSimulator
          throw new RuntimeException(ex);
       }
    }
-
-   protected static void createSubscriptionAndStartReceiving(IntegrationClient integrationClient)
-   {
-      try
-      {
-         final SubscriptionConsumeOptions consumeOptions = SubscriptionConsumeOptions.newBuilder().enableConsumeOwnEvents().build();
-         integrationClient.subscriptions().create(consumeOptions).get(10, TimeUnit.SECONDS);
-         integrationClient.subscriptions().consume().get(10, TimeUnit.SECONDS);
-      }
-      catch (InterruptedException | ExecutionException | TimeoutException e)
-      {
-         System.out.println("Failed to create subscription for CRIC: " + e);
-      }
-   }
-
 
 }
