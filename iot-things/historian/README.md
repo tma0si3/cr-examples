@@ -102,17 +102,17 @@ Add an ACL for the "historian"-client to any thing you already have. See the inv
 
 Use the following URL to look at the collected data:
 
-[http://localhost:8080/history/data/###thindId###/###featureId###/###propertyPath###]
+[http://localhost:8080/history/data/###thingId###/features/###featureId###/properties/###propertyPath###]
 
 e.g.
-[http://localhost:8080/history/data/demo:vehicle-53/geolocation/properties/geoposition/latitude]
+[http://localhost:8080/history/data/demo:vehicle-53/features/geolocation/properties/geoposition/latitude]
 
 Use the following URL to view at the collected data as a timeseries chart:
 
-[http://localhost:8080/history/view/###thindId###/###featureId###/###propertyPath###]
+[http://localhost:8080/history/view/###thingId###/features/###featureId###/properties/###propertyPath###]
 
 e.g.
-[http://localhost:8080/history/view/demo:vehicle-53/geolocation/properties/geoposition/latitude]
+[http://localhost:8080/history/view/demo:vehicle-53/features/geolocation/properties/geoposition/latitude]
 
 
 ## License
