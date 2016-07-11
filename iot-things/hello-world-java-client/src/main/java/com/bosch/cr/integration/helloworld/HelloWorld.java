@@ -38,7 +38,6 @@ import com.bosch.cr.integration.IntegrationClient;
 import com.bosch.cr.integration.client.IntegrationClientImpl;
 import com.bosch.cr.integration.client.configuration.AuthenticationConfiguration;
 import com.bosch.cr.integration.client.configuration.IntegrationClientConfiguration;
-import com.bosch.cr.integration.client.configuration.ProxyConfiguration;
 import com.bosch.cr.integration.client.configuration.PublicKeyAuthenticationConfiguration;
 import com.bosch.cr.integration.client.configuration.TrustStoreConfiguration;
 import com.bosch.cr.integration.things.FeatureHandle;
@@ -70,13 +69,13 @@ public class HelloWorld
    private static final String ALIAS = "CR";
    private static final String ALIAS_PASSWORD = "<your-alias-password>";
 
-   // Currently  necessary for accepting bosch self signed certificates
+   // Currently necessary for accepting bosch self signed certificates
    private static final URL TRUSTSTORE_LOCATION = HelloWorld.class.getResource("/bosch-iot-cloud.jks");
    private static final String TRUSTSTORE_PASSWORD = "jks";
 
    // optionally configure a proxy server
-   //public static final String PROXY_HOST = "proxy.server.com";
-   //public static final int PROXY_PORT = 8080;
+   // public static final String PROXY_HOST = "proxy.server.com";
+   // public static final int PROXY_PORT = 8080;
 
    private static final Logger LOGGER = LoggerFactory.getLogger(HelloWorld.class);
 
@@ -89,7 +88,7 @@ public class HelloWorld
    final IntegrationClient integrationClient;
    final ThingIntegration thingIntegration;
 
-   public static void main(final String... args) throws Exception
+   public static void main(final String... args)
    {
       new HelloWorld().execute();
    }
@@ -97,25 +96,33 @@ public class HelloWorld
    /**
     * Create and update a thing with the java client.
     */
-   public void execute() throws Exception
+   public void execute()
    {
-      // Create a Thing with a counter Feature and get the FeatureHandle
-      final FeatureHandle counter = createThingWithCounter();
+      try
+      {
+         // Create a Thing with a counter Feature and get the FeatureHandle
+         final FeatureHandle counter = createThingWithCounter();
 
-      // Update the ACL with your User ID to see your thing in the Demo Web UI
-      updateACL();
+         // Update the ACL with your User ID to see your thing in the Demo Web UI
+         updateACL();
 
-      // Log full Thing info (as JSON)
-      LOGGER.info("Thing looks like this: {}", getThingByID(THING_ID).toJson());
+         // Log full Thing info (as JSON)
+         LOGGER.info("Thing looks like this: {}", getThingById(THING_ID).toJson());
 
-      // Loop to update the attributes of the Thing
-      for (int i = 0; i <= 100; i++) {
-         updateCounter(counter, i);
-         Thread.sleep(2000);
+         // Loop to update the attributes of the Thing
+         for (int i = 0; i <= 100; i++)
+         {
+            updateCounter(counter, i);
+            Thread.sleep(2000);
+         }
+
+         // This step must always be concluded to terminate the Java client.
+         terminate();
       }
-
-      // This step must always be concluded to terminate the Java client.
-      terminate();
+      catch (InterruptedException | ExecutionException | TimeoutException e)
+      {
+         LOGGER.error(e.getMessage());
+      }
    }
 
    /**
@@ -124,36 +131,35 @@ public class HelloWorld
    public HelloWorld()
    {
       // Build an authentication configuration
-      final AuthenticationConfiguration authenticationConfiguration
-              = PublicKeyAuthenticationConfiguration.newBuilder().clientId(CLIENT_ID) //
-              .keyStoreLocation(KEYSTORE_LOCATION) //
-              .keyStorePassword(KEYSTORE_PASSWORD) //
-              .alias(ALIAS) //
-              .aliasPassword(ALIAS_PASSWORD) //
-              .build();
+      final AuthenticationConfiguration authenticationConfiguration =
+         PublicKeyAuthenticationConfiguration.newBuilder().clientId(CLIENT_ID) //
+            .keyStoreLocation(KEYSTORE_LOCATION) //
+            .keyStorePassword(KEYSTORE_PASSWORD) //
+            .alias(ALIAS) //
+            .aliasPassword(ALIAS_PASSWORD) //
+            .build();
 
       // Optionally configure a proxy server
-      //      final ProxyConfiguration proxy = ProxyConfiguration.newBuilder() //
-      //              .proxyHost(PROXY_HOST) //
-      //              .proxyPort(PROXY_PORT) //
-      //              .build();
+      // final ProxyConfiguration proxy = ProxyConfiguration.newBuilder() //
+      // .proxyHost(PROXY_HOST) //
+      // .proxyPort(PROXY_PORT) //
+      // .build();
       // Configure a truststore that contains trusted certificates
       final TrustStoreConfiguration trustStore = TrustStoreConfiguration.newBuilder() //
-              .location(TRUSTSTORE_LOCATION) //
-              .password(TRUSTSTORE_PASSWORD) //
-              .build();
+         .location(TRUSTSTORE_LOCATION) //
+         .password(TRUSTSTORE_PASSWORD) //
+         .build();
 
       /**
        * Provide required configuration (authentication configuration and CR URI), optional proxy configuration can be
        * added when needed
        */
-      final IntegrationClientConfiguration integrationClientConfiguration
-              = IntegrationClientConfiguration.newBuilder() //
-              .authenticationConfiguration(authenticationConfiguration)
-              .centralRegistryEndpointUrl(BOSCH_IOT_THINGS_WS_ENDPOINT_URL) //
-              .trustStoreConfiguration(trustStore) //
-              //.proxyConfiguration(proxy) //
-              .build();
+      final IntegrationClientConfiguration integrationClientConfiguration = IntegrationClientConfiguration.newBuilder() //
+         .authenticationConfiguration(authenticationConfiguration)
+         .centralRegistryEndpointUrl(BOSCH_IOT_THINGS_WS_ENDPOINT_URL) //
+         .trustStoreConfiguration(trustStore) //
+         // .proxyConfiguration(proxy) //
+         .build();
 
       LOGGER.info("Creating CR Integration Client for ClientID: {}", CLIENT_ID);
 
@@ -172,24 +178,27 @@ public class HelloWorld
    public FeatureHandle createThingWithCounter()
    {
       final Thing thing = Thing.newBuilder() //
-              .setId(THING_ID) //
-              .setFeature(Feature.newBuilder() //
-                      .properties(JsonObject.newBuilder() //
-                              .set(COUNTER_VALUE, 0) //
-                              .build()) //
-                      .withId(COUNTER) //
-                      .build()) //
-              .build();
+         .setId(THING_ID) //
+         .setFeature(Feature.newBuilder() //
+            .properties(JsonObject.newBuilder() //
+               .set(COUNTER_VALUE, 0) //
+               .build()) //
+            .withId(COUNTER) //
+            .build()) //
+         .build();
 
       FeatureHandle featureHandle = null;
 
-      try {
+      try
+      {
          featureHandle = thingIntegration.create(thing) //
-                 .thenApply(created -> thingIntegration.forFeature(THING_ID, COUNTER)) //
-                 .get(TIMEOUT, TimeUnit.SECONDS);
+            .thenApply(created -> thingIntegration.forFeature(THING_ID, COUNTER)) //
+            .get(TIMEOUT, TimeUnit.SECONDS);
 
          LOGGER.info("Thing with ID '{}' created.", THING_ID);
-      } catch (InterruptedException | ExecutionException | TimeoutException e) {
+      }
+      catch (InterruptedException | ExecutionException | TimeoutException e)
+      {
          LOGGER.error(e.getMessage());
       }
 
@@ -197,40 +206,58 @@ public class HelloWorld
    }
 
    /**
-    * Update the ACL of a specified Thing. Blocks until ACL has been updated.
+    * Find a Thing with given ThingId. Blocks until the Thing has been retrieved.
     */
-   public void updateACL()
+   public Thing getThingById(final String thingId) throws InterruptedException, ExecutionException, TimeoutException
    {
-      try {
-         thingIntegration.forId(THING_ID) //
-                 .retrieve() //
-                 .thenCompose(thing -> {
-                    final AclEntry aclEntry = AclEntry.newInstance(AuthorizationSubject.newInstance(USER_ID), //
-                            Permission.READ, //
-                            Permission.WRITE, //
-                            Permission.ADMINISTRATE);
-
-                    final Thing updated = thing.setAclEntry(aclEntry);
-                    return thingIntegration.update(updated);
-                 }) //
-                 .whenComplete((aVoid, throwable) -> {
-                    if (null == throwable) {
-                       LOGGER.info("Thing with ID '{}' updated ACL entry!", THING_ID);
-                    } else {
-                       LOGGER.error(throwable.getMessage());
-                    }
-                 }).get(TIMEOUT, TimeUnit.SECONDS);
-      } catch (InterruptedException | ExecutionException | TimeoutException e) {
-         LOGGER.error(e.getMessage());
-      }
+      return thingIntegration.forId(thingId).retrieve().get(TIMEOUT, TimeUnit.SECONDS);
    }
 
    /**
-    * Find a Thing with given ThingId
+    * Delete a Thing.
     */
-   public Thing getThingByID(final String thingId) throws InterruptedException, ExecutionException, TimeoutException
+   public void deleteThing(final String thingId) throws InterruptedException, ExecutionException, TimeoutException
    {
-      return thingIntegration.forId(thingId).retrieve().get(TIMEOUT, TimeUnit.SECONDS);
+      thingIntegration.delete(thingId) //
+         .whenComplete((aVoid, throwable) -> {
+            if (null == throwable)
+            {
+               LOGGER.info("Thing with ID deleted: {}", thingId);
+            }
+            else
+            {
+               LOGGER.error(throwable.getMessage());
+            }
+         }) //
+         .get(TIMEOUT, TimeUnit.SECONDS);
+   }
+
+   /**
+    * Update the ACL of a specified Thing. Blocks until ACL has been updated.
+    */
+   public void updateACL() throws InterruptedException, ExecutionException, TimeoutException
+   {
+      thingIntegration.forId(THING_ID) //
+         .retrieve() //
+         .thenCompose(thing -> {
+            final AclEntry aclEntry = AclEntry.newInstance(AuthorizationSubject.newInstance(USER_ID), //
+               Permission.READ, //
+               Permission.WRITE, //
+               Permission.ADMINISTRATE);
+
+            final Thing updated = thing.setAclEntry(aclEntry);
+            return thingIntegration.update(updated);
+         }) //
+         .whenComplete((aVoid, throwable) -> {
+            if (null == throwable)
+            {
+               LOGGER.info("Thing with ID '{}' updated ACL entry!", THING_ID);
+            }
+            else
+            {
+               LOGGER.error(throwable.getMessage());
+            }
+         }).get(TIMEOUT, TimeUnit.SECONDS);
    }
 
    /**
@@ -240,13 +267,16 @@ public class HelloWorld
    public void updateCounter(final FeatureHandle counter, final int value)
    {
       counter.putProperty(COUNTER_VALUE, value) //
-              .whenComplete((aVoid, throwable) -> {
-                 if (null == throwable) {
-                    LOGGER.info("Thing with ID '{}' updated with Counter={}!", counter.getThingId(), value);
-                 } else {
-                    LOGGER.error(throwable.getMessage());
-                 }
-              });
+         .whenComplete((aVoid, throwable) -> {
+            if (null == throwable)
+            {
+               LOGGER.info("Thing with ID '{}' updated with Counter={}!", counter.getThingId(), value);
+            }
+            else
+            {
+               LOGGER.error(throwable.getMessage());
+            }
+         });
    }
 
    /**
