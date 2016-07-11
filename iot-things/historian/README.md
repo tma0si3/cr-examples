@@ -102,18 +102,22 @@ Add an ACL for the "historian"-client to any thing you already have. See the inv
 
 Use the following URL to look at the collected data:
 
-[http://localhost:8080/history/data/###thingId###/features/###featureId###/properties/###propertyPath###]
+For each Feature/Path pair, define the values as such: \[###featureId###,###propertyPath###\]
+
+So the URL would take the following form:
+[http://localhost:8080/history/data/###thingId###/\[###featureId###,###propertyPath###\]
+
+For multiple Feature/Paths, simply append the pair value with a comma (,) to separate them.
 
 e.g.
-[http://localhost:8080/history/data/demo:vehicle-53/features/geolocation/properties/geoposition/latitude]
+[http://localhost:8080/history/data/demo:vehicle-53/[geolocation, geoposition/latitude]
 
-Use the following URL to view at the collected data as a timeseries chart:
+Use the following URL to view at the collected data as a timeseries chart, following the same format above to take into account multiple feature/values.
 
-[http://localhost:8080/history/view/###thingId###/features/###featureId###/properties/###propertyPath###]
+[http://localhost:8080/history/view/###thingId###/\[###featureId###,###propertyPath###\]
 
 e.g.
-[http://localhost:8080/history/view/demo:vehicle-53/features/geolocation/properties/geoposition/latitude]
-
+[http://localhost:8080/history/view/demo:vehicle-53/[geolocation, geoposition/latitude]
 
 ## License
 
