@@ -88,7 +88,7 @@ public class HelloWorld
    final IntegrationClient integrationClient;
    final ThingIntegration thingIntegration;
 
-   public static void main(final String... args) throws Exception
+   public static void main(final String... args)
    {
       new HelloWorld().execute();
    }
@@ -96,26 +96,33 @@ public class HelloWorld
    /**
     * Create and update a thing with the java client.
     */
-   public void execute() throws Exception
+   public void execute()
    {
-      // Create a Thing with a counter Feature and get the FeatureHandle
-      final FeatureHandle counter = createThingWithCounter();
-
-      // Update the ACL with your User ID to see your thing in the Demo Web UI
-      updateACL();
-
-      // Log full Thing info (as JSON)
-      LOGGER.info("Thing looks like this: {}", getThingByID(THING_ID).toJson());
-
-      // Loop to update the attributes of the Thing
-      for (int i = 0; i <= 100; i++)
+      try
       {
-         updateCounter(counter, i);
-         Thread.sleep(2000);
-      }
+         // Create a Thing with a counter Feature and get the FeatureHandle
+         final FeatureHandle counter = createThingWithCounter();
 
-      // This step must always be concluded to terminate the Java client.
-      terminate();
+         // Update the ACL with your User ID to see your thing in the Demo Web UI
+         updateACL();
+
+         // Log full Thing info (as JSON)
+         LOGGER.info("Thing looks like this: {}", getThingById(THING_ID).toJson());
+
+         // Loop to update the attributes of the Thing
+         for (int i = 0; i <= 100; i++)
+         {
+            updateCounter(counter, i);
+            Thread.sleep(2000);
+         }
+
+         // This step must always be concluded to terminate the Java client.
+         terminate();
+      }
+      catch (InterruptedException | ExecutionException | TimeoutException e)
+      {
+         LOGGER.error(e.getMessage());
+      }
    }
 
    /**
@@ -199,46 +206,58 @@ public class HelloWorld
    }
 
    /**
-    * Update the ACL of a specified Thing. Blocks until ACL has been updated.
+    * Find a Thing with given ThingId. Blocks until the Thing has been retrieved.
     */
-   public void updateACL()
+   public Thing getThingById(final String thingId) throws InterruptedException, ExecutionException, TimeoutException
    {
-      try
-      {
-         thingIntegration.forId(THING_ID) //
-            .retrieve() //
-            .thenCompose(thing -> {
-               final AclEntry aclEntry = AclEntry.newInstance(AuthorizationSubject.newInstance(USER_ID), //
-                  Permission.READ, //
-                  Permission.WRITE, //
-                  Permission.ADMINISTRATE);
-
-               final Thing updated = thing.setAclEntry(aclEntry);
-               return thingIntegration.update(updated);
-            }) //
-            .whenComplete((aVoid, throwable) -> {
-               if (null == throwable)
-               {
-                  LOGGER.info("Thing with ID '{}' updated ACL entry!", THING_ID);
-               }
-               else
-               {
-                  LOGGER.error(throwable.getMessage());
-               }
-            }).get(TIMEOUT, TimeUnit.SECONDS);
-      }
-      catch (InterruptedException | ExecutionException | TimeoutException e)
-      {
-         LOGGER.error(e.getMessage());
-      }
+      return thingIntegration.forId(thingId).retrieve().get(TIMEOUT, TimeUnit.SECONDS);
    }
 
    /**
-    * Find a Thing with given ThingId
+    * Delete a Thing.
     */
-   public Thing getThingByID(final String thingId) throws InterruptedException, ExecutionException, TimeoutException
+   public void deleteThing(final String thingId) throws InterruptedException, ExecutionException, TimeoutException
    {
-      return thingIntegration.forId(thingId).retrieve().get(TIMEOUT, TimeUnit.SECONDS);
+      thingIntegration.delete(thingId) //
+         .whenComplete((aVoid, throwable) -> {
+            if (null == throwable)
+            {
+               LOGGER.info("Thing with ID deleted: {}", thingId);
+            }
+            else
+            {
+               LOGGER.error(throwable.getMessage());
+            }
+         }) //
+         .get(TIMEOUT, TimeUnit.SECONDS);
+   }
+
+   /**
+    * Update the ACL of a specified Thing. Blocks until ACL has been updated.
+    */
+   public void updateACL() throws InterruptedException, ExecutionException, TimeoutException
+   {
+      thingIntegration.forId(THING_ID) //
+         .retrieve() //
+         .thenCompose(thing -> {
+            final AclEntry aclEntry = AclEntry.newInstance(AuthorizationSubject.newInstance(USER_ID), //
+               Permission.READ, //
+               Permission.WRITE, //
+               Permission.ADMINISTRATE);
+
+            final Thing updated = thing.setAclEntry(aclEntry);
+            return thingIntegration.update(updated);
+         }) //
+         .whenComplete((aVoid, throwable) -> {
+            if (null == throwable)
+            {
+               LOGGER.info("Thing with ID '{}' updated ACL entry!", THING_ID);
+            }
+            else
+            {
+               LOGGER.error(throwable.getMessage());
+            }
+         }).get(TIMEOUT, TimeUnit.SECONDS);
    }
 
    /**
