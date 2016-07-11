@@ -35,12 +35,12 @@
    <groupId>com.bosch.cr.examples</groupId>
    <artifactId>cr-rest-examples</artifactId>
    <version>0.0.1-SNAPSHOT</version>
-   <name>IoT Central Registry :: CR REST Examples</name>
-   <description>Central Registry REST API Examples</description>
+   <name>Bosch IoT Things :: REST API Examples for Java</name>
+   <description>Bosch IoT Things REST API Examples</description>
 
    <properties>
       <jackson.version>2.5.4</jackson.version>
-      <async-http-client.version>2.0.0-RC8</async-http-client.version>
+      <async-http-client.version>2.0.0</async-http-client.version>
       <junit.version>4.12</junit.version>
    </properties>
 

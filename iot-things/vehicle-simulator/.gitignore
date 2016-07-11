@@ -8,3 +8,6 @@ CRClient.jks
 CRClient_key.cer
 config*.properties
 things*.properties
+.classpath
+.project
+.settings

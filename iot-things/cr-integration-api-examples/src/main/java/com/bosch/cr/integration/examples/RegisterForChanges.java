@@ -46,7 +46,7 @@ import com.bosch.cr.json.JsonValue;
  * {@link com.bosch.cr.integration.things.Change}s of your {@code Thing}s.
  * <p>
  * NOTE: Make sure to invoke {@code IntegrationClient.subscriptions().consume()} once after all handlers are
- * registered to start receiving events from Central Registry.
+ * registered to start receiving events.
  */
 public final class RegisterForChanges extends ExamplesBase
 {

@@ -25,18 +25,41 @@
  * EMPLOYEES, REPRESENTATIVES AND ORGANS.
  */
 #map {
-    height: 30vh;
+   height: 30vh;
 }
 #table-wrapper {
-    margin-bottom: 1vh;
+   margin-bottom: 1vh;
 }
 #details {
-    display: none;
+   display: none;
 }
 #detailsThingId {
-    word-wrap: break-word;
+   word-wrap: break-word;
 }
 td {
-    word-break: break-all;
-    word-wrap: break-word;
+   word-break: break-all;
+   word-wrap: break-word;
+}
+#popupOverlay {
+   background: rgba(0,0,0, 0.5);
+   display: none;
+   position: fixed;
+   left: 0;
+   top: 0;
+   width: 100%;
+   height: 100%;
+   z-index: 1000;
+}
+#popupInner {
+   position: fixed;
+   top: 10%;/*or whatever*/
+   left: 10%; /*or whatever*/
+   width: 80%;
+   height: 80%;
+   z-index: 1001;
+}
+#popupIframe {
+   width: 80vw; 
+   height: 60vh;
+   border: none;
 }

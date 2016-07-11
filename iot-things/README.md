@@ -4,11 +4,11 @@
 
 This repository contains examples for using the Bosch IoT Things in the cloud.
 
-## Preparation
+## Preparation for Java Developers
 
 ### Maven Repository
 
-In order to be able to run the examples (or to implement your own), you need the "Bosch IoT Central Registry Integration Client" (short: *CRIC*).
+In order to be able to run the examples (or to implement your own), you need the "Bosch IoT Things - Integration Client".
 This is available via our public Maven repository. Add following Maven-Repository to your Maven `settings.xml`:
 
 ```
@@ -39,7 +39,7 @@ After adding the public repository as described above, you can simply use the CR
 <dependency>
    <groupId>com.bosch.cr</groupId>
    <artifactId>cr-integration-client</artifactId>
-   <version>2.3.1</version>
+   <version>2.4.0</version>
 </dependency>
 ```
 
@@ -49,7 +49,7 @@ We also provide an OSGi-bundle:
 <dependency>
    <groupId>com.bosch.cr</groupId>
    <artifactId>cr-integration-client-osgi</artifactId>
-   <version>2.3.1</version>
+   <version>2.4.0</version>
 </dependency>
 ```
 
@@ -68,7 +68,7 @@ This is a list of prepared REST call examples to demonstrate typical usages of t
 
 The provided files can be used in Google Chrome browser extension "Postman". This extension can be downloaded here: <https://www.getpostman.com/>
 
-### Example "cr-integration-api-examples"
+### Example "integration-api-examples"
 
 This example shows how to use the CR-Integration Client for Java.
 

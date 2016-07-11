@@ -22,7 +22,7 @@ To avoid CORS(Cross-Origin resource sharing) issues, the nginx configuration wil
 
 ```
 location /cr {
-	proxy_pass https://things.apps.bosch-iot-cloud.com/cr/1;
+	proxy_pass https://things.apps.bosch-iot-cloud.com/api/1;
 }
 ```
 

@@ -50,7 +50,7 @@ public final class RegisterForClaimMessages extends ExamplesBase
     * Registers for claim messages sent to all things.
     * <p>
     * To claim the prepared Thing, you can use our swagger documentation provided at
-    * https://cr.apps.bosch-iot-cloud.com/ or any other REST client.
+    * https://things.apps.bosch-iot-cloud.com/ or any other REST client.
     */
    public void registerForClaimMessagesToAllThings()
    {
@@ -65,7 +65,7 @@ public final class RegisterForClaimMessages extends ExamplesBase
     * Registers for claim messages sent to a single Thing.
     * <p>
     * To claim the prepared Thing, you can use our swagger documentation provided at
-    * https://cr.apps.bosch-iot-cloud.com/ or any other REST client.
+    * https://things.apps.bosch-iot-cloud.com/ or any other REST client.
     */
    public void registerForClaimMessagesToSingleThing()
    {
