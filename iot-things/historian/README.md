@@ -107,10 +107,14 @@ For each Feature/Path pair, define the values as such: \[###featureId###,###prop
 So the URL would take the following form:
 [http://localhost:8080/history/data/###thingId###/\[###featureId###,###propertyPath###\]
 
+e.g.
+[http://localhost:8080/history/data/demo:vehicle-53/[geolocation, geoposition/latitude]
+
 For multiple Feature/Paths, simply append the pair value with a comma (,) to separate them.
 
 e.g.
-[http://localhost:8080/history/data/demo:vehicle-53/[geolocation, geoposition/latitude]
+[http://localhost:8080/history/data/demo:vehicle-53/[geolocation,geoposition/latitude],[enginetemperature,value]
+
 
 Use the following URL to view at the collected data as a timeseries chart, following the same format above to take into account multiple feature/values.
 
