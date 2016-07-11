@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html>
+<html th:with="colors=${ {'#E84B0E','#C3E80E','#4DE80E','#0E96E8','#430EE8','#FB4206','#F3FB06','#06FB54','#0806FB'} }">
    <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -39,12 +39,14 @@
          /*<![CDATA[*/
          "use strict";
          document.addEventListener("DOMContentLoaded", function () {
+            var colors = [[${colors}]];
 
             var values = /*[[ ${values}?: null ]]*/ null;
             values = values !== null ? values : [];
 
             var xs = {};
             var columns = [];
+            var displayColors = {};
             for (var i=0; i < values.length; i++) {
                var dataIdx = "data" + (i+1);
                var xIdx = "x" + (i+1);
@@ -60,7 +62,11 @@
 
                columns.push([xIdx].concat(tsIso));
                columns.push([dataIdx].concat(histoValues));
+
+               displayColors[dataIdx] = colors[i];
             }
+
+
 
             var chart = c3.generate({
                bindto: "#chart",
@@ -68,17 +74,7 @@
                   xs: xs,
                   xFormat: "%Y-%m-%dT%H:%M:%S.%LZ",
                   columns: columns,
-                  colors: {
-                     "data1": "#E84B0E",
-                     "data2": "#C3E80E",
-                     "data3": "#4DE80E",
-                     "data4": "#0E96E8",
-                     "data5": "#430EE8",
-                     "data6": "#FB4206",
-                     "data7": "#F3FB06",
-                     "data8": "#06FB54",
-                     "data9": "#0806FB"
-                  }
+                  colors: displayColors
                },
                axis: {
                   x: {
@@ -114,8 +110,8 @@
             <h4>
                <p>Thing: <span th:text="${thingId}" /></p>
             </h4>
-            <h5 th:each="val :${values}">
-               <p>feature: <span th:text="${val.feature.name}" /> , path: <span th:text="${val.feature.path}" /></p>
+            <h5 th:each="val,stat :${values}">
+               <p th:attr="style=${'color: ' + colors[stat.index]}">feature: <span th:text="${val.feature.name}" />, path: <span th:text="${val.feature.path}" /></p>
             </h5>
             <hr />
             <div id="chart" th:if="${values}"></div>
