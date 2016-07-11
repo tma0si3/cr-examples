@@ -41,23 +41,44 @@
          document.addEventListener("DOMContentLoaded", function () {
 
             var values = /*[[ ${values}?: null ]]*/ null;
-            var timestamps = /*[[ ${timestamps}?: null ]]*/ null;
             values = values !== null ? values : [];
-            timestamps = timestamps !== null ? timestamps : [];
 
-            var timestampIso = timestamps.map(function (d) {
-               return new Date(d).toISOString();
-            });
+            var xs = {};
+            var columns = [];
+            for (var i=0; i < values.length; i++) {
+               var dataIdx = "data" + (i+1);
+               var xIdx = "x" + (i+1);
+
+               xs[dataIdx] = xIdx;
+
+               var histoValues = values[i].historicData.values;
+               var histoTS = values[i].historicData.timestamps;
+
+               var tsIso = histoTS.map(function (d) {
+                  return new Date(d).toISOString();
+               });
+
+               columns.push([xIdx].concat(tsIso));
+               columns.push([dataIdx].concat(histoValues));
+            }
 
             var chart = c3.generate({
                bindto: "#chart",
                data: {
-                  x: "x",
+                  xs: xs,
                   xFormat: "%Y-%m-%dT%H:%M:%S.%LZ",
-                  columns: [
-                     ["x"].concat(timestampIso),
-                     ["value"].concat(values),
-                  ]
+                  columns: columns,
+                  colors: {
+                     "data1": "#E84B0E",
+                     "data2": "#C3E80E",
+                     "data3": "#4DE80E",
+                     "data4": "#0E96E8",
+                     "data5": "#430EE8",
+                     "data6": "#FB4206",
+                     "data7": "#F3FB06",
+                     "data8": "#06FB54",
+                     "data9": "#0806FB"
+                  }
                },
                axis: {
                   x: {
@@ -92,9 +113,11 @@
          <div class="starter-template">
             <h4>
                <p>Thing: <span th:text="${thingId}" /></p>
-               <p>Feature: <span th:text="${featureId}" /></p>
-               <p>Property: <span th:text="${propertyPath}" /></p>
             </h4>
+            <h5 th:each="val :${values}">
+               <p>feature: <span th:text="${val.feature.name}" /> , path: <span th:text="${val.feature.path}" /></p>
+            </h5>
+            <hr />
             <div id="chart" th:if="${values}"></div>
             <div class="panel panel-warning" th:unless="${values}">
                <div class="panel-heading">Property is not accessible or history data has not been collected</div>

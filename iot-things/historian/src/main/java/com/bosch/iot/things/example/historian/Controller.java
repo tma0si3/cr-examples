@@ -35,12 +35,7 @@ import java.net.URLEncoder;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -86,72 +81,122 @@ import org.springframework.web.servlet.ModelAndView;
 @RestController
 public class Controller
 {
+   public static class FeatureHistoricData {
+      FeatureParam featureParam;
+      Map historicData;
 
+      public FeatureHistoricData(FeatureParam featureParam, Map data) {
+         this.featureParam = featureParam;
+         this.historicData = data;
+      }
+
+      public FeatureParam getFeature() {
+         return this.featureParam;
+      }
+
+      public Map getHistoricData() {
+         return this.historicData;
+      }
+   }
+
+   public static class FeatureParam {
+      String name;
+      String path;
+
+      public FeatureParam(String feature, String path) {
+         this.name = feature;
+         this.path = path;
+      }
+
+      public String getName() {
+         return this.name;
+      }
+
+      public String getPath() {
+         return this.path;
+      }
+   }
+
+   private static final Pattern FEATURES_PATTERN = Pattern.compile("\\[(.*?)\\]");
    private static final class Param
    {
       String thingId;
-      String featureId;
-      String propertyPath;
+      List<FeatureParam> featureParams = new ArrayList<FeatureParam>();
 
-      private Param()
+      private Param(String thingId, String featureValues)
       {
+         this.thingId = thingId;
+         Matcher matcher = FEATURES_PATTERN.matcher(featureValues);
+
+         while (matcher.find()) {
+            String[] parts = matcher.group(1).split(",");
+
+            featureParams.add(new FeatureParam(parts[0], parts[1]));
+         }
       }
 
       private static Param createFromRequest()
       {
          HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
          String fullPath = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+
          Matcher matcher = PARAM_PATTERN.matcher(fullPath);
          if (!matcher.matches()) {
             throw new IllegalArgumentException(fullPath);
          }
-         Param p = new Param();
-         p.thingId = matcher.group(1);
-         p.featureId = matcher.group(2);
-         p.propertyPath = matcher.group(3);
-         return p;
+         return new Param(matcher.group(1), matcher.group(2));
       }
 
       @Override
       public String toString()
       {
-         return "{" + "thingId=" + thingId + ", featureId=" + featureId + ", propertyPath=" + propertyPath + '}';
+         // return "{" + "thingId=" + thingId + ", featureId=" + featureId + ", propertyPath=" + propertyPath + '}';
+         return "";
       }
    }
 
    private static final Logger LOGGER = LoggerFactory.getLogger(Controller.class);
 
-   private static final Pattern PARAM_PATTERN = Pattern.compile(".*/history/.+?/(.+?)/features/(.+?)/properties/(.+)");
+   // private static final Pattern PARAM_PATTERN = Pattern.compile(".*/history/.+?/(.+?)/features/(.+?)/properties/(.+)");
+   private static final Pattern PARAM_PATTERN = Pattern.compile(".*/history/.+?/(.+?)/(.+)");
 
    private Properties theConfig;
    private CloseableHttpClient theHttpClient;
 
    @Autowired
    private MongoTemplate mongoTemplate;
-   
+
    @PostConstruct
    public void postConstruct(){
-       mongoTemplate.setWriteResultChecking(WriteResultChecking.EXCEPTION);
+      mongoTemplate.setWriteResultChecking(WriteResultChecking.EXCEPTION);
    }
 
    @RequestMapping("/history/data/**")
-   public Map getHistory() throws Exception
+   public List<FeatureHistoricData> getHistoricData() throws Exception
    {
       Param p = Param.createFromRequest();
 
-      if (!checkAccess(p)) {
-         LOGGER.info("Property not found or access denied: {}", p);
-         return null;
+      List<FeatureHistoricData> data = new ArrayList<FeatureHistoricData>();
+      for(FeatureParam fp : p.featureParams) {
+
+         if (!checkAccess(p.thingId, fp.name, fp.path)) {
+            LOGGER.info("Property not found or access denied: {}", p);
+            return null;
+         }
+
+         String id = p.thingId + "/features/" + fp.name + "/properties/" + fp.path;
+         LOGGER.debug("Query MongoDB on id: {}", id);
+
+         Map m = mongoTemplate.findById(id, Map.class, "history");
+         if (m == null) {
+            return null;
+         }
+         m.remove("_id");
+
+         data.add(new FeatureHistoricData(fp, m));
       }
 
-      String id = p.thingId + "/features/" + p.featureId + "/properties/" + p.propertyPath;
-      LOGGER.debug("Query MongoDB on id: {}", id);
-      Map m = mongoTemplate.findById(id, Map.class, "history");
-      if (m == null) {
-         return null;
-      }
-      m.remove("_id");
-      return m;
+      return data;
    }
 
    @RequestMapping("/history/view/**")
@@ -159,7 +204,7 @@ public class Controller
    {
       return getViewHistory(false);
    }
-   
+
    @RequestMapping("/history/embeddedview/**")
    public ModelAndView getEmbeddedViewHistory() throws Exception
    {
@@ -168,27 +213,26 @@ public class Controller
 
    public ModelAndView getViewHistory(boolean embedded) throws Exception
    {
-      Map m = getHistory();
+      List<FeatureHistoricData> m = getHistoricData();
       Param p = Param.createFromRequest();
+
       ModelAndView mav = new ModelAndView();
       mav.addObject("thingId", p.thingId);
-      mav.addObject("featureId", p.featureId);
-      mav.addObject("propertyPath", p.propertyPath);
+      mav.addObject("features", p.featureParams);
+      mav.addObject("values", m);
+
       mav.addObject("clientId", getConfig().getProperty("clientId"));
       if (embedded) {
          mav.addObject("embedded", Boolean.TRUE);
       }
       mav.setViewName("historyview");
-      if (m != null) {
-         mav.addAllObjects(m);
-      }
       return mav;
    }
 
    /**
     * Check access on specific property by doing a callback to the Things service.
     */
-   private boolean checkAccess(Param p) throws UnsupportedEncodingException, IOException
+   private boolean checkAccess(String thingId, String feature, String path) throws UnsupportedEncodingException, IOException
    {
       HttpServletRequest httpReq = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
       HttpServletResponse httpRes = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getResponse();
@@ -201,7 +245,7 @@ public class Controller
          return false;
       }
 
-      String httpid = URLEncoder.encode(p.thingId, "UTF-8") + "/features/" + URLEncoder.encode(p.featureId, "UTF-8") + "/properties/" + p.propertyPath;
+      String httpid = URLEncoder.encode(thingId, "UTF-8") + "/features/" + URLEncoder.encode(feature, "UTF-8") + "/properties/" + path;
       HttpGet thingsRequest = new HttpGet(getConfig().getProperty("thingsServiceEndpointUrl")
               + "/cr/1/things/" + httpid);
 
