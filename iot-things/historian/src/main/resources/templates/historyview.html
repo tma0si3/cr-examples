@@ -53,8 +53,8 @@
 
                xs[dataIdx] = xIdx;
 
-               var histoValues = values[i].historicData.values;
-               var histoTS = values[i].historicData.timestamps;
+               var histoValues = values[i].data.values;
+               var histoTS = values[i].data.timestamps;
 
                var tsIso = histoTS.map(function (d) {
                   return new Date(d).toISOString();
@@ -65,8 +65,6 @@
 
                displayColors[dataIdx] = colors[i];
             }
-
-
 
             var chart = c3.generate({
                bindto: "#chart",
@@ -107,11 +105,12 @@
       </nav>
       <div class="container">
          <div class="starter-template">
-            <h4>
-               <p>Thing: <span th:text="${thingId}" /></p>
-            </h4>
             <h5 th:each="val,stat :${values}">
-               <p th:attr="style=${'color: ' + colors[stat.index]}">feature: <span th:text="${val.feature.name}" />, path: <span th:text="${val.feature.path}" /></p>
+               <p th:attr="style=${'color: ' + colors[stat.index]}">
+                  Thing: <span th:text="${val.param.thingId}" />
+                  Feature: <span th:text="${val.param.featureId}" />
+                  Property: <span th:text="${val.param.propertyPath}" />
+               </p>
             </h5>
             <hr />
             <div id="chart" th:if="${values}"></div>

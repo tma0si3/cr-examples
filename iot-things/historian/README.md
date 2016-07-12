@@ -76,7 +76,7 @@ mvn clean install
 Use the following command to run the example.
 
 ```
-mvn exec:java -Dexec.mainClass="com.bosch.iot.things.example.historian.Application"
+mvn exec:java
 ```
 
 ## Add ACL for "historian" to your things
@@ -102,26 +102,25 @@ Add an ACL for the "historian"-client to any thing you already have. See the inv
 
 Use the following URL to look at the collected data:
 
-For each Feature/Path pair, define the values as such: \[###featureId###,###propertyPath###\]
+[http://localhost:8080/history/data/###thingId###/features/###featureId###/properties/###propertyPath###
 
-So the URL would take the following form:
-[http://localhost:8080/history/data/###thingId###/\[###featureId###,###propertyPath###\]
-
-e.g.
-[http://localhost:8080/history/data/demo:vehicle-53/[geolocation, geoposition/latitude]
-
-For multiple Feature/Paths, simply append the pair value with a comma (,) to separate them.
+You can specifiy multiple things/features/properties to get data for mulitple values in one result.
+To do this you can use comma seperated values within square brackets to define multiple parameters.
 
 e.g.
-[http://localhost:8080/history/data/demo:vehicle-53/[geolocation,geoposition/latitude],[enginetemperature,value]
 
+[http://localhost:8080/history/data/demo:vehicle-53/features/geolocation/properties/geoposition/latitude]
+[http://localhost:8080/history/data/demo:vehicle-53/features/geolocation/properties/\[geoposition/latitude,geoposition/longitude\]]
+[http://localhost:8080/history/data/demo:vehicle-53/features/[geolocation/properties/geoposition/latitude,enginetemperature/properties/value\]]
+[http://localhost:8080/history/data/[demo:vehicle-53/features/geolocation/properties/geoposition/latitude,demo:vehicle-99/features/geolocation/properties/geoposition/latitude\]]
 
 Use the following URL to view at the collected data as a timeseries chart, following the same format above to take into account multiple feature/values.
 
-[http://localhost:8080/history/view/###thingId###/\[###featureId###,###propertyPath###\]
+[http://localhost:8080/history/view/###thingId###/features/###featureId###/properties/###propertyPath###]
 
 e.g.
-[http://localhost:8080/history/view/demo:vehicle-53/[geolocation, geoposition/latitude]
+[http://localhost:8080/history/view/demo:vehicle-53/[geolocation,geoposition/latitude]
+[http://localhost:8080/history/view/demo:vehicle-53/features/[geolocation/properties/geoposition/latitude,enginetemperature/properties/value\]]
 
 ## License
 

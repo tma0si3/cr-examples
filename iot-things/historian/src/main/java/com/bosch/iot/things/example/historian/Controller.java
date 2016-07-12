@@ -32,15 +32,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
-import javax.net.ssl.SSLContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.http.HttpHost;
@@ -49,17 +44,9 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.ssl.SSLContextBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,85 +68,91 @@ import org.springframework.web.servlet.ModelAndView;
 @RestController
 public class Controller
 {
-   public static class FeatureHistoricData {
-      FeatureParam featureParam;
-      Map historicData;
 
-      public FeatureHistoricData(FeatureParam featureParam, Map data) {
-         this.featureParam = featureParam;
-         this.historicData = data;
-      }
-
-      public FeatureParam getFeature() {
-         return this.featureParam;
-      }
-
-      public Map getHistoricData() {
-         return this.historicData;
-      }
-   }
-
-   public static class FeatureParam {
-      String name;
-      String path;
-
-      public FeatureParam(String feature, String path) {
-         this.name = feature;
-         this.path = path;
-      }
-
-      public String getName() {
-         return this.name;
-      }
-
-      public String getPath() {
-         return this.path;
-      }
-   }
-
-   private static final Pattern FEATURES_PATTERN = Pattern.compile("\\[(.*?)\\]");
-   private static final class Param
+   public static class HistoricData
    {
-      String thingId;
-      List<FeatureParam> featureParams = new ArrayList<FeatureParam>();
 
-      private Param(String thingId, String featureValues)
+      private final Param param;
+      private final Map data;
+
+      public HistoricData(Param param, Map data)
+      {
+         this.param = param;
+         this.data = data;
+      }
+
+      public Param getParam()
+      {
+         return this.param;
+      }
+
+      public Map getData()
+      {
+         return this.data;
+      }
+   }
+
+   public static final class Param
+   {
+
+      private final String thingId;
+      private final String featureId;
+      private final String propertyPath;
+
+      private Param(String thingId, String featureId, String propertyPath)
       {
          this.thingId = thingId;
-         Matcher matcher = FEATURES_PATTERN.matcher(featureValues);
-
-         while (matcher.find()) {
-            String[] parts = matcher.group(1).split(",");
-
-            featureParams.add(new FeatureParam(parts[0], parts[1]));
-         }
+         this.featureId = featureId;
+         this.propertyPath = propertyPath;
       }
 
-      private static Param createFromRequest()
+      public String getThingId()
+      {
+         return thingId;
+      }
+
+      public String getFeatureId()
+      {
+         return featureId;
+      }
+
+      public String getPropertyPath()
+      {
+         return propertyPath;
+      }
+
+      static List<Param> createFromRequest()
       {
          HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
          String fullPath = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
 
-         Matcher matcher = PARAM_PATTERN.matcher(fullPath);
-         if (!matcher.matches()) {
-            throw new IllegalArgumentException(fullPath);
+         List<String> paths = expandBracketRepeats(fullPath);
+
+         List<Param> result = new ArrayList<>();
+         for (String p : paths) {
+            Matcher matcher = PARAM_PATTERN.matcher(p);
+            if (!matcher.matches()) {
+               throw new IllegalArgumentException(fullPath);
+            }
+            result.add(new Param(matcher.group(1), matcher.group(2), matcher.group(3)));
          }
-         return new Param(matcher.group(1), matcher.group(2));
+         return result;
       }
 
       @Override
       public String toString()
       {
-         // return "{" + "thingId=" + thingId + ", featureId=" + featureId + ", propertyPath=" + propertyPath + '}';
-         return "";
+         return "{" + "thingId: " + thingId + ", featureId: " + featureId + ", propertyPath: " + propertyPath + "}";
       }
    }
 
    private static final Logger LOGGER = LoggerFactory.getLogger(Controller.class);
 
-   // private static final Pattern PARAM_PATTERN = Pattern.compile(".*/history/.+?/(.+?)/features/(.+?)/properties/(.+)");
-   private static final Pattern PARAM_PATTERN = Pattern.compile(".*/history/.+?/(.+?)/(.+)");
+   // URL Pattern: * / history / [data|view|embeddedview] / <thingId> / features / <featureId> / properties / <propertyPath>
+   // with support for the following repeat-syntax: a [ b, c ] z --> a b z + a c z
+   private static final Pattern PARAM_PATTERN = Pattern.compile(".*/history/.+?/(.+?)/features/(.+?)/properties/(.+)");
 
+   // Property Pattern: features/
    private Properties theConfig;
    private CloseableHttpClient theHttpClient;
 
@@ -167,24 +160,25 @@ public class Controller
    private MongoTemplate mongoTemplate;
 
    @PostConstruct
-   public void postConstruct(){
+   public void postConstruct()
+   {
       mongoTemplate.setWriteResultChecking(WriteResultChecking.EXCEPTION);
    }
 
    @RequestMapping("/history/data/**")
-   public List<FeatureHistoricData> getHistoricData() throws Exception
+   public List<HistoricData> getHistoricData() throws Exception
    {
-      Param p = Param.createFromRequest();
+      List<Param> params = Param.createFromRequest();
 
-      List<FeatureHistoricData> data = new ArrayList<FeatureHistoricData>();
-      for(FeatureParam fp : p.featureParams) {
+      List<HistoricData> data = new ArrayList<>();
+      for (Param p : params) {
 
-         if (!checkAccess(p.thingId, fp.name, fp.path)) {
-            LOGGER.info("Property not found or access denied: {}", p);
+         if (!checkAccess(p.thingId, p.featureId, p.propertyPath)) {
+            LOGGER.info("Property not found or access denied: {}", params);
             return null;
          }
 
-         String id = p.thingId + "/features/" + fp.name + "/properties/" + fp.path;
+         String id = p.thingId + "/features/" + p.featureId + "/properties/" + p.propertyPath;
          LOGGER.debug("Query MongoDB on id: {}", id);
 
          Map m = mongoTemplate.findById(id, Map.class, "history");
@@ -193,7 +187,7 @@ public class Controller
          }
          m.remove("_id");
 
-         data.add(new FeatureHistoricData(fp, m));
+         data.add(new HistoricData(p, m));
       }
 
       return data;
@@ -213,12 +207,11 @@ public class Controller
 
    public ModelAndView getViewHistory(boolean embedded) throws Exception
    {
-      List<FeatureHistoricData> m = getHistoricData();
-      Param p = Param.createFromRequest();
+      List<HistoricData> m = getHistoricData();
+      List<Param> p = Param.createFromRequest();
 
       ModelAndView mav = new ModelAndView();
-      mav.addObject("thingId", p.thingId);
-      mav.addObject("features", p.featureParams);
+      mav.addObject("params", p);
       mav.addObject("values", m);
 
       mav.addObject("clientId", getConfig().getProperty("clientId"));
@@ -232,7 +225,7 @@ public class Controller
    /**
     * Check access on specific property by doing a callback to the Things service.
     */
-   private boolean checkAccess(String thingId, String feature, String path) throws UnsupportedEncodingException, IOException
+   private boolean checkAccess(String thingId, String featureId, String propertyPath) throws UnsupportedEncodingException, IOException
    {
       HttpServletRequest httpReq = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
       HttpServletResponse httpRes = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getResponse();
@@ -245,7 +238,7 @@ public class Controller
          return false;
       }
 
-      String httpid = URLEncoder.encode(thingId, "UTF-8") + "/features/" + URLEncoder.encode(feature, "UTF-8") + "/properties/" + path;
+      String httpid = URLEncoder.encode(thingId, "UTF-8") + "/features/" + URLEncoder.encode(featureId, "UTF-8") + "/properties/" + propertyPath;
       HttpGet thingsRequest = new HttpGet(getConfig().getProperty("thingsServiceEndpointUrl")
               + "/cr/1/things/" + httpid);
 
@@ -309,22 +302,22 @@ public class Controller
          HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
 
          // #### ONLY FOR TEST: Trust ANY certificate (self certified, any chain, ...)
-         try {
-            SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null, (chain, authType) -> true).build();
-            httpClientBuilder.setSSLContext(sslContext);
-
-            // #### ONLY FOR TEST: Do NOT verify hostname
-            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext, NoopHostnameVerifier.INSTANCE);
-
-            Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
-                    .register("http", PlainConnectionSocketFactory.getSocketFactory())
-                    .register("https", sslConnectionSocketFactory)
-                    .build();
-            PoolingHttpClientConnectionManager httpClientConnectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
-            httpClientBuilder.setConnectionManager(httpClientConnectionManager);
-         } catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException ex) {
-            java.util.logging.Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
-         }
+         //try {
+         //   SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null, (chain, authType) -> true).build();
+         //   httpClientBuilder.setSSLContext(sslContext);
+         //
+         //   // #### ONLY FOR TEST: Do NOT verify hostname
+         //   SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext, NoopHostnameVerifier.INSTANCE);
+         //
+         //   Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
+         //           .register("http", PlainConnectionSocketFactory.getSocketFactory())
+         //           .register("https", sslConnectionSocketFactory)
+         //           .build();
+         //   PoolingHttpClientConnectionManager httpClientConnectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+         //   httpClientBuilder.setConnectionManager(httpClientConnectionManager);
+         //} catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException ex) {
+         //   LOGGER.error(ex.getMessage(), ex);
+         //}
 
          Properties config = getConfig();
          if (config.getProperty("http.proxyHost") != null) {
@@ -342,4 +335,52 @@ public class Controller
       return theHttpClient;
    }
 
+   /** Expand comma seperated alternatives put in square brackets in a String. */
+   private static List<String> expandBracketRepeats(String s)
+   {
+      List<String> result = new ArrayList<>();
+
+      int p = s.indexOf("[");
+      if (p >= 0) {
+         // find matching closing bracket
+         int q = p;
+         int level = 0;
+         while (q < s.length() && level >= 0)
+         {
+            q++;
+            if (s.charAt(q) == '[')
+            {
+               level++;
+            }
+            else if (s.charAt(q) == ']')
+            {
+               level--;
+            }
+         }
+         if (level >= 0) {
+            throw new IllegalArgumentException("Matching bracket not found: " + s);
+         }
+
+         String prefix = s.substring(0, p);
+         String repeats = s.substring(p + 1, q);
+         String suffix = s.substring(q + 1);
+
+         // first do recursive expand within current bracket pair
+         List<String> expands = expandBracketRepeats(repeats);
+
+         // then expand current bracket pair
+         for (String e : expands) {
+            String[] parts = e.split(",");
+            for (String part : parts) {
+               // expand recursivly to also do expand in suffixes
+               result.addAll(expandBracketRepeats(prefix + part + suffix));
+            }
+         }
+      } else {
+         result.add(s);
+      }
+
+      return result;
+   }
+   
 }
