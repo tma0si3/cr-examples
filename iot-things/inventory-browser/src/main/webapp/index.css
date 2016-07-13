@@ -36,6 +36,14 @@
 #detailsThingId {
    word-wrap: break-word;
 }
+.table .table th, .table .table td { 
+   border-top: none !important; 
+   padding-top: 0;
+   padding-bottom: 2;
+}
+.table-condensed {
+    margin-bottom: 0;
+}
 td {
    word-break: break-all;
    word-wrap: break-word;
