@@ -30,59 +30,65 @@
 $(document).ready(function () {
 
     // --- Open/close popup for history property
-    var openPopup = function(url) {
-       $("#popupIframe").attr("src", url);
-       $('#popupOverlay').css("display", "inline");
+    var openPopup = function (url) {
+        $("#popupIframe").attr("src", url);
+        $('#popupOverlay').css("display", "inline");
     };
     $("#popupClose").click(function () {
-       $('#popupOverlay').css("display", "none");
-       $("#popupIframe").attr("src", "about:blank");
+        $('#popupOverlay').css("display", "none");
+        $("#popupIframe").attr("src", "about:blank");
     });
 
     // --- Render object properties as nested table
-    var populateDetails = function(html, obj, historyBaseUrl, path, level) {
-      path = typeof path !== 'undefined' ? path : "";
-      level = typeof level !== 'undefined' ? level : 0;
+    var populateDetails = function (html, obj, historyBaseUrl, path, level) {
+        path = typeof path !== 'undefined' ? path : "";
+        level = typeof level !== 'undefined' ? level : 0;
 
-      var table = $("<table>").addClass("table table-condensed");
-      html.append(table);
-      var tbody = table.append($("<tbody>"));
-      
-      var propNames = Object.getOwnPropertyNames(obj);
-      propNames.forEach(function (prop) {
-         var value = obj[prop];
-         var row = $("<tr>");
-         tbody.append(row);
-         var propHtml = $("<td>").text(prop);
-         row.append(propHtml);
-         
-         if (typeof value === "object" && !Array.isArray(value)) {
-            var cell = $("<td>");
-            row.append(cell);
-            populateDetails(cell, value, historyBaseUrl, path + prop + ".", level + 1);
-         } else if (typeof value === "number" && typeof historyBaseUrl !== "undefined") {
-            var link = $("<a>", { href: "#", text: value });
-            link.click(function() { 
-               openPopup(historyBaseUrl + (path + prop).replace("\.", "/"));
+        var table = $("<table>").addClass("table table-condensed");
+        html.append(table);
+        var tbody = table.append($("<tbody>"));
+
+        if (obj != null) {
+            var propNames = Object.getOwnPropertyNames(obj);
+            propNames.forEach(function (prop) {
+                var value = obj[prop];
+                var row = $("<tr>");
+                tbody.append(row);
+                var propHtml = $("<td>").text(prop);
+                row.append(propHtml);
+
+                if (typeof value === "object" && !Array.isArray(value)) {
+                    var cell = $("<td>");
+                    row.append(cell);
+                    populateDetails(cell, value, historyBaseUrl, path + prop + ".", level + 1);
+                } else if (typeof value === "number" && typeof historyBaseUrl !== "undefined") {
+                    var link = $("<a>", { href: "#", text: value });
+                    link.click(function () {
+                        openPopup(historyBaseUrl + (path + prop).replace("\.", "/"));
+                    });
+                    row.append($("<td>").html(link));
+                } else {
+                    row.append($("<td>").text(JSON.stringify(value, null, 3)));
+                }
             });
-            row.append($("<td>").html(link));
-         } else {
-            row.append($("<td>").text(JSON.stringify(value, null, 3)));
-         }
-       });
-       
+        }
+
     };
 
     // --- Click handler for refreshing details
     var refreshDetails = function () {
         var thingId = $("#details").attr("thingId");
-        $.getJSON("cr/1/things/" + thingId).done(function (thing, textStatus) {
+        $.getJSON("cr/1/things/" + thingId)
+            .fail(function (jqxhr, status, error) {
+                window.alert("Server request failed.\n\n" + status + " " + error);
+            })
+            .done(function (thing, status) {
 
             // --- clear table content and remember thingId
             $("#detailsThingId").text(thingId);
             var tablebody = $("#detailsTableBody");
             tablebody.empty();
-            
+
             if ("attributes" in thing) {
                 // --- for each attribute put row in details table
                 var row = $("<tr>");
@@ -103,7 +109,7 @@ $(document).ready(function () {
                         var cell = $("<td>");
                         row.append(cell);
                         populateDetails(cell, feature.properties,
-                           "https://demos.apps.bosch-iot-cloud.com/historian/history/embeddedview/" + thingId + "/features/" + featureId + "/properties/");
+                            "https://demos.apps.bosch-iot-cloud.com/historian/history/embeddedview/" + thingId + "/features/" + featureId + "/properties/");
                     }
                 });
             }
@@ -119,7 +125,13 @@ $(document).ready(function () {
     // --- Click handler for refreshing list and map of things
     var refreshTable = function () {
 
-        $.getJSON("cr/1/search/things?fields=thingId,features/geolocation,features/orientation,features/xdk-sensors&option=limit(0,200),sort(%2BthingId)").done(function (data, textStatus) {
+        $.getJSON("cr/1/search/things"
+            +"?fields=thingId,features/geolocation,features/orientation,features/xdk-sensors"
+            +"&option=limit(0,200),sort(%2BthingId)")
+            .fail(function (jqxhr, status, error) {
+                window.alert("Server request failed.\n\n" + status + " " + error);
+            })
+            .done(function (data, status) {
 
             // --- clear table content and clear map
             $("#tableBody").empty();
@@ -168,7 +180,7 @@ $(document).ready(function () {
                                 iconSize: null,
                                 html: '<span class="icon-lightbulb" style="' + style + '" />'
                             });
-                            marker = L.marker(latlng, {icon: icon, zIndexOffset: currentlySelected ? 1000 : 0});
+                            marker = L.marker(latlng, { icon: icon, zIndexOffset: currentlySelected ? 1000 : 0 });
                             defaultMarker = false;
                         }
 
@@ -182,7 +194,7 @@ $(document).ready(function () {
                                     iconSize: null,
                                     html: '<span class="glyphicon glyphicon-arrow-up" style="' + style + '" />'
                                 });
-                                marker = L.marker(latlng, {icon: icon, zIndexOffset: currentlySelected ? 1000 : 0});
+                                marker = L.marker(latlng, { icon: icon, zIndexOffset: currentlySelected ? 1000 : 0 });
                                 defaultMarker = false;
                             }
                         }
@@ -242,5 +254,5 @@ $(document).ready(function () {
         refreshDetails();
     });
 
-   refreshTable();
+    refreshTable();
 });
