@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>Bosch IoT Things - Example Inventory Browser</title>
-      <!--
+
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>Bosch IoT Things - Example Inventory Browser</title>
+   <!--
       Bosch SI Example Code License
       Version 1.0, January 2016
 
@@ -30,85 +31,113 @@
       LIABILITY ALSO APPLY IN REGARD TO THE FAULT OF VICARIOUS AGENTS OF BOSCH SI AND THE PERSONAL LIABILITY OF BOSCH SI'S
       EMPLOYEES, REPRESENTATIVES AND ORGANS.
       -->
-      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-      <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css">
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.css"/>
-      <link rel="stylesheet" href="index.css"/>
-   </head>
-   <body>
-      <nav class="navbar navbar-inverse">
-         <div class="container">
-            <div class="navbar-header">
-               <div class="navbar-brand">Bosch IoT Things - Example Inventory Browser</div>
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+   <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.css" />
+   <link rel="stylesheet" href="index.css" />
+</head>
+
+<body>
+   <nav class="navbar navbar-inverse">
+      <div class="container">
+         <div class="navbar-header">
+            <div class="navbar-brand">Bosch IoT Things - Example Inventory Browser</div>
+         </div>
+      </div>
+   </nav>
+   <div class="container">
+      <div class="starter-template">
+
+         <div class="row">
+            <div class="col-md-12">
+               <div id="map"></div>
             </div>
          </div>
-      </nav>
-      <div class="container">
-         <div class="starter-template">
 
-            <div class="row">
-               <div class="col-md-12">
-                  <div id="map"></div>
+         <div class="row">
+            <div class="col-md-12" id="table-wrapper">
+               <h3>Things</h3>
+               <div class="btn-group" role="group">
+                  <!--
+                  <button id="createThing" type="button" class="btn btn-default btn-sm" aria-label="Create">
+                     <span class="glyphicon glyphicon-plus"></span>Create
+                  </button>
+                  -->
+                  <button id="refreshTable" type="button" class="btn btn-default btn-sm" aria-label="Refresh">
+                     <span class="glyphicon glyphicon-refresh"></span>Refresh
+                  </button>
                </div>
+               <span style="margin-left: 10px; font-size: small">
+                         <input type="checkbox" id="autoRefresh" style="margin-right: 6px">
+                  Auto refresh
+               </span>
+
+               <table class="table table-striped" id="table">
+                  <thead>
+                     <tr>
+                        <th>Id</th>
+                     </tr>
+                  </thead>
+                  <tbody id="tableBody" style="cursor: pointer;"></tbody>
+               </table>
             </div>
 
-            <div class="row">
-               <div class="col-md-12" id="table-wrapper">
-                  <h3>
-                     Things
-                     <button id="refreshTable" type="button" class="btn btn-default" aria-label="Refresh"
-                             style="margin-left: 20px">
-                        <span class="glyphicon glyphicon-refresh" style="margin-right: 10px"></span>Refresh
-                     </button>
-                     <span style="margin-left: 20px; font-size: small">
-                        <input type="checkbox" id="autoRefresh" style="margin-right: 10px">
-                        Auto refresh
-                     </span>
-                  </h3>
+            <div class="col-md-8" id="details">
+               <h3>Details of "<span id="detailsThingId"></span>"</h3>
+               <!--
+               <button id="simulateThing" type="button" class="btn btn-default btn-sm" aria-label="Simulate">
+                  <span class="glyphicon glyphicon-qrcode"></span>Simulate
+               </button>
+               -->
 
-                  <table class="table table-striped" id="table">
+               <div id="detailsData">
+                  <table id="detailsTable" class="table">
                      <thead>
                         <tr>
-                           <th>Id</th>
+                           <th width="30%">Information</th>
+                           <th>Value</th>
                         </tr>
                      </thead>
-                     <tbody id="tableBody" style="cursor: pointer;"></tbody>
+                     <tbody id="detailsTableBody"></tbody>
                   </table>
                </div>
-
-               <div class="col-md-8" id="details">
-                  <h3>Details of "<span id="detailsThingId"></span>"</h3>
-
-                  <div id="detailsData">
-                     <table id="detailsTable" class="table">
-                        <thead>
-                           <tr>
-                              <th width="30%">Information</th>
-                              <th>Value</th>
-                           </tr>
-                        </thead>
-                        <tbody id="detailsTableBody"></tbody>
-                     </table>
-                  </div>
-               </div>
             </div>
-
          </div>
-         <div id="popupOverlay">
-            <div id="popupInner" class="modal-dialog">
-               <div class="modal-content">
-                  <div class="modal-header">
-                     <button id="popupClose" type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                     <h4 class="modal-title">Property history (provided by Example Historian application)</h4>
-                  </div>
-                  <iframe id="popupIframe" class="modal-body"></iframe>
+
+      </div>
+      <div id="popupSimulatorOverlay" class="popupOverlay">
+         <div id="popupSimulatorInner" class="modal-dialog popupInner">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <button id="popupSimulatorClose" type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title">Simulator</h4>
+               </div>
+               <div class="modal-body">
+                  <p>
+                     Scan the following code with your mobile phone to use it as simulator for device sensor information.
+                  </p>
+                  <div id="simulateQr"></div>
                </div>
             </div>
          </div>
       </div>
-      <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>
-      <script src="main.js"></script>
-   </body>
+      <div id="popupHistoryOverlay" class="popupOverlay">
+         <div id="popupHistoryInner" class="modal-dialog popupInner">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <button id="popupHistoryClose" type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title">Property history (provided by Example Historian application)</h4>
+               </div>
+               <iframe id="popupHistoryIframe" class="modal-body popupIframe"></iframe>
+            </div>
+         </div>
+      </div>
+   </div>
+   <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+   <script src="main.js"></script>
+</body>
+
 </html>

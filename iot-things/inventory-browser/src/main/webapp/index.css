@@ -48,7 +48,7 @@ td {
    word-break: break-all;
    word-wrap: break-word;
 }
-#popupOverlay {
+.popupOverlay {
    background: rgba(0,0,0, 0.5);
    display: none;
    position: fixed;
@@ -58,16 +58,22 @@ td {
    height: 100%;
    z-index: 1000;
 }
-#popupInner {
+.popupInner {
    position: fixed;
-   top: 10%;/*or whatever*/
-   left: 10%; /*or whatever*/
+   top: 10%;
+   left: 10%;
    width: 80%;
    height: 80%;
    z-index: 1001;
 }
-#popupIframe {
+.popupIframe {
    width: 80vw; 
    height: 60vh;
    border: none;
+}
+.btn .glyphicon {
+    margin-right: 6px;
+}
+#simulateQr {
+    text-align: center;
 }

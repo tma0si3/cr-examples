@@ -29,15 +29,27 @@
 
 $(document).ready(function () {
 
-    // --- Open/close popup for history property
-    var openPopup = function (url) {
-        $("#popupIframe").attr("src", url);
-        $('#popupOverlay').css("display", "inline");
+    // --- Open/close popup for simulator QR
+    var openPopupSimulator = function (url) {
+        $("#simulateQr").empty().qrcode(url);
+        $('#popupSimulatorOverlay').css("display", "inline");
     };
-    $("#popupClose").click(function () {
-        $('#popupOverlay').css("display", "none");
-        $("#popupIframe").attr("src", "about:blank");
+    $("#popupSimulatorClose").click(function () {
+        $('#popupSimulatorOverlay').css("display", "none");
     });
+    // --- Open/close popup for history property
+    var openPopupHistory = function (url) {
+        $("#popupHistoryIframe").attr("src", url);
+        $('#popupHistoryOverlay').css("display", "inline");
+    };
+    $("#popupHistoryClose").click(function () {
+        $('#popupHistoryOverlay').css("display", "none");
+        $("#popupHistoryIframe").attr("src", "about:blank");
+    });
+
+    var failHandler = function (jqxhr, status, error) {
+        window.alert("Server request failed.\n\n" + status + " " + error);
+    };
 
     // --- Render object properties as nested table
     var populateDetails = function (html, obj, historyBaseUrl, path, level) {
@@ -64,7 +76,7 @@ $(document).ready(function () {
                 } else if (typeof value === "number" && typeof historyBaseUrl !== "undefined") {
                     var link = $("<a>", { href: "#", text: value });
                     link.click(function () {
-                        openPopup(historyBaseUrl + (path + prop).replace("\.", "/"));
+                        openPopupHistory(historyBaseUrl + (path + prop).replace("\.", "/"));
                     });
                     row.append($("<td>").html(link));
                 } else {
@@ -78,150 +90,190 @@ $(document).ready(function () {
     // --- Click handler for refreshing details
     var refreshDetails = function () {
         var thingId = $("#details").attr("thingId");
-        $.getJSON("cr/1/things/" + thingId)
-            .fail(function (jqxhr, status, error) {
-                window.alert("Server request failed.\n\n" + status + " " + error);
-            })
+        $.getJSON("api/1/things/" + thingId)
             .done(function (thing, status) {
 
-            // --- clear table content and remember thingId
-            $("#detailsThingId").text(thingId);
-            var tablebody = $("#detailsTableBody");
-            tablebody.empty();
+                // --- clear table content and remember thingId
+                $("#detailsThingId").text(thingId);
+                var tablebody = $("#detailsTableBody");
+                tablebody.empty();
 
-            if ("attributes" in thing) {
-                // --- for each attribute put row in details table
-                var row = $("<tr>");
-                tablebody.append(row);
-                row.append($("<td>").text("Attributes"));
-                var cell = $("<td>");
-                row.append(cell);
-                populateDetails(cell, thing.attributes);
-            }
-            if ("features" in thing) {
-                // --- for each feature property put row in details table
-                Object.getOwnPropertyNames(thing.features).forEach(function (featureId) {
-                    var feature = thing.features[featureId];
-                    if ("properties" in feature) {
-                        var row = $("<tr>");
-                        tablebody.append(row);
-                        row.append($("<td>").text("Feature \"" + featureId + "\""));
-                        var cell = $("<td>");
-                        row.append(cell);
-                        populateDetails(cell, feature.properties,
-                            "https://demos.apps.bosch-iot-cloud.com/historian/history/embeddedview/" + thingId + "/features/" + featureId + "/properties/");
-                    }
-                });
-            }
+                if ("attributes" in thing) {
+                    // --- for each attribute put row in details table
+                    var row = $("<tr>");
+                    tablebody.append(row);
+                    row.append($("<td>").text("Attributes"));
+                    var cell = $("<td>");
+                    row.append(cell);
+                    populateDetails(cell, thing.attributes);
+                }
+                if ("features" in thing) {
+                    // --- for each feature property put row in details table
+                    Object.getOwnPropertyNames(thing.features).forEach(function (featureId) {
+                        var feature = thing.features[featureId];
+                        if ("properties" in feature) {
+                            var row = $("<tr>");
+                            tablebody.append(row);
+                            row.append($("<td>").text("Feature \"" + featureId + "\""));
+                            var cell = $("<td>");
+                            row.append(cell);
+                            populateDetails(cell, feature.properties,
+                                "https://demos.apps.bosch-iot-cloud.com/historian/history/embeddedview/" + thingId + "/features/" + featureId + "/properties/");
+                        }
+                    });
+                }
 
-            $("#table-wrapper").removeClass("col-md-12").addClass("col-md-4");
-            $("#details").show();
-        }).fail(function () {
-            $("#table-wrapper").removeClass("col-md-4").addClass("col-md-12");
-            $("#details").hide();
-        });
+                $("#table-wrapper").removeClass("col-md-12").addClass("col-md-4");
+                $("#details").show();
+            }).fail(function (jqxhr, status, error) {
+                $("#table-wrapper").removeClass("col-md-4").addClass("col-md-12");
+                $("#details").hide();
+                failHandler(jqxhr, status, error);
+            });
     };
 
     // --- Click handler for refreshing list and map of things
     var refreshTable = function () {
 
-        $.getJSON("cr/1/search/things"
-            +"?fields=thingId,features/geolocation,features/orientation,features/xdk-sensors"
-            +"&option=limit(0,200),sort(%2BthingId)")
-            .fail(function (jqxhr, status, error) {
-                window.alert("Server request failed.\n\n" + status + " " + error);
-            })
+        $.getJSON("api/1/search/things"
+            + "?fields=thingId,features/geolocation,features/orientation,features/xdk-sensors"
+            + "&option=limit(0,200),sort(%2BthingId)")
+            .fail(failHandler)
             .done(function (data, status) {
 
-            // --- clear table content and clear map
-            $("#tableBody").empty();
-            if (markers != null) {
-                map.removeLayer(markers);
-            }
-            markers = new L.FeatureGroup();
-            map.addLayer(markers);
+                // --- clear table content and clear map
+                $("#tableBody").empty();
+                if (markers != null) {
+                    map.removeLayer(markers);
+                }
+                markers = new L.FeatureGroup();
+                map.addLayer(markers);
 
-            // --- iterate of retrieved things
-            var count = data.items.length;
-            for (var i = 0; i < count; i++) {
-                var t = data.items[i];
-                var currentlySelected = (t.thingId == $("#details").attr("thingId"));
+                // --- iterate of retrieved things
+                var count = data.items.length;
+                for (var i = 0; i < count; i++) {
+                    var t = data.items[i];
+                    var currentlySelected = (t.thingId == $("#details").attr("thingId"));
 
-                // --- add heading data to table
-                var row = $("<tr>");
-                row.attr("thingId", t.thingId);
-                row.append($("<td>").text(t.thingId));
-                $("#tableBody").append(row);
+                    // --- add heading data to table
+                    var row = $("<tr>");
+                    row.attr("thingId", t.thingId);
+                    row.append($("<td>").text(t.thingId));
+                    $("#tableBody").append(row);
 
-                // --- when thing has a "geolocation" feature with "geoposition" properties
-                if ("features" in t && "geolocation" in t.features && "geoposition" in t.features.geolocation.properties) {
+                    // --- when thing has a "geolocation" feature with "geoposition" properties
+                    if ("features" in t && "geolocation" in t.features && "geoposition" in t.features.geolocation.properties) {
 
-                    // --- if latitude and longitude are available and are numbers then ...
-                    var latitude = t.features.geolocation.properties.geoposition.latitude;
-                    var longitude = t.features.geolocation.properties.geoposition.longitude;
-                    if ((latitude - parseFloat(latitude) + 1 >= 0) && (longitude - parseFloat(longitude) + 1 >= 0)) {
+                        // --- if latitude and longitude are available and are numbers then ...
+                        var latitude = t.features.geolocation.properties.geoposition.latitude;
+                        var longitude = t.features.geolocation.properties.geoposition.longitude;
+                        if ((latitude - parseFloat(latitude) + 1 >= 0) && (longitude - parseFloat(longitude) + 1 >= 0)) {
 
-                        // --- add marker for thing on map; default marker (without "orientation")
-                        var latlng = [t.features.geolocation.properties.geoposition.latitude,
-                            t.features.geolocation.properties.geoposition.longitude];
-                        var marker = L.marker(latlng);
-                        var defaultMarker = true;
+                            // --- add marker for thing on map; default marker (without "orientation")
+                            var latlng = [t.features.geolocation.properties.geoposition.latitude,
+                                t.features.geolocation.properties.geoposition.longitude];
+                            var marker = L.marker(latlng);
+                            var defaultMarker = true;
 
-                        var color = currentlySelected ? "#D06245" : "#4597D0";
-                        // --- if feature "xdk-sensors" with a value for "light" is available then use lightbulb icon
-                        if ("features" in t && "xdk-sensors" in t.features && "light" in t.features['xdk-sensors'].properties) {
-                            var light = t.features['xdk-sensors'].properties.light;
-                            var lightNormalized = (Math.log10(light) / 5);
-                            var shadow = Math.floor(15 * lightNormalized);
-                            var shadowNormalized = shadow > 0 ? shadow : 0;
-                            var style = "font-size: 30px; color: " + color + "; box-shadow: 0px 0px 25px " + shadowNormalized + "px rgba(255,255,0,1);";
-                            var icon = L.divIcon({
-                                className: "",
-                                iconSize: null,
-                                html: '<span class="icon-lightbulb" style="' + style + '" />'
-                            });
-                            marker = L.marker(latlng, { icon: icon, zIndexOffset: currentlySelected ? 1000 : 0 });
-                            defaultMarker = false;
-                        }
-
-                        // --- if feature "orientation" is available and "direction" is a number then use rotated marker
-                        if ("features" in t && "orientation" in t.features && "z" in t.features.orientation.properties) {
-                            var direction = t.features.orientation.properties.z;
-                            if (direction - parseFloat(direction) + 1 >= 0) {
-                                var style = "font-size: 30px; text-shadow: 3px 3px 3px black; color: " + color + "; transform-origin: 50% 0; transform: translate(-50%,0) rotate(" + direction + "deg);"
+                            var color = currentlySelected ? "#D06245" : "#4597D0";
+                            // --- if feature "xdk-sensors" with a value for "light" is available then use lightbulb icon
+                            if ("features" in t && "xdk-sensors" in t.features && "light" in t.features['xdk-sensors'].properties) {
+                                var light = t.features['xdk-sensors'].properties.light;
+                                var lightNormalized = (Math.log10(light) / 5);
+                                var shadow = Math.floor(15 * lightNormalized);
+                                var shadowNormalized = shadow > 0 ? shadow : 0;
+                                var style = "font-size: 30px; color: " + color + "; box-shadow: 0px 0px 25px " + shadowNormalized + "px rgba(255,255,0,1);";
                                 var icon = L.divIcon({
                                     className: "",
                                     iconSize: null,
-                                    html: '<span class="glyphicon glyphicon-arrow-up" style="' + style + '" />'
+                                    html: '<span class="icon-lightbulb" style="' + style + '" />'
                                 });
                                 marker = L.marker(latlng, { icon: icon, zIndexOffset: currentlySelected ? 1000 : 0 });
                                 defaultMarker = false;
                             }
-                        }
 
-                        marker._thingId = t.thingId;
-                        marker.bindPopup(t.thingId);
-                        marker.on("click", function (e) {
-                            $("#details").attr("thingId", e.target._thingId);
-                            refreshDetails();
-                        });
-                        marker.addTo(markers);
-                        if (defaultMarker && currentlySelected) {
-                            marker.valueOf()._icon.style.filter = "hue-rotate(160deg)";
+                            // --- if feature "orientation" is available and "direction" is a number then use rotated marker
+                            if ("features" in t && "orientation" in t.features && "z" in t.features.orientation.properties) {
+                                var direction = t.features.orientation.properties.z;
+                                if (direction - parseFloat(direction) + 1 >= 0) {
+                                    var style = "font-size: 30px; text-shadow: 3px 3px 3px black; color: " + color + "; transform-origin: 50% 0; transform: translate(-50%,0) rotate(" + direction + "deg);"
+                                    var icon = L.divIcon({
+                                        className: "",
+                                        iconSize: null,
+                                        html: '<span class="glyphicon glyphicon-arrow-up" style="' + style + '" />'
+                                    });
+                                    marker = L.marker(latlng, { icon: icon, zIndexOffset: currentlySelected ? 1000 : 0 });
+                                    defaultMarker = false;
+                                }
+                            }
+
+                            marker._thingId = t.thingId;
+                            marker.bindPopup(t.thingId);
+                            marker.on("click", function (e) {
+                                $("#details").attr("thingId", e.target._thingId);
+                                refreshDetails();
+                            });
+                            marker.addTo(markers);
+                            if (defaultMarker && currentlySelected) {
+                                marker.valueOf()._icon.style.filter = "hue-rotate(160deg)";
+                            }
                         }
                     }
                 }
-            }
 
-            if ($("#details").attr("thingId")) {
-                refreshDetails();
-            }
+                if ($("#details").attr("thingId")) {
+                    refreshDetails();
+                }
 
-        });
+            });
 
         if ($("#autoRefresh").is(":checked")) {
             window.setTimeout(refreshTable, 1000);
         }
+    };
+
+    // --- Click handler for creating new things
+    var createThing = function () {
+
+        var created = function(thing, status) {
+            // include WRITE ACL for simulator-user (1d138250-49a8-11e6-826c-c2ae337e6688)
+            $.ajax("api/1/things/" + thing.thingId + "/acl/1d138250-49a8-11e6-826c-c2ae337e6688", {
+                method: "PUT",
+                data: JSON.stringify({
+                    READ: false,
+                    WRITE: true,
+                    ADMINISTRATE: false
+                })
+            })
+            .fail(failHandler)
+            .done(function () {
+                $("#details").attr("thingId", thing.thingId);
+                refreshDetails();
+            });
+        };
+
+        var thingId = window.prompt("Please enter Thing Id (e.g. \"com.acme:mydevice123\" or leave it empty to generate an id).\n\n"
+            +"You will have full access rights and the device simulator will have write access.");
+        if (thingId == "") {
+            $.ajax("api/1/things", {
+                method: "POST",
+                data: JSON.stringify({})
+            })
+            .fail(failHandler)
+            .done(created);
+        } else if (thingId != null) {
+            $.ajax("api/1/things/" + thingId, {
+                method: "PUT",
+                data: JSON.stringify({})
+            })
+            .fail(failHandler)
+            .done(created);
+        }
+    };
+    // --- Click handler for showing simulator popup
+    var simulateThing = function () {
+        var thingId = $("#details").attr("thingId");
+        openPopupSimulator("https://demos.apps.bosch-iot-cloud/simulator/" + thingId);
     };
 
     // --- create map
@@ -235,6 +287,8 @@ $(document).ready(function () {
     var markers = null;
 
     $("#refreshTable").click(refreshTable);
+    $("#createThing").click(createThing);
+    $("#simulateThing").click(simulateThing);
     $("#autoRefresh").on("change", function () {
         if ($("#autoRefresh").is(":checked")) {
             window.setTimeout(refreshTable, 1000);
